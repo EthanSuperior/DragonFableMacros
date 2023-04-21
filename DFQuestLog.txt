@@ -1,0 +1,45 @@
+Running Aeris 40
+-BEGIN-
+Start Time: 23:11:02
+Completed: 1 Avg: 193.99
+Completed: 2 Avg: 201.09
+Completed: 3 Avg: 213.40
+Completed: 4 Avg: 208.16
+Completed: 5 Avg: 226.55
+Completed: 6 Avg: 231.22
+Completed: 7 Avg: 234.98
+Completed: 8 Avg: 247.55
+Completed: 9 Avg: 246.01
+Completed: 10 Avg: 254.27
+Completed: 11 Avg: 252.06
+Completed: 12 Avg: 255.10
+Completed: 13 Avg: 255.77
+Completed: 14 Avg: 257.54
+Completed: 15 Avg: 261.36
+Completed: 16 Avg: 266.26
+Completed: 17 Avg: 268.60
+Completed: 18 Avg: 266.90
+Completed: 19 Avg: 270.26
+Completed: 20 Avg: 268.29
+Completed: 21 Avg: 271.08
+Completed: 22 Avg: 268.85
+Completed: 23 Avg: 268.75
+Completed: 24 Avg: 270.92
+Completed: 25 Avg: 269.00
+Completed: 26 Avg: 269.36
+Completed: 27 Avg: 268.87
+Completed: 28 Avg: 265.22
+Completed: 29 Avg: 264.46
+Completed: 30 Avg: 261.22
+Completed: 31 Avg: 258.88
+Completed: 32 Avg: 256.50
+Completed: 33 Avg: 258.88
+Completed: 34 Avg: 256.83
+Completed: 35 Avg: 256.42
+Completed: 36 Avg: 257.00
+Completed: 37 Avg: 256.33
+Completed: 38 Avg: 254.70
+Completed: 39 Avg: 253.46
+Completed: 40 Avg: 251.95
+End Time: 01:59:00
+-END-
