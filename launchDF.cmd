@@ -1,1 +1,1 @@
-python "C:\Users\Evan Chase\Desktop\Files\Programming\DragonFable\DragonFable.py" continue
+"C:\Users\Evan Chase\Desktop\Files\ProgrammingGit\College\Fall 2023\DragonFable\venv\Scripts\activate.bat"|python "C:\Users\Evan Chase\Desktop\Files\ProgrammingGit\College\Fall 2023\DragonFable\DragonFable.py" continue

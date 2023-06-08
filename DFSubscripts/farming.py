@@ -239,7 +239,7 @@ def AerisBattlespire():
         m.Click(219, 584)
         m.Click(221, 482)
         try:
-            m_q.battle((df_t.Classes.Warrior, "PVP"))
+            m_q.battle((df_t.Classes.Chaosweaver, "PVP"))
         except AssertionError as msg: pass
     m_q.CheckQuestDialog()
 

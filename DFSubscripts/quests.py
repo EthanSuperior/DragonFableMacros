@@ -49,6 +49,7 @@ if __name__ == '__main__':
     import os
     import pyautogui
     pyautogui.FAILSAFE = True
-    os.chdir('C:/Users/Evan Chase/Desktop/Files/Programming/DragonFable/Images')
+    os.chdir('C:/Users/Evan Chase/Desktop/Files/ProgrammingGit/College/Fall 2023/DragonFable/Images')
     m.sleep(1)
-    startQuest('Inn')
+    battle((Classes.Chaosweaver, 'ArchiveMini'))
+    # startQuest('Inn')

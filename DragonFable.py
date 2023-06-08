@@ -50,7 +50,7 @@ def update_log(i, startTime, startI):
     return i + 1
 
 def main():
-    os.chdir('C:/Users/Evan Chase/Desktop/Files/Programming/DragonFable/Images')
+    os.chdir("C:/Users/Evan Chase/Desktop/Files/ProgrammingGit/College/Fall 2023/DragonFable/Images/")
     name, count, i = get_variables()
     if 'Windows' not in platform.platform(): delay()
     startQuest(name)

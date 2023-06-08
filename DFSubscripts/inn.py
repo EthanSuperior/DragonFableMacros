@@ -69,14 +69,30 @@ def ExaltiaTower(floor):
         nav.manaPot()
         m.sleep(1)
         m_q.move_to('North', (df_t.Classes.Chaosweaver, 'Warden'))
-
+    elif floor == 4:
+        m.sleep(1)
+        m_q.move_towards((637, 44), (df_t.Classes.Chaosweaver, 'ArchiveNorm'))
+        m.sleep(1)
+        for _ in range(3):
+            ChooseExaltiaOption()
+            m_q.move_to((637, 44), (df_t.Classes.Chaosweaver, 'ArchiveNorm'))
+            m_q.move_to('East', (df_t.Classes.Chaosweaver, 'ArchiveNorm'))
+            m_q.move_to('East', (df_t.Classes.Chaosweaver, 'ArchiveNorm'))
+        m_q.move_to('North', (df_t.Classes.Chaosweaver, 'ArchiveMini'))
+        ChooseExaltiaOption()
+        for _ in range(3): nav.healthPot(False)
+        nav.manaPot(False)
+        nav.manaPot()
+        m.sleep(1)
+        m_q.move_to('North', (df_t.Classes.Chaosweaver, 'ArchiveBoss'))
 def InnFight(classID, subCategory):
-    InnChallengeLayout = [['Dragon', 'Nefarious', 'Otherworldly', 'Dreamscape'],
-                          ['Dreamscape2', 'Unfortunate', 'Azaveyran', 'Forgotten'],
-                          ['Exaltia', 'Corrupted', 'Displaced', 'Conduit'],
-                          ['Inevitable', 'Lords', 'Lost', 'Change'],
-                          ['Doomed', 'Tenets', 'Ties', 'Eggsalted'],
-                          ['Beginning', 'Crossroads']]
+    InnChallengeLayout = [['Dragon', 'Dragon2', 'Nefarious', 'Otherworldly'],
+                          ['Otherworldly2', 'Dreamscape', 'Dreamscape2', 'Unfortunate'],
+                          ['Azaveyran', 'Forgotten', 'Exaltia', 'Corrupted'],
+                          ['Displaced', 'Conduit', 'Inevitable', 'Lords'],
+                          ['Lost', 'Lost2', 'Change', 'Doomed'],
+                          ['Tenets', 'Ties', 'Eggsalted', 'Beginning'],
+                          ['Crossroads']]
 
     def index_2d(myList, v):
         for i, x in enumerate(myList):
@@ -126,6 +142,7 @@ def InnFight(classID, subCategory):
             battle_utils.battle((classID, moveSet))
         elif 'Forgotten' in subCategory: pass
         elif 'Exaltia' in subCategory:
+            useFood = True
             return ExaltiaTower(int(subCategory[-1]))
         elif 'Corrupted' in subCategory:
             m.ImageSearch('Inn/CorruptedChallenge.png', (502, 304, 762, 504), 3)

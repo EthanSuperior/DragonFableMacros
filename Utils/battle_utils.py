@@ -19,14 +19,34 @@ def getMoveSet(moveSetID):
     def EmpowerBDL(k): # (EmpowerBDL, 'c')
         m.Click(745, 593)
         return k
-
-    def GambitCW(k):
+    def Gambit(k, toggle=False):
+        if toggle: m.Click(601, 596)
         m.typeKeys('4')
-        m.ImageCheck('Battle/Attack.png', (576, 630, 698, 698), 3)
-        m.Click(601, 594)
+        m.ImgGoneCheck('Battle/Attack.png', (576, 630, 698, 698), 4)
+        m.ImageCheck('Battle/Attack.png', (576, 630, 698, 698), 4)
+        m.Click(601, 60)
+        return k
+    def Depower(k):
+        m.Click(601, 596)
+        m.sleep(1)
         return k
     def Quit(k): raise AssertionError('Force End Battle Rotation') # (Quit, '')
     def ClawIfUp(k): return '6' if m.ImageCheck('Battle/DLClaw.png', (715, 639, 772, 694)) else k
+    def ChangeTarget(targetImg, k, toggle=False):
+        if toggle:
+            m.Click(601, 596)
+            m.sleep(1)
+        for _ in range(6):
+            if m.ImageCheck(targetImg, (811, 737, 1166, 857), 0.5): break
+            m.typeKeys('\t')
+        # for _ in range(6):
+        #     if m.ImageCheck(targetImg, (811, 737, 1166, 857), 0.5): break
+        #     m.typeKeys('>')
+        # for _ in range(6):
+        #     if m.ImageCheck(targetImg, (811, 737, 1166, 857), 0.5): break
+        #     m.typeKeys('<')
+        m.sleep(1)
+        return k
 
     classId, style = moveSetID
     if classId == df_types.Classes.Mage:
@@ -41,7 +61,6 @@ def getMoveSet(moveSetID):
     elif classId == df_types.Classes.BDL:
         if 'Recover' in style: return False, ['3', '2', (EmpowerBDL, '4'), 'v', '6', '6', 'x']
         elif 'Pandora' in style: return True, ['0','v','6',(EmpowerBDL, '4'),'x','6','c','6',(EmpowerBDL, '3'),'2','9',(EmpowerBDL, '8'),'z','5']
-        # elif 'Pandora' in style: return True, ['c','0','v',(EmpowerBDL, '4'),'6','x','6',(ClawIfUp, '7'),'3','2','9',(EmpowerBDL, '8'),'z','5']
         else: return True, ['0', '3', '6', 'x', '9', '1', '2', '6', (EmpowerBDL, '5'), 'v', '4', '8', (EmpowerBDL, 'c'), 'z', (Quit, '')]
     elif classId == df_types.Classes.WDL:
         if 'Quick' in style: return False, ['z', 'x', '6', '6']
@@ -49,9 +68,12 @@ def getMoveSet(moveSetID):
         if 'PVP' in style: return True, ['3','5','6','7','v','6','7','5','z','6','7','4','6','7',' ']
         else: return False, ['v',' ','z','3','z','5','z',' ']
     elif classId == df_types.Classes.Chaosweaver:
-        if 'PVP' in style: return False, ['4','8','v','c','0','4','x','z']
-        elif 'Quick' in style: return False, ['4','3','v','c']
-        elif 'Recover' in style: return False, ['4','3','c']
+        if 'PVP' in style: return False, [(Gambit, '8'),'v','c','0',(Gambit,'x'),'z']
+        elif 'ArchiveNorm' in style: return False, [(Gambit, '3'), '2', '6']
+        elif 'ArchiveMini' in style: return False, [(Gambit, '9'), 'v', 'c']
+        elif 'ArchiveBoss' in style: return False, [(ChangeTarget, 'Inn/Enemies/Celestial.png','3'),(Gambit,'c'),(ChangeTarget,'Inn/Enemies/Infernal.png','z'),(Depower,'9'),(Depower, '1'),(Gambit,'x'),'v','0','c','2',(Gambit, 'z'), (Depower, '9'),'6','2',(Gambit,'0', True),'c','x','2','z',(Gambit, 'v'), (Depower, '9'),'c','0']
+        elif 'Quick' in style: return False, [(Gambit,'3'),'v','c']
+        elif 'Recover' in style: return False, [(Gambit,'3'),'c']
         elif 'Bound' in style: return False, ['4','9','v','5','3','z','4','0','c']
         elif 'AARGH' in style: return True, ['1','3','4','9','z','v','3','4','0','c','6',' ']
         elif 'Warden' in style: return False, ['4','9','b','v','z','5','3','4','0','c']
@@ -60,7 +82,7 @@ def getMoveSet(moveSetID):
     elif classId == df_types.Classes.DragSlay:
         if 'Boss' in style: return True, ['3', '4', '0', '4', '7', '4']
     elif classId == df_types.Classes.Drag: return True, ['5', '7', '2', '6', 'c', 'v', 'x', 'b', '6', '3', '1']
-    else: return [' ']
+    else: return True, [' ']
 def eatFood(foodLeft):
     pix = ui_macro_utils.screenshot(True).getpixel((204, 730))
     if foodLeft > 0 and pix == (14, 14, 14):
@@ -79,8 +101,10 @@ def battle(moveSetID, useFood = False):
     looping, moveSet = getMoveSet(moveSetID)
     canEat = 2
     if 'Quick' in moveSetID or 'PVP' in moveSetID: dragonMoveSet.append(dragonMoveSet.pop(0))
+    if 'ArchiveNorm' in moveSetID: dragonMoveSet.append(dragonMoveSet.pop(0))
     if 'Bound' in moveSetID or 'Warden' in moveSetID: dragonMoveSet = ['7','6','8','3','5']+dragonMoveSet
     if 'AARGH' in moveSetID: dragonMoveSet = ['8','6','7','','3','4']+dragonMoveSet
+    if 'ArchiveBoss' in moveSetID: useFood = True
     while not m.ImageCheck('Battle/Battle_Complete.png', (548, 508, 756, 588)):
         sleep(.2)
         if m.ImageCheck('Battle/Stuck.png', (550, 670, 723, 713)): m.Click(636, 692)

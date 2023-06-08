@@ -7,6 +7,7 @@ import os
 import platform
 
 from ctypes import windll
+
 if 'Windows' in platform.platform():
     import win32api
     import win32con
@@ -171,12 +172,9 @@ def typeKeys(*keys):
         currThread, outThread = win32api.GetCurrentThreadId(), win32process.GetWindowThreadProcessId(wH)[0]
         win32process.AttachThreadInput(currThread, outThread, 1)
         for k in keys:
-            v_key = {' ': 0x20, '0': 0x30, '1': 0x31, '2': 0x32, '3': 0x33, '4': 0x34, '5': 0x35, '6': 0x36, '7': 0x37,
-                     '8': 0x38, '9': 0x39, 'a': 0x41, 'b': 0x42, 'c': 0x43, 'd': 0x44, 'e': 0x45, 'f': 0x46, 'g': 0x47,
-                     'h': 0x48, 'i': 0x49, 'j': 0x4a, 'k': 0x4b, 'l': 0x4c, 'm': 0x4d, 'n': 0x4e, 'o': 0x4f, 'p': 0x50,
-                     'q': 0x51, 'r': 0x52, 's': 0x53, 't': 0x54, 'u': 0x55, 'v': 0x56, 'w': 0x57, 'x': 0x58, 'y': 0x59,
-                     'z': 0x5a}
+            v_key = {'<':0x25, '>':0x27, '\t':0x09}
             char_id, capital = ord(k.lower()), k.isupper()
+            if k in v_key: char_id = v_key[k]
             prev = win32gui.SetFocus(wH)
             if not capital:
                 win32api.PostMessage(wH, win32con.WM_KEYDOWN, char_id, 0)
@@ -260,8 +258,14 @@ def RegionGrab(area):
     return im
 
 def ImageCheck(pathList, area, timeout=0):
-    if ImageSearch(pathList, area, timeout) != [-1, -1]: return True
-    else: return False
+    """
+    Returns where an image exists in an area
+    :param pathList: name of image to look for
+    :param area: area to look within
+    :param timeout: time to spend looking
+    :return: True if the image is there, otherwise false.
+    """
+    return ImageSearch(pathList, area, timeout) != [-1, -1]
 
 def ImgGoneCheck(pathList, area, timeout=3):
     startT = time.time()
@@ -328,6 +332,8 @@ def on_click(x, y, button, pressed):
                 startT = time.time()
                 # print('{}{}'.format('m.Click', getRelMousePos()))
                 print('m.sleep({})\nm.Click{}'.format(dT, getRelMousePos()))
+    elif button == mouse.Button.middle:
+        typeKeys('\t')
     else:
         global _currX,_currY
         if pressed:
@@ -366,7 +372,7 @@ def forceAwake():
 
 if __name__ == '__main__':
     pyag.FAILSAFE = True
-    os.chdir('C:/Users/Evan Chase/Desktop/Files/Programming/DragonFable/Images')
+    os.chdir('C:/Users/Evan Chase/Desktop/Files/ProgrammingGit/College/Fall 2023/DragonFable/Images')
     assignWin('Chrome_WidgetWin_1', '')
     with mouse.Listener(on_click=on_click,on_move=on_move) as listener:
         listener.join()

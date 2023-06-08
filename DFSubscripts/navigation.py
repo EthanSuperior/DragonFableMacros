@@ -50,7 +50,7 @@ def BuyFood():
     travel_to('3', 'Falconreach')
     m.Click(220, 502)
     m.ImageSearch('Locations/ChefMoglin.png', (843, 249, 1156, 700), 3)
-    m.Click(758, 402)
+    m.Click(758, 462)
     m.sleep(1)
     # Buy Seaweed
     m.Click(221, 586)
@@ -58,10 +58,10 @@ def BuyFood():
     m.Click(566, 461)
     m.sleep(1)
     # Buy Rotten Hardtack
-    m.Click(225, 542)
-    m.sleep(1)
-    m.Click(566, 461)
-    m.sleep(1)
+    # m.Click(225, 542)
+    # m.sleep(1)
+    # m.Click(566, 461)
+    # m.sleep(1)
     # Leave
     m.Click(756, 355)
     m.sleep(1)

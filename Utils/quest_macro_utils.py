@@ -56,7 +56,7 @@ def move_to(pos, moveSetID,events=lambda:1+1, loot=()):
             events()
             CheckQuestDialog(*loot)
         except AssertionError as msg:
-            if 'Failed' in msg:
+            if 'Failed' in str(msg):
                 events()
                 raise AssertionError('Quest Failed')
             else: raise msg
