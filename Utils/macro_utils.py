@@ -173,7 +173,7 @@ def typeKeys(*keys):
         win32process.AttachThreadInput(currThread, outThread, 1)
         for k in keys:
             v_key = {'<':0x25, '>':0x27, '\t':0x09}
-            char_id, capital = ord(k.lower()), k.isupper()
+            char_id, capital = ord(k.upper()), k.isupper()
             if k in v_key: char_id = v_key[k]
             prev = win32gui.SetFocus(wH)
             if not capital:
@@ -321,20 +321,27 @@ def send_to_clipboard(image):
 
 startT = None
 _currX,_currY = 0, 0
+midClicked = 0
 def on_click(x, y, button, pressed):
-    global startT
+    global startT, midClicked
     if button == mouse.Button.left:
         if pressed:
             if startT is None:
                 startT = time.time()
             else:
+                if midClicked: return
                 dT = int((time.time() - startT)*1000)/1000
                 startT = time.time()
                 # print('{}{}'.format('m.Click', getRelMousePos()))
                 print('m.sleep({})\nm.Click{}'.format(dT, getRelMousePos()))
     elif button == mouse.Button.middle:
-        typeKeys('\t')
+        if midClicked:
+            startT = time.time()
+        else:
+            print('battle((classID, "Single"))')
+        midClicked = (midClicked + 1) % 4
     else:
+        if midClicked: return
         global _currX,_currY
         if pressed:
             print('{} RC at {}'.format('Pressed', getRelMousePos()))

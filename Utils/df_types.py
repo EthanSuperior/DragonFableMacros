@@ -10,6 +10,7 @@ class Classes(Enum):
     Chaosweaver = 'Chaosweaver^metal'
     Pirate = 'Dread Pirate^darkness'
     Techno = 'Technomancer^light'
+    KidDrag = 'KidDrag^bacon'
 
 class Elements(Enum):
     Bacon = 'bacon'

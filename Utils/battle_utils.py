@@ -68,7 +68,7 @@ def getMoveSet(moveSetID):
         if 'PVP' in style: return True, ['3','5','6','7','v','6','7','5','z','6','7','4','6','7',' ']
         else: return False, ['v',' ','z','3','z','5','z',' ']
     elif classId == df_types.Classes.Chaosweaver:
-        if 'PVP' in style: return False, [(Gambit, '8'),'v','c','0',(Gambit,'x'),'z']
+        if 'PVP' in style: return False, [(Gambit,'8'),'v','c','9',(Gambit,'z'),(Depower,'x'),'2','0',(Gambit,'c',True),'2','9','3','z',(Gambit,'8'),'0']
         elif 'ArchiveNorm' in style: return False, [(Gambit, '3'), '2', '6']
         elif 'ArchiveMini' in style: return False, [(Gambit, '9'), 'v', 'c']
         elif 'ArchiveBoss' in style: return False, [(ChangeTarget, 'Inn/Enemies/Celestial.png','3'),(Gambit,'c'),(ChangeTarget,'Inn/Enemies/Infernal.png','z'),(Depower,'9'),(Depower, '1'),(Gambit,'x'),'v','0','c','2',(Gambit, 'z'), (Depower, '9'),'6','2',(Gambit,'0', True),'c','x','2','z',(Gambit, 'v'), (Depower, '9'),'c','0']
@@ -82,9 +82,11 @@ def getMoveSet(moveSetID):
     elif classId == df_types.Classes.DragSlay:
         if 'Boss' in style: return True, ['3', '4', '0', '4', '7', '4']
     elif classId == df_types.Classes.Drag: return True, ['5', '7', '2', '6', 'c', 'v', 'x', 'b', '6', '3', '1']
-    else: return True, [' ']
+    elif classId == df_types.Classes.KidDrag: return False, (['x','x','x','x','x','x','x','x'] if 'Multi' in style else ['3'])
+    else: return True, [' '] # m.click(251, 661)
 def eatFood(foodLeft):
-    pix = ui_macro_utils.screenshot(True).getpixel((204, 730))
+    healPerc = 23 #Each px is 1%
+    pix = ui_macro_utils.screenshot(True).getpixel((192 + healPerc, 730))
     if foodLeft > 0 and pix == (14, 14, 14):
         m.Click(538, 794)
         m.ClickImage('UI/TempItems.png', (428, 82, 580, 138), 3)

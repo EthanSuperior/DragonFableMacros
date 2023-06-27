@@ -9,7 +9,8 @@ def openLoreBook():
         m.ImageSearch('UI/LoreBookOpen.png', (173, 106, 551, 199), 3)
 
 def closeLoreBook():
-    if m.ImageCheck('UI/LoreBookOpen.png', (173, 106, 551, 199)): m.Click(640, 812)
+    if m.ImageCheck('UI/LoreBookOpen.png', (173, 106, 551, 199),1) or m.ImageCheck('UI/Book1.png', (132, 195, 512, 348)):
+        m.Click(633, 816)
 
 def openBook(bkNum):
     openLoreBook()
@@ -58,10 +59,10 @@ def BuyFood():
     m.Click(566, 461)
     m.sleep(1)
     # Buy Rotten Hardtack
-    # m.Click(225, 542)
-    # m.sleep(1)
-    # m.Click(566, 461)
-    # m.sleep(1)
+    m.Click(225, 542)
+    m.sleep(1)
+    m.Click(566, 461)
+    m.sleep(1)
     # Leave
     m.Click(756, 355)
     m.sleep(1)
@@ -186,10 +187,10 @@ def quest_nav(quest):
         travel_to(1, 'Warlic')
     elif 'Aeris' in quest:
         closeLoreBook()
-        openInventory()
-        _equip_loadout(1)
-        _equip_loadout(10)
-        closeInventory()
+        # openInventory()
+        # _equip_loadout(1)
+        # _equip_loadout(10)
+        # closeInventory()
         to_travel_map(1)
         m.Click(589, 170)
         m_ui.ClickBtn('UI/TakeFlight_Bk1.png', (993, 638, 1168, 685))
@@ -236,7 +237,7 @@ def sell_items_dragonless(slotNum = m.SLOT_TO_SELL):
 
 if __name__ == '__main__':
     import os
-    os.chdir('C:/Users/Evan Chase/Desktop/Files/Programming/DragonFable/Images')
+    os.chdir('C:/Users/Evan Chase/Desktop/Files/ProgrammingGit/College/Fall 2023/DragonFable/Images')
     m.sleep(2)
     m_ui.reposition()
-    equip_class(Classes.DragSlay)
+    # equip_class(Classes.DragSlay)

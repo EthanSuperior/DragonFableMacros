@@ -37,6 +37,9 @@ def get_variables():
             except IndexError: count = -1
     except IndexError:
         name = input('What Quest do you want to run? ')
+        if name == 'continue':
+            sys.argv = [sys.arv[0], 'continue']
+            return get_variables()
         count = int(input('How many times: '))
     return name, int(count), i
 
@@ -46,7 +49,7 @@ def update_log(i, startTime, startI):
     with open('../DFQuestLog.txt', 'a') as of:
         if i != startI:
             of.write('\nCompleted: ' + str(i) + ' Avg: ' + time_str)
-        print('Completed: ' + str(i) + ' Avg: ' + time_str, end=' \r')
+    print('Completed: ' + str(i) + ' Avg: ' + time_str, end=' \r')
     return i + 1
 
 def main():
