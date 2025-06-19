@@ -98,33 +98,21 @@ def printWin():
     print("'" + win32gui.GetWindowText(getHWND()) + "'")
 
 
-def GetAllWindows():
-    hwnd_list = []
-
-    def enum_window_callback(hwnd, hwnd_list):
-        if win32gui.IsWindowVisible(hwnd):
-            hwnd_list.append(
-                {
-                    "hwnd": hwnd,
-                    "class": win32gui.GetClassName(hwnd),
-                    "text": win32gui.GetWindowText(hwnd),
-                }
-            )
-
-    win32gui.EnumWindows(enum_window_callback, hwnd_list)
-    return hwnd_list
-
-
 def DrawRel(area):
     import win32ui
 
-    hwnd = getHWND()
+    hwnd = win32gui.GetActiveWindow()
     hdc = win32gui.GetWindowDC(hwnd)
     dcObj = win32ui.CreateDCFromHandle(hdc)
+    area = RelToAbs(area)
     # Create a brush or pen and draw a rectangle
-    pen = win32ui.CreatePen(0, 3, 0x0000FF)
-    dcObj.SelectObject(pen)
-    dcObj.Rectangle(area)
+    if len(area) != 2:
+        pen = win32ui.CreatePen(0, 3, 0x00FF44)
+        dcObj.SelectObject(pen)
+        win32gui.SelectObject(hdc, win32gui.GetStockObject(5))
+        dcObj.Rectangle(area)
+    else:
+        dcObj.SetPixel(*area, 0x99DDFF)
     # Cleanup
     dcObj.DeleteDC()
     win32gui.ReleaseDC(hwnd, hdc)

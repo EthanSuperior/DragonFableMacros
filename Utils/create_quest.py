@@ -70,7 +70,42 @@ if __name__ == "__main__":
     # for a in m_ui.GetAllWindows():
     #     print(a)
     m_ui.assignWin("Chrome_WidgetWin_1", "Evolved DragonFable Launcher")
-    m_ui.screenshot(True)
+    img = m_ui.winScreenGrab().convert("RGB")
+    img.save(f"IMG{(0,0)}.png")
+    import numpy as np
+
+    red = (102, 0, 0)
+    tolerance = 10
+    np_img = np.array(img)
+    h, w, _ = np_img.shape
+
+    # Create red mask
+    red_arr = np.array(red)
+    red_mask = np.linalg.norm(np_img - red_arr, axis=2) < tolerance
+
+    mid_x = w // 2
+    mid_y = h // 2
+
+    # Find transitions in mask: red → non-red on each edge
+    def find_boundary_line(line, from_start=True):
+        if not from_start:
+            line = line[::-1]
+        r_idx = np.where(line)[0][0]
+        idx = np.where(~line[r_idx:])[0][0] + r_idx
+        return idx if from_start else len(line) - idx
+
+    # Horizontal scan along vertical center
+    left = find_boundary_line(red_mask[mid_y, :], from_start=True)
+    right = find_boundary_line(red_mask[mid_y, :], from_start=False)
+
+    # Vertical scan along horizontal center
+    top = find_boundary_line(red_mask[:, mid_x], from_start=True)
+    bottom = find_boundary_line(red_mask[:, mid_x], from_start=False)
+
+    # Crop
+    cropped = img.crop((left, top, right, bottom))
+    # Crop and show
+    cropped.save(f"CROP_{(left, top, right, bottom)}.png")
     exit()
     # import win32gui
     # def enum_windows_callback(hwnd, windows):

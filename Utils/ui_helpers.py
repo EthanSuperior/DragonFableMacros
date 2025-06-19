@@ -3,7 +3,10 @@ import time
 
 
 def SetUp(src):
-    useForegroundWin()
+    if False:
+        useForegroundWin()
+    else:
+        m_ui.assignWin("Chrome_WidgetWin_1", "Evolved DragonFable Launcher")
     from pathlib import Path
     import os
 
@@ -42,6 +45,7 @@ def Check(*paths):
         if m_ui.ImageSearch(path, img_area(path), 0) != [-1, -1]:
             return True
     return False
+
 
 # Wait for an image to disappear
 def AwaitNotImg(*paths, timeout=3, interval=0.01):
