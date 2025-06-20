@@ -155,10 +155,18 @@ class _WIN_API(_API):
         # Window Keypress Messages are only processed by 'active' windows,
         # this allows us to 'ACTIVATE' the window so it processes our message
         # All without causing seizers..... its a hack
+        currThread, outThread = (
+            _WIN_API._api.GetCurrentThreadId(),
+            _WIN_API._process.GetWindowThreadProcessId(hwnd)[0],
+        )
+        _WIN_API._process.AttachThreadInput(currThread, outThread, 1)
         _WIN_API._api.PostMessage(hwnd, 6, 1, 0)  # WM__ACTIVATE, WA_ACTIVE
-        char_id = ord(key.lower())
+        char_id = _WIN_API._api.VkKeyScan(key)  # ord(key.lower())
         _WIN_API._api.PostMessage(hwnd, 256, char_id, 0)  # WM_KEYDOWN
+        # _WIN_API._api.PostMessage(hwnd, 258, char_id, 0)  # WM_CHAR
+        # _WIN_API._api.PostMessage(hwnd, 259, char_id, 0)  # WM_DEADCHAR
         _WIN_API._api.PostMessage(hwnd, 257, char_id, 0)  # WM_KEYUP
+        _WIN_API._process.AttachThreadInput(currThread, outThread, 0)
 
     @contextmanager
     @staticmethod

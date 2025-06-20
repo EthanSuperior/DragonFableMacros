@@ -28,11 +28,11 @@ class ACT:
         time.sleep(secs)
 
     @staticmethod
-    def Battle(player_moves, pet_moves, endConditions=[], cyclical=False):
+    def _Battle(player_moves, pet_moves, endConditions=[], cyclical=False):
         player_moves = list(player_moves)
         pet_moves = list(pet_moves)
         while True:
-            GUI.AwaitImg(ACT.atkBtn, ACT.ctnBtn, *endConditions, ACT.stkBtn, timeout=-1)
+            GUI.AwaitImg(ACT.atkBtn, ACT.ctnBtn, *endConditions, ACT.stkBtn, ACT.dead, timeout=-1)
             if any(GUI.CheckImage(i) for i in endConditions):
                 return filter(GUI.CheckImage, endConditions)[0]
             elif GUI.CheckImage(ACT.atkBtn):
@@ -46,16 +46,23 @@ class ACT:
                 GUI.TypeKeys(" ")
                 GUI.AwaitImg(ACT.noOverlay, timeout=1)
                 return ACT.ctnBtn
+            elif GUI.CheckImage(ACT.dead):
+                ACT.ClickIf("ScreenCaps/#(0.451, 0.587, 0.577, 0.619).png")
+                return ACT.dead
             else:
                 GUI.ClickIf(ACT.stkBtn, timeout=0)
 
     @staticmethod
-    def Battle_Mooks(className, count=1):
+    def Battle(className, count=1):
         if className == "ChaosWeaver":
             if count == 1:
-                return ACT.Battle("3v", "78")
-            return ACT.Battle("487", "78")
-        return ACT.Battle("487", "78")
+                return ACT._Battle("3v", "78")
+            elif count == -2:
+                return ACT._Battle("4xv", "71")
+            elif count == "VERLYRUS?":
+                return ACT._Battle("49v0cz", "097v4")
+            return ACT._Battle("487", "78")
+        return ACT._Battle("487", "78")
 
     @staticmethod
     def BattleWar(startBtn: str, waves: list, counts: list, className="ChaosWeaver"):
@@ -73,7 +80,7 @@ class ACT:
                 ACT.MoveInDirection(wave.split("/")[-1])
                 GUI.AwaitImg(ACT.atkBtn, ACT.questPass)  # ACT.questFail,
                 if GUI.CheckImage(ACT.atkBtn):
-                    ACT.Battle_Mooks(className, cnts.pop() if len(cnts) > 1 else cnts[0])
+                    ACT.Battle(className, cnts.pop() if len(cnts) > 1 else cnts[0])
                 elif GUI.CheckImage(ACT.questPass):
                     GUI.ClickIf(ACT.questClose)
                     GUI.AwaitImg(ACT.newItem)
@@ -116,6 +123,7 @@ class ACT:
         ACT.newItem = FetchImg("newItem")
         ACT.noOverlay = FetchImg("noOverlay")
         ACT.keepItem = FetchImg("KeepItem")
+        ACT.dead = FetchImg("dead")
 
         def debug_mouse(_, y, b, p):
             if y >= 2050 and b == mouse.Button.middle and p:

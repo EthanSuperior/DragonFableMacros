@@ -28,8 +28,8 @@ class HANDLERS:
             pos = GUI.MousePosition()
             print(f"ACT.MouseClick({pos})")
         if HANDLERS.alt_pressed:
-            print(f'ACT.Battle_Mooks("ChaosWeaver", 1)')
-            ACT.Battle_Mooks("ChaosWeaver", 1)
+            print(f'ACT.Battle("ChaosWeaver", 1)')
+            ACT.Battle("ChaosWeaver", 1)
             GUI.MouseClick(pos)
             print(f"ACT.MouseClick({pos})")
 
@@ -49,7 +49,7 @@ class HANDLERS:
         GUI.SaveRegion(area)
         dT = round(time.time() - HANDLERS.startT, 3)
         if not HANDLERS.alt_pressed:
-            print(f'ACT.ClickIf("{folder_dir}/#{area}.png", timeout={2 * dT}))')
+            print(f'ACT.ClickIf("{folder_dir}/#{area}.png", timeout={2 * dT})')
             GUI.MouseClick(UTILS.MidPt(area))
             time.sleep(0.05)
             if platform.system() == "Windows":
@@ -113,8 +113,8 @@ class HANDLERS:
                 HANDLERS.keyboard_listener.stop()
                 HANDLERS.mouse_listener.stop()
             elif key.char in ascii_map:
-                print(f'ACT.Battle_Mooks({"ChaosWeaver"}, {ascii_map[key.char]})')
-                ACT.Battle_Mooks("ChaosWeaver", ascii_map[key.char])
+                print(f'ACT.Battle({"ChaosWeaver"}, {ascii_map[key.char]})')
+                ACT.Battle("ChaosWeaver", ascii_map[key.char])
             else:
                 print(f"ACT.TypeKeys({key.char})")
 
