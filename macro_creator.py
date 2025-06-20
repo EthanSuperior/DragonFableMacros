@@ -28,7 +28,6 @@ class HANDLERS:
         if not HANDLERS.alt_pressed:
             pos = GUI.MousePosition()
             print(f"ACT.MouseClick({pos})")
-            GUI.DrawGizmo(pos)
 
     @staticmethod
     def on_right_click(pressed):
@@ -60,21 +59,19 @@ class HANDLERS:
     @staticmethod
     def on_click(_x, _y, button, pressed):
         """
-        |ACTION\MODS|     NONE      |     SHIFT     |      ALT      |     CTRL      |
+        |ACTION\\MODS|     NONE      |     SHIFT     |      ALT      |     CTRL      |
         |:---------:|:-------------:|:-------------:|:-------------:|:-------------:|
         |   Left    |  Sleep&Click  |               |     Sleep     |               |
         |   Right   |               |               |Reset Sleep Cnt|               |
         |   RDrag   | ClickIf Image |    AwaitImg   |               |               |
         |   Middle  | Capture Game  |               |               |               |
         """
-        """     
-        |  ADVANCE  |   CTRL-SHFT   |   ALT-SHIFT   |    CTRL-ALT   | CTRL-ALT-SHFT |
-        |:---------:|:-------------:|:-------------:|:-------------:|:-------------:|
-        |   Left    |               |               |               |               |
-        |   Right   |               |               |               |               |
-        |   RDrag   |               |               |               |               |
-        |   Middle  |               |               |               |               |
-        """
+        # |  ADVANCE  |   CTRL-SHFT   |   ALT-SHIFT   |    CTRL-ALT   | CTRL-ALT-SHFT |
+        # |:---------:|:-------------:|:-------------:|:-------------:|:-------------:|
+        # |   Left    |               |               |               |               |
+        # |   Right   |               |               |               |               |
+        # |   RDrag   |               |               |               |               |
+        # |   Middle  |               |               |               |               |
         if button == mouse.Button.left:
             HANDLERS.on_left_click(pressed)
         elif button == mouse.Button.right:
@@ -133,5 +130,5 @@ if __name__ == "__main__":
     HANDLERS.keyboard_listener.start()
     HANDLERS.keyboard_listener.deamon = True
     HANDLERS.mouse_listener.start()
-    # GUI.DrawDebugGrid()
+    GUI.DrawDebugGrid()
     HANDLERS.mouse_listener.join()

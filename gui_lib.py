@@ -113,6 +113,6 @@ class GUI:
     @staticmethod
     def DrawDebugGrid():
         GUI.DrawGizmo((0, 0, 1, 1))
-        for y in np.linspace(0, 1, 101):
-            for x in np.linspace(0, 1, 101):
+        for y in np.linspace(0, 1, 50)[1:-1]:
+            for x in np.linspace(0, 1, 50)[1:-1]:
                 GUI.DrawGizmo((x, y), "#FF0")

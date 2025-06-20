@@ -59,13 +59,14 @@ class ACT:
     def BattleWar(startBtn: str, waves: list, counts: list, className="ChaosWeaver"):
         print(f"Starting Waves of {startBtn.split('/')[1].split('#')[0]} war")
         num = 0
-        while GUI.ClickIf(startBtn, timeout=20):
+        while GUI.ClickIf(startBtn, timeout=20):  # True
+            # wave = waves[1]
             wave = GUI.AwaitImg(*waves, timeout=20)
             if wave is None:
                 return
             idx = waves.index(wave)
             cnts = counts[idx][:]
-            print(f"\rStarting wave #{(num := num + 1)} ({num+1325})", end="", flush=True)
+            print(f"\rStarting wave #{(num := num + 1)} ({num+1470})", end="", flush=True)
             while True:
                 ACT.MoveInDirection(wave.split("/")[-1])
                 GUI.AwaitImg(ACT.atkBtn, ACT.questPass)  # ACT.questFail,

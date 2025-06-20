@@ -74,6 +74,8 @@ class _WIN_API(_API):
     hwnd = None
     _game_area = None
     _win_size = (0, 0, 0, 0)
+    _overlay_hwnd = None
+    _overlay_class = None
 
     @staticmethod
     def SetUp():
@@ -102,7 +104,9 @@ class _WIN_API(_API):
 
     @staticmethod
     def CleanUp():
-        pass
+        if _WIN_API._overlay_hwnd:
+            _WIN_API._gui.DestroyWindow(_WIN_API._overlay_hwnd)
+            _WIN_API._overlay_hwnd = None
 
     @staticmethod
     def _GetHWND():
@@ -126,7 +130,7 @@ class _WIN_API(_API):
         return hwnd_list
 
     @staticmethod
-    def WindowPosition():  # (left, top, right, bottom)
+    def WindowPosition():  # (left, top)
         return _WIN_API._gui.GetWindowRect(_WIN_API._GetHWND())[:2]
 
     @staticmethod
@@ -226,19 +230,63 @@ class _WIN_API(_API):
         return _WIN_API._game_area
 
     @staticmethod
-    def DrawDebug(area, color):
-        with _WIN_API._MakeDC(_WIN_API._gui.GetActiveWindow()) as (hdc, dcObj):
-            # Create a brush or pen and draw a rectangle
-            if len(area) != 2:
-                pen = _WIN_API._ui.CreatePen(0, 3, color)
-                dcObj.SelectObject(pen)
-                _WIN_API._gui.SelectObject(hdc, _WIN_API._gui.GetStockObject(5))
-                dcObj.Rectangle(area)
-            else:
-                try:
-                    dcObj.SetPixel(*area, color)
-                except:
-                    pass
+    def _CreateOverlayWindow():
+        if _WIN_API._overlay_hwnd:
+            return  # Already created
+
+        wndclass = _WIN_API._gui.WNDCLASS()
+        hInstance = _WIN_API._api.GetModuleHandle(None)
+        wndclass.lpfnWndProc = _WIN_API._gui.DefWindowProc
+        wndclass.lpszClassName = "DebugOverlayWindow"
+        wndclass.hInstance = hInstance
+
+        try:
+            _WIN_API._overlay_class = _WIN_API._gui.RegisterClass(wndclass)
+        except _WIN_API._gui.error:
+            pass  # Already registered
+
+        hwnd = _WIN_API._GetHWND()
+        rect = _WIN_API._gui.GetWindowRect(hwnd)
+        x, y = rect[0], rect[1]
+        w, h = rect[2] - rect[0], rect[3] - rect[1]
+
+        # WS_EX_LAYERED | WS_EX_TRANSPARENT | WS_EX_TOPMOST | WS_EX_TOOLWINDOW
+        style = 524288 | 32 | 8 | 128
+
+        # WS+POPUP
+        args = (-2147483648, x, y, w, h, None, None, hInstance, None)
+        _WIN_API._overlay_hwnd = _WIN_API._gui.CreateWindowEx(
+            style, wndclass.lpszClassName, None, *args
+        )
+        _WIN_API._gui.SetLayeredWindowAttributes(
+            _WIN_API._overlay_hwnd, 0x00FFFFFF, 0, 1
+        )  # LWA_COLORKEY
+        _WIN_API._gui.SetLayeredWindowAttributes(
+            _WIN_API._overlay_hwnd, _WIN_API._api.RGB(0, 0, 0), 0, 1
+        )
+        _WIN_API._gui.ShowWindow(_WIN_API._overlay_hwnd, 5)  # SW_SHOW
+
+    @staticmethod
+    def DrawDebug(area, color, thickness=3):
+        if not _WIN_API._overlay_hwnd:
+            # _WIN_API._CreateOverlayWindow()
+            _WIN_API._overlay_hwnd = _WIN_API._GetHWND()
+        x, y = _WIN_API.WindowPosition()
+        # Create a brush or pen and draw a rectangle
+        with _WIN_API._MakeDC(_WIN_API._overlay_hwnd) as (hdc, dcObj):
+            try:
+                if len(area) != 2:
+                    pen = _WIN_API._ui.CreatePen(0, 3, color)
+                    dcObj.SelectObject(pen)
+                    _WIN_API._gui.SelectObject(hdc, _WIN_API._gui.GetStockObject(5))
+                    dcObj.Rectangle((area[0] - x, area[1] - y, area[2] - x, area[3] - y))
+                else:
+                    o = thickness // 2
+                    for dx in range(thickness):
+                        for dy in range(thickness):
+                            dcObj.SetPixel(area[0] - x + dx - o, area[1] - y + dy - o, color)
+            except:
+                pass
 
     @staticmethod
     def ColorFromRGB(r, g, b):
