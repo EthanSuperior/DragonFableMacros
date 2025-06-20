@@ -35,16 +35,6 @@ def ChallengerBelt():
         ACT.ClickIf(ACT.keepItem)
 
 
-# ACT.AwaitImg("dead#(0.055, 0.905, 0.193, 0.931).png", timeout=25.11)
-# ACT.ClickIf("ScreenCaps/#(0.451, 0.587, 0.577, 0.619).png", timeout=21.184)
-# ACT.Sleep(5.307)
-# ACT.MouseClick((0.412, 0.84))
-# ACT.ClickIf("ScreenCaps/#(0.463, 0.955, 0.533, 0.977).png", timeout=17.08)
-# ACT.ClickIf("ScreenCaps/#(0.442, 0.755, 0.556, 0.793).png", timeout=16.868)
-# ACT.ClickIf("ScreenCaps/#(0.384, 0.494, 0.486, 0.53).png", timeout=18.162)
-# ACT.ClickIf("ScreenCaps/#(0.353, 0.371, 0.633, 0.451).png", timeout=11.304)
-# ACT.Sleep(11.913)
-
-
-# BicentennialDragonLord()
-ChallengerBelt()
+BicentennialDragonLord()
+# ChallengerBelt()
+# globals()['func_name']()

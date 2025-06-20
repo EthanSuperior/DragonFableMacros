@@ -21,6 +21,9 @@ class ACT:
 
     @staticmethod
     def TypeKeys(keys, interval=0.01):
+        if keys[0] == "e":
+            GUI.MouseClick((0.5, 0.66))
+            keys = keys[1:]
         return GUI.TypeKeys(keys, interval=interval)
 
     @staticmethod
@@ -40,7 +43,7 @@ class ACT:
                     move = pet_moves.pop(0) if pet_moves else " "
                 else:
                     move = player_moves.pop(0) if player_moves else " "
-                GUI.TypeKeys(move)
+                ACT.TypeKeys(move)
                 GUI.AwaitNotImg(ACT.atkBtn)
             elif GUI.CheckImage(ACT.ctnBtn):
                 GUI.TypeKeys(" ")
@@ -75,7 +78,7 @@ class ACT:
                 return
             idx = waves.index(wave)
             cnts = counts[idx][:]
-            print(f"\rStarting wave #{(num := num + 1)} ({num+1470})", end="", flush=True)
+            print(f"\rStarting wave #{(num := num + 1)} ({num+2292})", end="", flush=True)
             while True:
                 ACT.MoveInDirection(wave.split("/")[-1])
                 GUI.AwaitImg(ACT.atkBtn, ACT.questPass)  # ACT.questFail,

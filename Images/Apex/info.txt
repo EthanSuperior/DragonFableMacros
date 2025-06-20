@@ -1,0 +1,46 @@
+Gear:
+✔ - Voidcutter Spear VII (Fear) [https://forums2.battleon.com/f/tm.asp?m=22403406]
+✔ - Soulforged Scythe (Ice)
+✔ - Thorn Replica (On Hit) [https://forums2.battleon.com/f/tm.asp?m=22366441]
+✔ - Ice Scythe (On Hit)
+✔ - Blade of Awe (On Hit)
+✖ - Tytanvisage Helm VII (Helm +-HP) [http://forums2.battleon.com/f/fb.asp?m=22382565]
+??? - Crown of the Lost Hawk VI (Helm Int +-Heal) TRY DRAG [https://forums2.battleon.com/f/fb.asp?m=22409279] IE CROWN OF THE CORE V (3 short....)
+ALT - Melissa's Wings VII (Necro/Thousand) [http://forums2.battleon.com/f/fb.asp?m=21480659]
+ALT - Glamorstone Necklace (DM XXXV)
+ALT - Shattered Amulet VII (DM XXXV)
+ALT - Belt of Golden Sand IX (DM XXXV)
+ALT - Ring of Winter's Rage V  (DM XXXV)
+✔ - Dreamglass Ring IX (Int) [http://forums2.battleon.com/f/fb.asp?m=22338410]
+✔ - Exalted Blaster II (Doom)
+✔ - Runestone (Better than Unity After change to OnHits) [http://forums2.battleon.com/f/fb.asp?m=21825780]
+ALT - Hero's Armband (Legion Bracer)
+
+102/200/200/0/98
+Apex
+Dragon Stats: 200 Magic/Assist/Mischief
+
+Try to reroll for -immo or -all roll on floor 1 (and avoid subsequent +all/+immo choices) to improve consistency
+
+Mooks: 
+Single
+[Slot MP Regen weapon] Slice + Nova 
+Double
+eGambit + Rip > Dom + Nova
+
+Celestial: [Ice] Slice+Overcharge ->
+ eGambit + Rip + Tickles ->
+  [Int] Untangle + Nova(Kill)/Fumes(Infernal)
+   -> Shred + Beam/Nova ->
+    Slice + Fumes/Beam -> eGambit + Siphon
+
+Engineer
+[Int] eGambit + [Defense Drone] Slice  
+(+ Primal/Nova(kills)) ->
+[Ice] [Engineer] (no e!!)Vengeance + Tickles ->
+ (no e!!)Shred + Overcharge ->
+  [Int] Untangle + Fumes ->
+ eGambit + Rebuke + Nova
+
+1 Crit Slice to oneshot the Defense Drone 
+1 Crit Rebuke to kill the Engineer now
