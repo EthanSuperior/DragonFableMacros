@@ -25,8 +25,12 @@ class HANDLERS:
             dT = round(time.time() - HANDLERS.startT, 3)
             HANDLERS.startT = time.time()
             print(f"ACT.Sleep({dT})")
-        if not HANDLERS.alt_pressed:
             pos = GUI.MousePosition()
+            print(f"ACT.MouseClick({pos})")
+        if HANDLERS.alt_pressed:
+            print(f'ACT.Battle_Mooks("ChaosWeaver", 1)')
+            ACT.Battle_Mooks("ChaosWeaver", 1)
+            GUI.MouseClick(pos)
             print(f"ACT.MouseClick({pos})")
 
     @staticmethod
@@ -61,7 +65,7 @@ class HANDLERS:
         """
         |ACTION\\MODS|     NONE      |     SHIFT     |      ALT      |     CTRL      |
         |:---------:|:-------------:|:-------------:|:-------------:|:-------------:|
-        |   Left    |  Sleep&Click  |               |     Sleep     |               |
+        |   Left    |  Sleep&Click  |               |ClickBattleClick|               |
         |   Right   |               |               |Reset Sleep Cnt|               |
         |   RDrag   | ClickIf Image |    AwaitImg   |               |               |
         |   Middle  | Capture Game  |               |               |               |

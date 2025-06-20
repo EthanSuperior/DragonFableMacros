@@ -1,5 +1,5 @@
 Gear:
-✖ - Voidcutter Spear VII (Fear) [https://forums2.battleon.com/f/tm.asp?m=22403406]
+✔ - Voidcutter Spear VII (Fear) [https://forums2.battleon.com/f/tm.asp?m=22403406]
 ✔ - Soulforged Scythe (Ice)
 ✖ - Thorn Replica (On Hit) [https://forums2.battleon.com/f/tm.asp?m=22366441]
 ✔ - Ice Scythe (On Hit)
@@ -12,7 +12,7 @@ ALT - Shattered Amulet VII (DM XXXV)
 ALT - Belt of Golden Sand IX (DM XXXV)
 ALT - Ring of Winter's Rage V  (DM XXXV)
 ✖ - Dreamglass Ring IX (Int) [http://forums2.battleon.com/f/fb.asp?m=22338410]
-??? - Exalted Blaster II (Doom) TRY WITH AMALGAM -> But Doom is DMG [http://forums2.battleon.com/f/fb.asp?m=22403194]
+✔ - Exalted Blaster II (Doom)
 ✖ - Runestone (Better than Unity After change to OnHits) [http://forums2.battleon.com/f/fb.asp?m=21825780]
 ALT - Hero's Armband (Legion Bracer)
 

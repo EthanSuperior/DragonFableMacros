@@ -52,6 +52,8 @@ class ACT:
     @staticmethod
     def Battle_Mooks(className, count=1):
         if className == "ChaosWeaver":
+            if count == 1:
+                return ACT.Battle("3v", "78")
             return ACT.Battle("487", "78")
         return ACT.Battle("487", "78")
 
@@ -107,7 +109,7 @@ class ACT:
 
         ACT.atkBtn = FetchImg("atkBtn")
         ACT.ctnBtn = FetchImg("ctnBtn")
-        ACT.stkBtn = FetchImg("atkBtn")
+        ACT.stkBtn = FetchImg("stkBtn")
         ACT.petBtn = FetchImg("petBtn")
         ACT.questPass = FetchImg("questPass")
         ACT.questClose = FetchImg("questClose")
