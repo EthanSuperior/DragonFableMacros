@@ -13,11 +13,14 @@ def BicentennialDragonLord():
 
 def ChallengerBelt():
     def RestartChallenge():
-        ACT.AwaitImg(ACT.atkBtn)
-        ACT.Sleep(0.2)
-        ACT.ClickIf("ScreenCaps/#(0.463, 0.955, 0.533, 0.977).png", timeout=17.08)
-        ACT.ClickIf("ScreenCaps/#(0.442, 0.755, 0.556, 0.793).png", timeout=16.868)
-        ACT.ClickIf("ScreenCaps/#(0.384, 0.494, 0.486, 0.53).png", timeout=18.162)
+        def ForfitBattle():
+            ACT.AwaitImg(ACT.atkBtn)
+            ACT.Sleep(0.2)
+            ACT.ClickIf("ScreenCaps/#(0.463, 0.955, 0.533, 0.977).png", timeout=17.08)
+            ACT.ClickIf("ScreenCaps/#(0.442, 0.755, 0.556, 0.793).png", timeout=16.868)
+            ACT.ClickIf("ScreenCaps/#(0.384, 0.494, 0.486, 0.53).png", timeout=18.162)
+
+        ForfitBattle()
         ACT.ClickIf("ScreenCaps/#(0.353, 0.371, 0.633, 0.451).png", timeout=11.304)
 
     while True:
