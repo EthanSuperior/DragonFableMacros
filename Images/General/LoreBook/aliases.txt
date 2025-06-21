@@ -1,0 +1,7 @@
+BookOne: 1, One, OrbSage
+BookTwo: 2, Two, Elemental, Dissonance, ElementalDissonace, Wargon, RiftWar
+BookThree: 3, Three, EndOfMagic, TheEndOfMagic, Rose
+Pot: Heal, Potions, Potion
+Quest: DC, DragonCoins, DragonCoin, Daily
+Home: House
+Hometown: Falconreach

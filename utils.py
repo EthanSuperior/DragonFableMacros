@@ -68,3 +68,14 @@ class UTILS:
     @staticmethod
     def GetSize(area):
         return (area[2] - area[0]), (area[3] - area[1])
+
+    @staticmethod
+    def ImgIdentifier(path: str):
+        path = path.split("/")[-1].split("\\")[-1]
+        first_word_chars = []
+        for i, char in enumerate(path):
+            if i != 0 and char.isupper():
+                break
+            else:
+                first_word_chars.append(char.lower())
+        return "".join(first_word_chars)

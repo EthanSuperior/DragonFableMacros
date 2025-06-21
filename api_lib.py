@@ -144,8 +144,10 @@ class _WIN_API(_API):
         if hwnd == 0:
             return
         l_pram = _WIN_API._api.MAKELONG(*pos)
-        _WIN_API._gui.PostMessage(hwnd, 513, 1, l_pram)
-        _WIN_API._gui.PostMessage(hwnd, 514, 1, l_pram)
+        _WIN_API._gui.PostMessage(hwnd, 513, 1, l_pram)  # WM_LBUTTONDOWN
+        _WIN_API._gui.PostMessage(hwnd, 514, 1, l_pram)  # WM_LBUTTONUP
+        # Reset hover effects to actual ones...but caused weird delays and freezing, look into it
+        # _WIN_API._gui.PostMessage(hwnd, 512, 0, 0)  # WM_MOUSEMOVE
 
     @staticmethod
     def TypeKey(key: str):

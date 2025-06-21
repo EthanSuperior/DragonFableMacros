@@ -1,8 +1,35 @@
 from gui_lib import GUI
+from dialog import Dialog
 import time
 
 
-class ACT:
+class _ACTMETA(type):
+
+    def __getitem__(cls, key):
+        if str(key).lower() in cls.Dialogs:
+            return cls.Dialogs[str(key).lower()]
+        return cls.Images[str(key).lower()]
+
+    def __setitem__(cls, key, value):
+        if isinstance(value, str):
+            cls.Images[str(key).lower()] = value
+        elif isinstance(value, Dialog):
+            cls.Dialogs[str(key).lower()] = value
+
+    def __delitem__(cls, key):
+        if str(key).lower() in cls.Dialogs:
+            del cls.Dialogs[str(key).lower()]
+        else:
+            del cls.Images[str(key).lower()]
+
+    def __getattr__(cls, key):
+        return cls[key]
+
+    def __str__(cls):
+        print(cls.Images, cls.Dialogs)
+
+
+class ACT(metaclass=_ACTMETA):
     @staticmethod
     def AwaitImg(*paths, timeout=3, interval=0.01):
         return GUI.AwaitImg(*paths, timeout=timeout, interval=interval)
@@ -78,16 +105,16 @@ class ACT:
                 return
             idx = waves.index(wave)
             cnts = counts[idx][:]
-            print(f"\rStarting wave #{(num := num + 1)} ({num+2292})", end="", flush=True)
+            print(f"\rStarting wave #{(num := num + 1)} ({num+2464})", end="", flush=True)
+            print(ACT.QuestComplete["in"])
             while True:
                 ACT.MoveInDirection(wave.split("/")[-1])
-                GUI.AwaitImg(ACT.atkBtn, ACT.questPass)  # ACT.questFail,
+                GUI.AwaitImg(ACT.atkBtn, ACT.QuestComplete["in"])  # ACT.questFail,
                 if GUI.CheckImage(ACT.atkBtn):
                     ACT.Battle(className, cnts.pop() if len(cnts) > 1 else cnts[0])
-                elif GUI.CheckImage(ACT.questPass):
-                    GUI.ClickIf(ACT.questClose)
-                    GUI.AwaitImg(ACT.newItem)
-                    GUI.ClickIf(ACT.keepItem)
+                elif ACT.QuestComplete:
+                    ACT.QuestComplete.Close()
+                    ACT.NewItem.Await().Keep()
                     break
             # elif GUI.CheckImage(ACT.questFail):
             #     pass
@@ -101,32 +128,37 @@ class ACT:
         elif direction.lower()[0] == "s":
             GUI.MouseClick((0.5, 0.81))
         elif direction.lower()[0] == "e":
-            GUI.MouseClick((0.99, 0.578))
+            GUI.MouseClick((0.98, 0.578))
         elif direction.lower()[0] == "w":
             GUI.MouseClick((0.01, 0.69))
 
     @staticmethod
+    def MakeDialog(folder):
+        return Dialog(folder)
+
+    @staticmethod
     def Setup():
-        import glob
         import os
         from pynput import mouse
 
         print("Running Setup...")
         os.chdir("./Images")
+        ACT.Images = {}
+        ACT.Dialogs = {}
 
-        def FetchImg(name):
-            return glob.glob(f"./{name}*.png")[0]
+        for entry in os.listdir("./General"):
+            full_path = os.path.join("./General", entry)
+            if os.path.isdir(full_path):
+                ACT[entry] = Dialog(f"./General/{entry}")
+            elif os.path.isfile(full_path) and entry.endswith(".png"):
+                ACT[entry.split("\\")[-1].split("/")[-1].split("#")[0]] = f"./General/{entry}"
+        # ACT.atkBtn = FetchImg("atkBtn")
+        # ACT.ctnBtn = FetchImg("ctnBtn")
+        # ACT.stkBtn = FetchImg("stkBtn")
+        # ACT.petBtn = FetchImg("petBtn")
+        # ACT.dead = FetchImg("dead")
 
-        ACT.atkBtn = FetchImg("atkBtn")
-        ACT.ctnBtn = FetchImg("ctnBtn")
-        ACT.stkBtn = FetchImg("stkBtn")
-        ACT.petBtn = FetchImg("petBtn")
-        ACT.questPass = FetchImg("questPass")
-        ACT.questClose = FetchImg("questClose")
-        ACT.newItem = FetchImg("newItem")
-        ACT.noOverlay = FetchImg("noOverlay")
-        ACT.keepItem = FetchImg("KeepItem")
-        ACT.dead = FetchImg("dead")
+        # ACT.noOverlay = FetchImg("noOverlay")
 
         def debug_mouse(_, y, b, p):
             if y >= 2050 and b == mouse.Button.middle and p:
@@ -141,3 +173,15 @@ class ACT:
 
 
 ACT.Setup()
+
+if __name__ == "__main__":
+    # ACT.LoreBook() => ACT.LoreBook(True) => ACT.LoreBook.Yes() => ACT.LoreBook.Action('yes', autoClose=True)
+    # ACT.LoreBook(False) => ACT.LoreBook.No() => ACT.LoreBook.No(True) => ACT.LoreBook.Action('no', autoClose=True)
+    # ACT.LoreBook.Pot() => ACT.LoreBook.Pot(True) => ACT.LoreBook.Action('pot', autoClose=True)
+    # ACT.LoreBook.Open() Open() and Close() will open and close the book manually
+    # if ACT.LoreBook: => is Act.LoreBook open?
+    # if ACT.LoreBook.Pot: => is Act.LoreBook.Pot visible?
+    # print(ACT)
+    # For Example!!
+    print(bool(ACT.QuestComplete))
+    quit()

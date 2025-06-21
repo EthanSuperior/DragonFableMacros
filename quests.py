@@ -32,10 +32,8 @@ def ChallengerBelt():
         if ACT.Battle("ChaosWeaver", "VERLYRUS?") == ACT.dead:
             RestartChallenge()
             continue
-        ACT.AwaitImg(ACT.questPass)
-        ACT.ClickIf(ACT.questClose)
-        ACT.AwaitImg(ACT.newItem)
-        ACT.ClickIf(ACT.keepItem)
+        ACT.QuestComplete.Await().Close()
+        ACT.NewItem.Await().Keep()
 
 
 BicentennialDragonLord()

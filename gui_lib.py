@@ -32,6 +32,8 @@ class GUI:
 
     @staticmethod
     def CheckImage(path, precision=0.8):
+        if not path:
+            return False
         # Load template image
         template = cv2.imread(path, 0)
         if template is None:
@@ -90,6 +92,8 @@ class GUI:
 
     @staticmethod
     def ClickIf(path, timeout=3, interval=0.01):
+        if not path:
+            return False
         if GUI.AwaitImg(path, timeout=timeout, interval=interval) is not None:
             GUI.MouseClick(UTILS.MidPt(UTILS.AreaFromPath(path)))
             return True
