@@ -83,14 +83,16 @@ class ACT(metaclass=_ACTMETA):
                 GUI.ClickIf(ACT.stkBtn, timeout=0)
 
     @staticmethod
-    def Battle(className, count=1):
+    def Battle(className, moveSet=1):
+        if isinstance(moveSet, tuple):
+            return ACT._Battle(*moveSet)
         if className == "ChaosWeaver":
-            if count == 1:
+            if moveSet == 1:
                 return ACT._Battle("3v", "78")
-            elif count == -2:
+            elif moveSet == -2:
                 return ACT._Battle("4xv", "71")
-            elif count == "VERLYRUS?":
-                return ACT._Battle("49v0cz", "097v4")
+            elif moveSet == "VERLYRUS?":
+                return ACT._Battle("49v0cz3", "097v4")
             return ACT._Battle("487", "78")
         return ACT._Battle("487", "78")
 
@@ -105,10 +107,10 @@ class ACT(metaclass=_ACTMETA):
                 return
             idx = waves.index(wave)
             cnts = counts[idx][:]
-            print(f"\rStarting wave #{(num := num + 1)} ({num+2464})", end="", flush=True)
-            print(ACT.QuestComplete["in"])
+            print(f"\rStarting wave #{(num := num + 1)+3264}", end="", flush=True)
             while True:
                 ACT.MoveInDirection(wave.split("/")[-1])
+                # TODO: Make this a little more graceful....
                 GUI.AwaitImg(ACT.atkBtn, ACT.QuestComplete["in"])  # ACT.questFail,
                 if GUI.CheckImage(ACT.atkBtn):
                     ACT.Battle(className, cnts.pop() if len(cnts) > 1 else cnts[0])
@@ -116,10 +118,10 @@ class ACT(metaclass=_ACTMETA):
                     ACT.QuestComplete.Close()
                     ACT.NewItem.Await().Keep()
                     break
-            # elif GUI.CheckImage(ACT.questFail):
-            #     pass
-            # else:
-            #     pass
+                # elif GUI.CheckImage(ACT.questFail):
+                #     pass
+                # else:
+                #     pass
 
     @staticmethod
     def MoveInDirection(direction):
@@ -146,19 +148,13 @@ class ACT(metaclass=_ACTMETA):
         ACT.Images = {}
         ACT.Dialogs = {}
 
+        # TODO: ADD Aliases to General
         for entry in os.listdir("./General"):
             full_path = os.path.join("./General", entry)
             if os.path.isdir(full_path):
                 ACT[entry] = Dialog(f"./General/{entry}")
             elif os.path.isfile(full_path) and entry.endswith(".png"):
                 ACT[entry.split("\\")[-1].split("/")[-1].split("#")[0]] = f"./General/{entry}"
-        # ACT.atkBtn = FetchImg("atkBtn")
-        # ACT.ctnBtn = FetchImg("ctnBtn")
-        # ACT.stkBtn = FetchImg("stkBtn")
-        # ACT.petBtn = FetchImg("petBtn")
-        # ACT.dead = FetchImg("dead")
-
-        # ACT.noOverlay = FetchImg("noOverlay")
 
         def debug_mouse(_, y, b, p):
             if y >= 2050 and b == mouse.Button.middle and p:
@@ -167,6 +163,7 @@ class ACT(metaclass=_ACTMETA):
                 )
                 GUI.SaveRegion((0, 0, 1, 1), "trace")
 
+        # if not __file__.endswith("creator.py"):
         debug = mouse.Listener(on_click=debug_mouse)
         debug.daemon = True
         debug.start()
@@ -183,5 +180,6 @@ if __name__ == "__main__":
     # if ACT.LoreBook.Pot: => is Act.LoreBook.Pot visible?
     # print(ACT)
     # For Example!!
-    print(bool(ACT.QuestComplete))
+    # ACT.LoreBook[1].Close(False)
+    # ACT.Battle("ChaosWeaver", ("43vz", "90"))
     quit()

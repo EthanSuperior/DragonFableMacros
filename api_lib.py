@@ -311,7 +311,7 @@ class _LINUX_API(_API):
     pass
 
 
-API: _WIN_API = (
+API: _API = (
     {
         "Windows": _WIN_API,
         "Darwin": _MAC_API,

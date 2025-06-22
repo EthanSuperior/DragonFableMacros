@@ -55,7 +55,7 @@ class Dialog:
                 for val in [vals] if isinstance(vals, str) else list(vals):
                     val = val.strip().strip(",").lower()
                     self[val] = self[key]
-
+        # TODO: If we are missing an 'in' option, maybe just treat it as a collection of images; howabout that?
         if "in" not in self._imgs:
             print(f"Dialog {folder_dir} missing 'in', you must add an in image or alias")
 
@@ -82,12 +82,11 @@ class Dialog:
         raise AttributeError(f"No option for '{name}', add the image or check your spelling")
 
     def Click(self, key, timeout=3, interval=0.01):
+        self.Open()
         return GUI.ClickIf(self[key], timeout=timeout, interval=interval)
 
     def Action(self, name, close=True):
-        self.Open()
         self.Click(name)
-        print(name, self[name])
         if close:
             self.Close()
 
