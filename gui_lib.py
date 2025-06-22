@@ -122,157 +122,230 @@ class GUI:
                 GUI.DrawGizmo((x, y), "#FF0")
 
 
-def nothing(x):
-    pass
-
-
 if __name__ == "__main__":
-    # Convert to grayscale again
-    img = cv2.cvtColor(np.array(GUI.CaptureRegion((0, 0, 1, 0.807))), cv2.COLOR_BGR2GRAY)
+    import cv2
+    import numpy as np
+    import dearpygui.dearpygui as dpg
+    import time
+    from threading import Timer
 
-    cv2.namedWindow("DEV GUI")
-    # Create trackbars for parameters
-    cv2.createTrackbar("E Blur", "DEV GUI", 0, 1, nothing)
-    cv2.createTrackbar("Blur Kernel", "DEV GUI", 4, 36, nothing)  # 4
-    # cv2.createTrackbar("E Resize", "DEV GUI", 0, 1, nothing)
-    # cv2.createTrackbar("Scale Down", "DEV GUI", 1, 8, nothing)
-    cv2.createTrackbar("E AdapThresh 1", "DEV GUI", 0, 1, nothing)
-    cv2.createTrackbar("Block Size", "DEV GUI", 5, 500, nothing)
-    cv2.createTrackbar("C", "DEV GUI", 1, 45, nothing)
-    cv2.createTrackbar("E Canny", "DEV GUI", 0, 1, nothing)
-    cv2.createTrackbar("Min Thresh", "DEV GUI", 400, 4000, nothing)  # 1280
-    cv2.createTrackbar("Max Thresh", "DEV GUI", 400, 8000, nothing)  # 2256
-    cv2.createTrackbar("E AdapThresh 2", "DEV GUI", 0, 1, nothing)
-    cv2.createTrackbar("Block Size_2", "DEV GUI", 5, 251, nothing)
-    cv2.createTrackbar("C_2", "DEV GUI", 1, 45, nothing)
-    cv2.createTrackbar("E Morphology", "DEV GUI", 0, 1, nothing)
-    cv2.createTrackbar("Morph Kernel", "DEV GUI", 40, 160, nothing)  # 90
-    # cv2.createTrackbar("E Contour Detection", "DEV GUI", 0, 1, nothing)
-    cv2.createTrackbar("E Area Contours", "DEV GUI", 0, 1, nothing)
-    cv2.createTrackbar("Min Area", "DEV GUI", 4, 4000, nothing)
-    cv2.createTrackbar("Max Area", "DEV GUI", 100, 8000, nothing)
-    cv2.createTrackbar("E Ratio Contour", "DEV GUI", 0, 1, nothing)
-    cv2.createTrackbar("Min Ratio", "DEV GUI", 0, 99, nothing)  # 1280
-    cv2.createTrackbar("Max Ratio", "DEV GUI", 0, 99, nothing)  # 2256
+    # ------ Image Preprocessing Filters ------ #
+    def apply_contour(img):
+        contours, _ = cv2.findContours(img, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
+        objects = []
+        height, width = img.shape[:2]
+        for cnt in contours:
+            x, y, w, h = cv2.boundingRect(cnt)
+            area = w * h
 
-    cv2.namedWindow("Render")
-    # Loop to update the image
-    while True:
-        # Get current positions of trackbars
-        # pow_2 = cv2.getTrackbarPos("Scale Down", "DEV GUI")  # 8
-        blur_k = cv2.getTrackbarPos("Blur Kernel", "DEV GUI")  # 2
-        block_size = cv2.getTrackbarPos("Block Size", "DEV GUI")
-        C = cv2.getTrackbarPos("C", "DEV GUI")
-        threshold1 = cv2.getTrackbarPos("Min Thresh", "DEV GUI")  # 0
-        threshold2 = max(cv2.getTrackbarPos("Max Thresh", "DEV GUI"), threshold1)  # 3067
-        block_size_2 = cv2.getTrackbarPos("Block Size_2", "DEV GUI")  # 251
-        C_2 = cv2.getTrackbarPos("C_2", "DEV GUI")  # 5
-        morph_k = cv2.getTrackbarPos("Morph Kernel", "DEV GUI")  # 0
-        min_area = cv2.getTrackbarPos("Min Area", "DEV GUI")
-        max_area = cv2.getTrackbarPos("Max Area", "DEV GUI")
-        min_ratio = cv2.getTrackbarPos("Min Ratio", "DEV GUI")  # 1280
-        max_ratio = cv2.getTrackbarPos("Max Ratio", "DEV GUI")  # 2256
+            area = w * h
+            aspect_ratio = w / float(h)
 
-        is_Resize = False  # cv2.getTrackbarPos("E Resize", "DEV GUI")
-        is_Blur = cv2.getTrackbarPos("E Blur", "DEV GUI")
-        is_AdapThresh = cv2.getTrackbarPos("E AdapThresh 1", "DEV GUI")
-        is_Canny = cv2.getTrackbarPos("E Canny", "DEV GUI")
-        is_AdapThresh2 = cv2.getTrackbarPos("E AdapThresh 2", "DEV GUI")
-        is_Morphology = cv2.getTrackbarPos("E Morphology", "DEV GUI")
-        is_ContourDetect = True  # cv2.getTrackbarPos("E Contour Detection", "DEV GUI")
-        is_Area = cv2.getTrackbarPos("E Area Contours", "DEV GUI")
-        is_Ratio = cv2.getTrackbarPos("E Ratio Contour", "DEV GUI")
+            if area < 3000 or area > 0.3 * width * height:
+                continue  # Too small or too big
+            if aspect_ratio < 0.2 or aspect_ratio > 3.5:
+                continue
+            objects.append((x, y, w, h))
+            cv2.rectangle(img, (x, y), (x + w, y + h), (0, 255, 0), 2)
+        return img, objects
 
-        h, w = img.shape[:2]
-        up_img = img.copy()
-        if is_Blur:
-            blur_k = (blur_k * 2) + 1
-            up_img = cv2.GaussianBlur(up_img, (blur_k, blur_k), 0)
-        if is_Resize:
-            w = w // (2**pow_2)
-            h = h // (2**pow_2)
-            up_img = cv2.resize(up_img, (w, h), interpolation=cv2.INTER_AREA)
-        # Apply Gaussian blur
+    def apply_blur(img, k):
+        return cv2.GaussianBlur(img, (k * 2 + 1, k * 2 + 1), 0)
 
-        # Adaptive thresholding
-        x, y = cv2.ADAPTIVE_THRESH_GAUSSIAN_C, cv2.THRESH_BINARY_INV
-        if is_AdapThresh:
-            up_img = cv2.adaptiveThreshold(up_img, 255, x, y, (block_size * 2) + 3, C)
-        if is_Canny:
-            up_img = cv2.Canny(up_img, threshold1, threshold2, apertureSize=5)
-        if is_AdapThresh2:
-            up_img = cv2.adaptiveThreshold(up_img, 255, x, y, (block_size_2 * 2) + 3, C_2)
+    def apply_canny(img, min_thresh, max_thresh):
+        return cv2.Canny(img, min_thresh, max_thresh)
 
-        # Morphology
-        if is_Morphology:
-            kernel = np.ones((morph_k, morph_k), np.uint8)
-            up_img = cv2.morphologyEx(up_img, cv2.MORPH_CLOSE, kernel)
+    def apply_adaptive_threshold(img, block_size, C):
+        return cv2.adaptiveThreshold(
+            img, 255, cv2.ADAPTIVE_THRESH_GAUSSIAN_C, cv2.THRESH_BINARY_INV, (block_size * 2 + 3), C
+        )
 
-        # Find contours
-        if is_ContourDetect:
-            contours, _ = cv2.findContours(img, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
-            up_img = cv2.cvtColor(up_img, cv2.COLOR_GRAY2BGR)
+    def apply_morphology(img, k):
+        kernel = np.ones((k, k), np.uint8)
+        return cv2.morphologyEx(img, cv2.MORPH_CLOSE, kernel)
 
-            for c in contours:
-                x, y, cw, ch = cv2.boundingRect(c)
-                area = cw * ch
-                aspect_ratio = w / float(h)
-                if is_Area and (area < min_area or area > max_area):
-                    continue  # too small
-                if is_Ratio and (
-                    aspect_ratio > (max_ratio + 1) / 100 or aspect_ratio < (min_ratio + 1) / 100
-                ):
-                    continue  # weird shape
-                if h < 30 or w < 30:
-                    continue  # avoid slivers
-                cv2.rectangle(up_img, (x, y), (x + cw, y + ch), (0, 255, 0), 2)
+    def apply_median_blur(img, k):
+        return cv2.medianBlur(img, k * 2 + 1)
 
-        if is_Resize:
-            w = w * (2**pow_2)
-            h = h * (2**pow_2)
-            up_img = cv2.resize(up_img, (w, h), interpolation=cv2.INTER_AREA)
-        # Show image
-        # cv2.resizeWindow("DEV GUI", 1000, 500)
-        cv2.imshow("Render", up_img)
+    def apply_bilateral_filter(img, d, sigmaColor, sigmaSpace):
+        return cv2.bilateralFilter(img, d, sigmaColor, sigmaSpace)
 
-        # Break on ESC key
-        if cv2.waitKey(1) & 0xFF == 27:
-            break
-        # time.strftime("%H-%M-%S") + ".png"
+    def apply_histogram_equalization(img):
+        return cv2.equalizeHist(img)
 
-    cv2.destroyAllWindows()
-    # height, width = img.shape[:2]
-    # width = width // 4
-    # height = height // 4
-    # img = cv2.resize(img, (width, height), interpolation=cv2.INTER_AREA)
-    # img = cv2.GaussianBlur(img, (blur_gauss, blur_gauss), 0)
-    # img = cv2.adaptiveThreshold(
-    #     img,
-    #     255,
-    #     cv2.ADAPTIVE_THRESH_GAUSSIAN_C,
-    #     cv2.THRESH_BINARY_INV,  # Invert to make objects white
-    #     block_size,
-    #     C,  # blockSize, C (tweakable)
-    # )
+    def apply_clahe(img, clipLimit, tileGridSize):
+        clahe = cv2.createCLAHE(clipLimit=clipLimit, tileGridSize=(tileGridSize, tileGridSize))
+        return clahe.apply(img)
 
-    # # Close gaps in edges to better group parts of the same object
-    # kernel = np.ones((kern, kern), np.uint8)
-    # img = cv2.morphologyEx(img, cv2.MORPH_CLOSE, kernel)
+    # ------ Pipeline Config ------ #
+    FILTERS = {
+        "Blur": {"func": apply_blur, "params": {"k": 3}},
+        "Median Blur": {"func": apply_median_blur, "params": {"k": 3}},
+        "Bilateral Filter": {
+            "func": apply_bilateral_filter,
+            "params": {"d": 9, "sigmaColor": 75, "sigmaSpace": 75},
+        },
+        "Canny": {"func": apply_canny, "params": {"min_thresh": 100, "max_thresh": 200}},
+        "Adaptive Threshold": {
+            "func": apply_adaptive_threshold,
+            "params": {"block_size": 5, "C": 5},
+        },
+        "Morphology": {"func": apply_morphology, "params": {"k": 5}},
+        "Histogram Equalization": {"func": apply_histogram_equalization, "params": {}},
+        "CLAHE": {"func": apply_clahe, "params": {"clipLimit": 2.0, "tileGridSize": 8}},
+    }
 
-    # # contours, _ = cv2.findContours(img, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
-    # # objects = []
-    # # for cnt in contours:
-    # #     x, y, w, h = cv2.boundingRect(cnt)
-    # #     area = w * h
+    pipeline = []
 
-    # #     area = w * h
-    # #     aspect_ratio = w / float(h)
+    # Capture the initial image to determine dimensions
 
-    # #     if area < 3000 or area > 0.3 * width * height:
-    # #         continue  # Too small or too big
-    # #     if aspect_ratio < 0.2 or aspect_ratio > 3.5:
-    # #         continue
-    # #     objects.append((x, y, w, h))
-    # #     cv2.rectangle(img, (x, y), (x + w, y + h), (0, 255, 0), 2)
+    img_init = np.array(GUI.CaptureRegion((0, 0, 1, 0.807)).convert("RGB"))
+    img_h, img_w = img_init.shape[:2]
+    texture_data = img_init.astype(np.float32) / 255.0
 
-    # cv2.imwrite("Gray_" + name, img)
+    # ------ Debounce ------ #
+    debounce_timer = None
+
+    def debounce_process():
+        global debounce_timer
+        if debounce_timer:
+            debounce_timer.cancel()
+        debounce_timer = Timer(0.3, process_image)
+        debounce_timer.start()
+
+    # ------ UI ------ #
+    dpg.create_context()
+    dpg.create_viewport(title="Filter Pipeline Builder", width=img_w + 600, height=max(img_h, 720))
+
+    with dpg.window(label="Filter Control Panel", width=600, height=img_h, pos=(0, 0)):
+        dpg.add_text("Drag filters to rearrange pipeline")
+
+        with dpg.group(horizontal=True):
+            dpg.add_combo(
+                list(FILTERS.keys()), label="Add Filter", callback=lambda s, a: add_filter(a)
+            )
+            dpg.add_button(label="Clear Pipeline", callback=lambda: clear_pipeline())
+
+        filter_list = dpg.add_child_window(height=img_h - 80, width=-1, tag="filter_list")
+
+    with dpg.texture_registry():
+        dpg.add_raw_texture(
+            img_w,
+            img_h,
+            texture_data.flatten(),
+            tag="processed_texture",
+            format=dpg.mvFormat_Float_rgb,
+        )
+    with dpg.window(label="Image Viewer", width=img_w, height=img_h, pos=(600, 0)):
+        dpg.add_image("processed_texture")
+
+    def add_filter(name):
+        if name not in FILTERS:
+            return
+        filter_id = dpg.generate_uuid()
+        params = FILTERS[name]["params"].copy()
+
+        with dpg.collapsing_header(
+            label="", parent="filter_list", tag=filter_id, default_open=True
+        ):
+            with dpg.group(horizontal=True):
+                dpg.add_button(
+                    label="↑", width=25, callback=lambda s, a, u=filter_id: move_filter_up(u)
+                )
+                dpg.add_button(
+                    label="↓", width=25, callback=lambda s, a, u=filter_id: move_filter_down(u)
+                )
+                dpg.add_text(name)
+
+                # Text inputs for each parameter in header
+                for key, val in params.items():
+                    input_id = f"{filter_id}_{key}_input"
+                    dpg.add_input_int(
+                        label=f"{key}:",
+                        default_value=val,
+                        width=80,
+                        min_value=0,
+                        max_value=1000,
+                        step=1,
+                        callback=lambda s, a, u=filter_id, k=key: update_param(u, k, a),
+                        tag=input_id,
+                    )
+
+            # Optional: sliders or more advanced config below the header
+            for key, val in params.items():
+                slider_id = f"{filter_id}_{key}_slider"
+                dpg.add_slider_int(
+                    label=f"{key} (slider)",
+                    default_value=val,
+                    min_value=1,
+                    max_value=100,
+                    width=300,
+                    callback=lambda s, a, u=filter_id, k=key, input_ref=f"{filter_id}_{key}_input": sync_input_and_update(
+                        u, k, a, input_ref
+                    ),
+                    tag=slider_id,
+                )
+
+        pipeline.append({"id": filter_id, "name": name, "params": params})
+        debounce_process()
+
+    def move_filter_up(filter_id):
+        idx = next((i for i, f in enumerate(pipeline) if f["id"] == filter_id), None)
+        if idx is not None and idx > 0:
+            pipeline[idx], pipeline[idx - 1] = pipeline[idx - 1], pipeline[idx]
+            dpg.move_item(filter_id, parent="filter_list", before=pipeline[idx]["id"])
+            debounce_process()
+
+    def move_filter_down(filter_id):
+        idx = next((i for i, f in enumerate(pipeline) if f["id"] == filter_id), None)
+        if idx is not None and idx < len(pipeline) - 1:
+            pipeline[idx], pipeline[idx + 1] = pipeline[idx + 1], pipeline[idx]
+            dpg.move_item(filter_id, parent="filter_list", before=pipeline[idx + 1]["id"])
+            debounce_process()
+
+    def sync_input_and_update(filter_id, param_name, value, input_id):
+        dpg.set_value(input_id, value)
+        update_param(filter_id, param_name, value)
+
+    def update_param(filter_id, param_name, value):
+        for step in pipeline:
+            if step["id"] == filter_id:
+                step["params"][param_name] = value
+                break
+        debounce_process()
+
+    def clear_pipeline():
+        for step in pipeline:
+            dpg.delete_item(step["id"])
+        pipeline.clear()
+        debounce_process()
+
+    def process_image():
+        img = np.array(GUI.CaptureRegion((0, 0, 1, 0.807)).convert("RGB"))
+        channels = cv2.split(img)  # Split into R, G, B channels
+
+        processed_channels = []
+        for channel in channels:
+            channel_gray = cv2.cvtColor(cv2.merge([channel, channel, channel]), cv2.COLOR_BGR2GRAY)
+
+            for step in pipeline:
+                name = step["name"]
+                params = step["params"]
+                try:
+                    channel_gray = FILTERS[name]["func"](channel_gray, **params)
+                except Exception as e:
+                    print(f"Error applying {name}: {e}")
+
+            channel_gray, objects = apply_contour(channel_gray)
+            processed_channels.append(channel_gray)
+
+        # Merge processed R, G, B channels
+        merged_img = cv2.merge(processed_channels)
+        img_rgb_f32 = merged_img.astype(np.float32) / 255.0
+        dpg.set_value("processed_texture", img_rgb_f32.flatten())
+
+    # Run the GUI
+    dpg.setup_dearpygui()
+    dpg.show_viewport()
+    dpg.start_dearpygui()
+    dpg.destroy_context()

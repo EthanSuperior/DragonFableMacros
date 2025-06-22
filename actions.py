@@ -107,7 +107,7 @@ class ACT(metaclass=_ACTMETA):
                 return
             idx = waves.index(wave)
             cnts = counts[idx][:]
-            print(f"\rStarting wave #{(num := num + 1)+3264}", end="", flush=True)
+            print(f"\rStarting wave #{(num := num + 1)+3506}", end="", flush=True)
             while True:
                 ACT.MoveInDirection(wave.split("/")[-1])
                 # TODO: Make this a little more graceful....
@@ -116,7 +116,8 @@ class ACT(metaclass=_ACTMETA):
                     ACT.Battle(className, cnts.pop() if len(cnts) > 1 else cnts[0])
                 elif ACT.QuestComplete:
                     ACT.QuestComplete.Close()
-                    ACT.NewItem.Await().Keep()
+                    GUI.MouseClick((0.5, 0.5))  # Click anywhere to move mouse
+                    ACT.NewItem.Keep()
                     break
                 # elif GUI.CheckImage(ACT.questFail):
                 #     pass
