@@ -53,8 +53,24 @@ class GUI:
         img_gray = cv2.resize(img_gray, (width, height), interpolation=cv2.INTER_AREA)
         # Match template
         res = cv2.matchTemplate(img_gray, template, cv2.TM_CCOEFF_NORMED)
-        _, max_val, _, _ = cv2.minMaxLoc(res)
-        return max_val >= precision
+        return cv2.minMaxLoc(res)[1] >= precision
+
+    def MatchMask(path):
+        mask_img = cv2.imread(path, 0)
+        if mask_img is None:
+            raise FileNotFoundError(f"Image file not found: {path}")
+        # Convert relative ratios to absolute pixels
+        area = UTILS.AreaFromPath(path)
+        size = list(mask_img.shape[:2])[::-1]
+        # expand_area = (area[0] - 0.002, area[1] - 0.002, area[2] + 0.002, area[3] + 0.002)
+        im = API.WindowCapture().crop(UTILS.ToRelative(area))
+        scrn_img = cv2.cvtColor(np.array(im), cv2.COLOR_BGR2GRAY)
+        scrn_img = cv2.resize(scrn_img, size, interpolation=cv2.INTER_AREA)
+        template_mask = cv2.threshold(mask_img, 1, 255, cv2.THRESH_BINARY)[1]
+
+        res = cv2.matchTemplate(mask_img, scrn_img, cv2.TM_CCOEFF_NORMED, mask=template_mask)
+        print(cv2.minMaxLoc(res)[1])
+        return cv2.minMaxLoc(res)[1] >= 0.95
 
     @staticmethod
     def AwaitImg(*paths, timeout=3, interval=0.01):
@@ -104,7 +120,7 @@ class GUI:
         pos = UTILS.ToAbsolute(pos)
         API.MouseClick(pos)
         for _ in range(times - 1):
-            time.sleep(0.01)
+            time.sleep(0.1)
             API.MouseClick(pos)
 
     @staticmethod

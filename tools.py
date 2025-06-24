@@ -1,5 +1,65 @@
 import dearpygui.dearpygui as dpg
 
+
+import cv2
+import numpy as np
+
+# Load your images
+from gui_lib import GUI
+
+print(GUI.MatchMask("top_dlg_mask#(0.360, 0.005, 0.640, 0.035).png"))
+exit()
+# img1 = cv2.imread("Images/ScreenCaps/00-13-05#(0, 0, 1, 1).png", cv2.IMREAD_COLOR)
+# img2 = cv2.imread("Images/ScreenCaps/00-13-11#(0, 0, 1, 1).png", cv2.IMREAD_COLOR)
+# img3 = cv2.imread("Images/ScreenCaps/00-13-18#(0, 0, 1, 1).png", cv2.IMREAD_COLOR)
+img1 = cv2.imread("Images/ScreenCaps/01-40-22#(0, 0, 1, 1).png", cv2.IMREAD_COLOR)
+img2 = cv2.imread("Images/ScreenCaps/01-40-31#(0, 0, 1, 1).png", cv2.IMREAD_COLOR)
+img3 = cv2.imread("Images/ScreenCaps/01-40-36#(0, 0, 1, 1).png", cv2.IMREAD_COLOR)
+img4 = cv2.imread("Images/ScreenCaps/01-40-39#(0, 0, 1, 1).png", cv2.IMREAD_COLOR)
+img5 = cv2.imread("Images/ScreenCaps/01-41-14#(0, 0, 1, 1).png", cv2.IMREAD_COLOR)
+img6 = cv2.imread("Images/ScreenCaps/01-42-58#(0, 0, 1, 1).png", cv2.IMREAD_COLOR)
+img7 = cv2.imread("Images/ScreenCaps/01-43-05#(0, 0, 1, 1).png", cv2.IMREAD_COLOR)
+
+# Apply bitwise AND step by step to find intersection
+imgs = [img1, img2, img3, img5, img6, img7]  # Check that all images are the same shape
+assert all(
+    img.shape == imgs[0].shape for img in imgs
+), "All images must be the same size and channels"
+
+# Stack all images into shape: (N, H, W) for grayscale or (N, H, W, C) for color
+stacked = np.stack(imgs, axis=0)
+
+# Check equality across all images
+match_mask = np.all(stacked == stacked[0], axis=0)  # shape: (H, W, 3)
+match_mask = np.all(match_mask, axis=-1)  # shape: (H, W)
+# If color image: reduce to per-pixel match by checking all channels
+result = imgs[0].copy()
+result[~match_mask] = [0, 0, 0]
+# Crop: keep top 20% and center 80% width
+height, width = result.shape[:2]
+# Top cnt text....
+# left = int(width * 0.36)
+# top = int(height * 0.005)
+# right = int(width * 0.64)
+# bottom = int(height * 0.035)
+left = int(width * 0.36)
+top = int(height * 0.740)
+right = int(width * 0.64)
+bottom = int(height * 0.830)
+
+cropped = result[top:bottom, left:right]
+
+# Save or show result
+cv2.imwrite("dlg_mask#(0.360, 0.740, 0.640, 0.830).png", cropped)
+template_mask = cv2.threshold(cropped, 1, 255, cv2.THRESH_BINARY)[1]
+
+# GUI.CaptureRegion((0.36, 0.005, 0.64, 0.035)).save("dlg_act(0.360, 0.005, 0.640, 0.035).png", "png")
+cv2.imshow("Result", template_mask)
+cv2.waitKey(0)
+cv2.destroyAllWindows()
+
+
+quit()
 dpg.create_context()
 
 is_expanded = {"state": True}

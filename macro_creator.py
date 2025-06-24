@@ -25,11 +25,12 @@ class HANDLERS:
             dT = round(time.time() - HANDLERS.startT, 3)
             HANDLERS.startT = time.time()
             print(f"ACT.Sleep({dT})")
-            pos = GUI.MousePosition()
-            print(f"ACT.MouseClick({pos})")
+        pos = GUI.MousePosition()
+        print(f"ACT.MouseClick({pos})")
         if HANDLERS.alt_pressed:
             print(f'ACT.Battle("ChaosWeaver", 1)')
             ACT.Battle("ChaosWeaver", 1)
+            HANDLERS.startT = time.time()
             GUI.MouseClick(pos)
             print(f"ACT.MouseClick({pos})")
 
@@ -130,6 +131,11 @@ if __name__ == "__main__":
     HANDLERS.keyboard_listener = keyboard.Listener(
         on_press=HANDLERS.on_press, on_release=HANDLERS.on_release
     )
+    # import quests
+
+    # quests.DarkTower()
+    # print("Dark Tower Quest Done")
+    GUI.MouseClick((0.9, 0.9))
     HANDLERS.mouse_listener = mouse.Listener(on_click=HANDLERS.on_click, on_move=HANDLERS.on_move)
     HANDLERS.keyboard_listener.start()
     HANDLERS.keyboard_listener.deamon = True
