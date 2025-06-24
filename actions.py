@@ -43,8 +43,8 @@ class ACT(metaclass=_ACTMETA):
         return GUI.ClickIf(path, timeout=timeout, interval=interval)
 
     @staticmethod
-    def MouseClick(pos):
-        return GUI.MouseClick(pos)
+    def MouseClick(pos, times=1):
+        return GUI.MouseClick(pos, times=times)
 
     @staticmethod
     def TypeKeys(keys, interval=0.01):
@@ -77,10 +77,16 @@ class ACT(metaclass=_ACTMETA):
                 GUI.AwaitImg(ACT.noOverlay, timeout=1)
                 return ACT.ctnBtn
             elif GUI.CheckImage(ACT.dead):
-                ACT.ClickIf("ScreenCaps/#(0.451, 0.587, 0.577, 0.619).png")
+                ACT.ClickIf(ACT.deadCtn)
                 return ACT.dead
             else:
                 GUI.ClickIf(ACT.stkBtn, timeout=0)
+
+    @staticmethod
+    def ForfitBattle():
+        ACT.AwaitImg(ACT.atkBtn)  # Can only flee on your turn in battle...
+        ACT.Sleep(0.2)
+        ACT.Options.Flee()
 
     @staticmethod
     def Battle(className, moveSet=1):
@@ -97,32 +103,31 @@ class ACT(metaclass=_ACTMETA):
         return ACT._Battle("487", "78")
 
     @staticmethod
-    def BattleWar(startBtn: str, waves: list, counts: list, className="ChaosWeaver"):
-        print(f"Starting Waves of {startBtn.split('/')[1].split('#')[0]} war")
-        num = 0
-        while GUI.ClickIf(startBtn, timeout=20):  # True
-            # wave = waves[1]
-            wave = GUI.AwaitImg(*waves, timeout=20)
-            if wave is None:
-                return
-            idx = waves.index(wave)
-            cnts = counts[idx][:]
-            print(f"\rStarting wave #{(num := num + 1)+3506}", end="", flush=True)
-            while True:
-                ACT.MoveInDirection(wave.split("/")[-1])
-                # TODO: Make this a little more graceful....
-                GUI.AwaitImg(ACT.atkBtn, ACT.QuestComplete["in"])  # ACT.questFail,
-                if GUI.CheckImage(ACT.atkBtn):
-                    ACT.Battle(className, cnts.pop() if len(cnts) > 1 else cnts[0])
-                elif ACT.QuestComplete:
-                    ACT.QuestComplete.Close()
-                    GUI.MouseClick((0.5, 0.5))  # Click anywhere to move mouse
-                    ACT.NewItem.Keep()
-                    break
-                # elif GUI.CheckImage(ACT.questFail):
-                #     pass
-                # else:
-                #     pass
+    def BattleWar(waves: list, counts: list, className="ChaosWeaver"):
+        if "num" not in locals():
+            num = 0
+        # wave = waves[1]
+        wave = GUI.AwaitImg(*waves, timeout=20)
+        if wave is None:
+            return
+        idx = waves.index(wave)
+        cnts = counts[idx][:]
+        print(f"\rStarting wave #{(num := num + 1)+5171}", end="", flush=True)
+        while True:
+            ACT.MoveInDirection(wave.split("/")[-1])
+            # TODO: Make this a little more graceful....
+            GUI.AwaitImg(ACT.atkBtn, ACT.QuestComplete["in"])  # ACT.questFail,
+            if GUI.CheckImage(ACT.atkBtn):
+                ACT.Battle(className, cnts.pop() if len(cnts) > 1 else cnts[0])
+            elif ACT.QuestComplete:
+                ACT.QuestComplete.Close()
+                GUI.MouseClick((0.5, 0.5))  # Click anywhere to move mouse
+                ACT.NewItem.Keep()
+                break
+            # elif GUI.CheckImage(ACT.questFail):
+            #     pass
+            # else:
+            #     pass
 
     @staticmethod
     def MoveInDirection(direction):

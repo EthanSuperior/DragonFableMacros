@@ -100,8 +100,12 @@ class GUI:
         return False
 
     @staticmethod
-    def MouseClick(pos):
-        API.MouseClick(UTILS.ToAbsolute(pos))
+    def MouseClick(pos, times=1):
+        pos = UTILS.ToAbsolute(pos)
+        API.MouseClick(pos)
+        for _ in range(times - 1):
+            time.sleep(0.01)
+            API.MouseClick(pos)
 
     @staticmethod
     def TypeKeys(keys, interval=0.01):
@@ -215,18 +219,19 @@ if __name__ == "__main__":
 
     # ------ UI ------ #
     dpg.create_context()
-    dpg.create_viewport(title="Filter Pipeline Builder", width=img_w + 600, height=max(img_h, 720))
-
-    with dpg.window(label="Filter Control Panel", width=600, height=img_h, pos=(0, 0)):
-        dpg.add_text("Drag filters to rearrange pipeline")
+    dpg.create_viewport(title="Filter Pipeline Builder", width=img_w + 400, height=max(img_h, 720))
+    with dpg.font_registry():
+        big_font = dpg.add_font("C:/Windows/Fonts/segoeui.ttf", 40)  # Path for Windows default font
+    dpg.bind_font(big_font)
+    with dpg.window(label="Filters", width=400, height=img_h, pos=(0, 0), no_title_bar=True):
+        dpg.add_text("Drag filters to rearrange")
 
         with dpg.group(horizontal=True):
-            dpg.add_combo(
-                list(FILTERS.keys()), label="Add Filter", callback=lambda s, a: add_filter(a)
-            )
-            dpg.add_button(label="Clear Pipeline", callback=lambda: clear_pipeline())
+            dpg.add_text("Add Filter")
+            dpg.add_combo(list(FILTERS.keys()), callback=lambda s, a: add_filter(a))
+            dpg.add_button(label="Clear", callback=lambda: clear_pipeline())
 
-        filter_list = dpg.add_child_window(height=img_h - 80, width=-1, tag="filter_list")
+        filter_list = dpg.add_child_window(height=img_h - 180, width=-1, tag="filter_list")
 
     with dpg.texture_registry():
         dpg.add_raw_texture(
@@ -236,7 +241,7 @@ if __name__ == "__main__":
             tag="processed_texture",
             format=dpg.mvFormat_Float_rgb,
         )
-    with dpg.window(label="Image Viewer", width=img_w, height=img_h, pos=(600, 0)):
+    with dpg.window(label="Image", width=img_w, height=img_h, pos=(400, 0), no_title_bar=True):
         dpg.add_image("processed_texture")
 
     def add_filter(name):
@@ -246,45 +251,41 @@ if __name__ == "__main__":
         params = FILTERS[name]["params"].copy()
 
         with dpg.collapsing_header(
-            label="", parent="filter_list", tag=filter_id, default_open=True
+            label=name,
+            parent="filter_list",
+            tag=filter_id,
+            default_open=False,
+            drag_callback=None,
+            drop_callback=None,
         ):
-            with dpg.group(horizontal=True):
-                dpg.add_button(
-                    label="↑", width=25, callback=lambda s, a, u=filter_id: move_filter_up(u)
-                )
-                dpg.add_button(
-                    label="↓", width=25, callback=lambda s, a, u=filter_id: move_filter_down(u)
-                )
-                dpg.add_text(name)
-
+            with dpg.group(horizontal=True, parent=filter_id):
                 # Text inputs for each parameter in header
                 for key, val in params.items():
                     input_id = f"{filter_id}_{key}_input"
                     dpg.add_input_int(
                         label=f"{key}:",
                         default_value=val,
-                        width=80,
-                        min_value=0,
-                        max_value=1000,
-                        step=1,
+                        width=180,
+                        step=None,
                         callback=lambda s, a, u=filter_id, k=key: update_param(u, k, a),
                         tag=input_id,
                     )
 
-            # Optional: sliders or more advanced config below the header
-            for key, val in params.items():
-                slider_id = f"{filter_id}_{key}_slider"
-                dpg.add_slider_int(
-                    label=f"{key} (slider)",
-                    default_value=val,
-                    min_value=1,
-                    max_value=100,
-                    width=300,
-                    callback=lambda s, a, u=filter_id, k=key, input_ref=f"{filter_id}_{key}_input": sync_input_and_update(
-                        u, k, a, input_ref
-                    ),
-                    tag=slider_id,
-                )
+            with dpg.group(horizontal=False, parent=filter_id):
+                # Optional: sliders or more advanced config below the header
+                for key, val in params.items():
+                    slider_id = f"{filter_id}_{key}_slider"
+                    dpg.add_slider_int(
+                        label=f"{key} (slider)",
+                        default_value=val,
+                        min_value=1,
+                        max_value=100,
+                        width=300,
+                        callback=lambda s, a, u=filter_id, k=key, input_ref=f"{filter_id}_{key}_input": sync_input_and_update(
+                            u, k, a, input_ref
+                        ),
+                        tag=slider_id,
+                    )
 
         pipeline.append({"id": filter_id, "name": name, "params": params})
         debounce_process()

@@ -2,40 +2,33 @@ from actions import ACT
 
 
 def BicentennialDragonLord():
-    startWaveBtn = "./BicentennialDragonLord/startMatch#(0.713, 0.633, 0.893, 0.687).png"
+    startWaveBtn = "./BicentennialDragonLord/start#(0.713, 0.633, 0.893, 0.687).png"
     waves = [
         "./BicentennialDragonLord/eastWave1#(0, 0.2, 1, 1).png",
         "./BicentennialDragonLord/westWave2#(0, 0.2, 1, 1).png",
         "./BicentennialDragonLord/eastWave3#(0, 0.2, 1, 1).png",
     ]
-    ACT.BattleWar(startWaveBtn, waves, [[2, 2, 2], [2, 2, 2], [2, 2, 2]])
+    if ACT.ClickIf(startWaveBtn, timeout=20):  # True
+        ACT.BattleWar(waves, [[2, 2, 2], [2, 2, 2], [2, 2, 2]])
+        return True
+    return False
 
 
 def ChallengerBelt():
-    def RestartChallenge():
-        def ForfitBattle():
-            ACT.AwaitImg(ACT.atkBtn)
-            ACT.Sleep(0.2)
-            ACT.ClickIf("ScreenCaps/#(0.463, 0.955, 0.533, 0.977).png", timeout=17.08)
-            ACT.ClickIf("ScreenCaps/#(0.442, 0.755, 0.556, 0.793).png", timeout=16.868)
-            ACT.ClickIf("ScreenCaps/#(0.384, 0.494, 0.486, 0.53).png", timeout=18.162)
-
-        ForfitBattle()
-        ACT.ClickIf("ScreenCaps/#(0.353, 0.371, 0.633, 0.451).png", timeout=11.304)
-
-    while True:
-        ACT.ClickIf("ScreenCaps/#(0.095, 0.407, 0.289, 0.463).png", timeout=30)
-        for _ in range(7):
-            if ACT.Battle("ChaosWeaver", -2) == ACT.dead:
-                RestartChallenge()
+    if ACT.ClickIf("ChallengerBelt/start#(0.095, 0.407, 0.289, 0.463).png", timeout=30):
+        for op in [*([-2] * 7), "VERLYRUS?"]:
+            if ACT.Battle("ChaosWeaver", op) == ACT.dead:
+                ACT.ForfitBattle()
+                ACT.ClickIf("ChallengerBelt/challengeLost#(0.353, 0.371, 0.633, 0.451).png")
                 continue
-        if ACT.Battle("ChaosWeaver", "VERLYRUS?") == ACT.dead:
-            RestartChallenge()
-            continue
         ACT.QuestComplete.Await().Close()
         ACT.NewItem.Await().Keep()
+        return True
+    return False
 
 
-BicentennialDragonLord()
-# ChallengerBelt()
+# while ACT.ClickIf("ChallengerBelt/start*.png", timeout=30):
+while True:
+    # BicentennialDragonLord()
+    ChallengerBelt()
 # globals()['func_name']()
