@@ -112,7 +112,8 @@ class ACT(metaclass=_ACTMETA):
             return
         idx = waves.index(wave)
         cnts = counts[idx][:]
-        print(f"\rStarting wave #{((num := num + 1), num+1472)}/10000", end="", flush=True)
+        ACT.num += 1
+        print(f"\rStarting wave #{ACT.num+1703}/10000", end="", flush=True)
         while True:
             ACT.MoveInDirection(wave.split("/")[-1])
             # TODO: Make this a little more graceful....

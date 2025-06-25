@@ -62,9 +62,14 @@ from gui_lib import GUI
 # quit()
 dpg.create_context()
 
-img_init = np.array(GUI.CaptureRegion((0, 0, 1, 0.807)).convert("RGB"))
+
+def get_capture():
+    """Capture the screen region and return it as a PIL Image."""
+    return np.array(GUI.CaptureRegion((0, 0, 1, 0.807)).convert("RGB"))
+
+
+img_init = get_capture()
 img_h, img_w = img_init.shape[:2]
-texture_data = img_init.astype(np.float32) / 255.0
 
 
 # region --- Filters
@@ -124,6 +129,13 @@ def apply_clahe(img, clipLimit, tileGridSize):
     return clahe.apply(img)
 
 
+def apply_output(img, color):
+    # img = cv2.merge(img)
+    img_rgb_f32 = img.astype(np.float32) / 255.0
+    dpg.set_value("processed_texture", img_rgb_f32.flatten())
+    return img
+
+
 # endregion
 
 
@@ -143,10 +155,54 @@ FILTERS = {
     "Morphology": {"func": apply_morphology, "params": {"k": 5}},
     "Histogram Equalization": {"func": apply_histogram_equalization, "params": {}},
     "CLAHE": {"func": apply_clahe, "params": {"clipLimit": 2.0, "tileGridSize": 8}},
+    "Output": {"func": apply_output, "params": {"color": "RGB"}},
 }
 pipeline = {}
 
-# region --- Debounce
+# endregion
+
+
+# region --- DearPyGui Callbacks
+def on_drop(dropped_wnd, dragged_id):
+    payload_type = dpg.get_drag_payload_type()
+    if payload_type != "FILTER_REORDER":
+        return  # Ignore unrelated drags like sliders
+    print(f"Dropped {dragged_id} before {dropped_wnd}")
+    dragged_wnd = dpg.get_item_parent(dragged_id)
+    parent_wnd = dpg.get_item_parent(dropped_wnd)
+    if dragged_wnd and dpg.does_item_exist(dragged_wnd):
+        dpg.move_item(dragged_wnd, parent=parent_wnd, before=dropped_wnd)
+
+
+def clear_pipeline():
+    print("Clearing pipeline")
+    out = pipeline.pop(dpg.get_alias_id("output"))
+    for wnd in pipeline:
+        dpg.delete_item(wnd)
+    pipeline.clear()
+    pipeline[dpg.get_alias_id("output")] = out
+    debounce_process()
+
+
+def update_param(wnd_id, key, value, sender):
+    pipeline[wnd_id]["params"][key] = value
+    other = sender[:-5] + ("slide" if sender.endswith("input") else "input")
+    dpg.set_value(other, value)
+    debounce_process()
+
+
+def process_image():
+    img = get_capture()
+    for id in dpg.get_item_children("list")[1]:
+        if not dpg.does_item_exist(id):
+            continue
+        filter = pipeline[id]["filter_type"]
+        try:
+            img = FILTERS[filter]["func"](img, **pipeline[id]["params"])
+        except Exception as e:
+            print(f"Error applying {filter}: {e}")
+
+
 debounce_timer = None
 
 
@@ -161,129 +217,89 @@ def debounce_process():
 # endregion
 
 
-# region --- DearPyGui Callbacks
-def on_drop(dropped_wnd, dragged_id):
-    dragged_wnd = dpg.get_item_parent(dragged_id)
-    parent_wnd = dpg.get_item_parent(dropped_wnd)
-    if dragged_wnd and dpg.does_item_exist(dragged_wnd):
-        dpg.move_item(dragged_wnd, parent=parent_wnd, before=dropped_wnd)
-
-
-def clear_pipeline():
-    for step in pipeline:
-        dpg.delete_item(step["id"])
-    pipeline.clear()
-    debounce_process()
-
-
-def sync_input_and_update(filter_id, param_name, value, input_id):
-    dpg.set_value(input_id, value)
-    update_param(filter_id, param_name, value)
-
-
-def update_param(filter_id, param_name, value):
-    for step in pipeline:
-        if step["id"] == filter_id:
-            step["params"][param_name] = value
-            break
-    debounce_process()
-
-
-def process_image():
-    img = np.array(GUI.CaptureRegion((0, 0, 1, 0.807)).convert("RGB"))
-    channels = cv2.split(img)  # Split into R, G, B channels
-
-    processed_channels = []
-    for channel in channels:
-        channel_gray = cv2.cvtColor(cv2.merge([channel, channel, channel]), cv2.COLOR_BGR2GRAY)
-
-        for id in dpg.get_all_items("filter_list")[1]:
-            print(f"Processing step ID: {id}")
-            step = pipeline[id]
-            name = step["name"]
-            params = step["params"]
-            try:
-                channel_gray = FILTERS[name]["func"](channel_gray, **params)
-            except Exception as e:
-                print(f"Error applying {name}: {e}")
-
-        channel_gray, objects = apply_contour(channel_gray)
-        processed_channels.append(channel_gray)
-
-    # Merge processed R, G, B channels
-    merged_img = cv2.merge(processed_channels)
-    img_rgb_f32 = merged_img.astype(np.float32) / 255.0
-    dpg.set_value("processed_texture", img_rgb_f32.flatten())
-
-
-# endregion
-
-
 # region --- DearPyGui Layout
 def add_filter(filter_type="Blur"):
     if filter_type not in FILTERS:
         return
     h_id = dpg.generate_uuid()
     params = FILTERS[filter_type]["params"].copy()
-
+    print(f"Adding {filter_type} filter")
     with dpg.child_window(
-        autosize_x=True, auto_resize_y=True, drop_callback=on_drop, parent=filter_list
+        autosize_x=True, auto_resize_y=True, drop_callback=on_drop, parent="list"
     ) as wnd:
         with dpg.collapsing_header(label=filter_type, tag=h_id):
-            with dpg.drag_payload(drag_data=h_id):
+            with dpg.drag_payload(drag_data=h_id, payload_type="FILTER_REORDER"):
                 dpg.add_text("Drag to rearrange before")
-            with dpg.group(horizontal=True, parent=h_id):
-                # Text inputs for each parameter in header
-                for key, val in params.items():
-                    input_id = f"{h_id}_{key}_input"
+            for key in params:
+                with dpg.group(horizontal=True):
+                    dpg.add_text(f"{key}:")
+                    callback = lambda s, a: update_param(wnd, key, a, s)
                     dpg.add_input_int(
-                        label=f"{key}:",
-                        default_value=val,
-                        width=180,
-                        step=None,
-                        callback=lambda s, a, u=h_id, k=key: update_param(u, k, a),
-                        tag=input_id,
+                        step=-2,
+                        step_fast=-2,
+                        default_value=int(params[key]),
+                        callback=callback,
+                        width=100,
+                        tag=f"{wnd}_{key}_input",
                     )
-            with dpg.group(horizontal=False, parent=h_id):
-                # Optional: sliders or more advanced config below the header
-                for key, val in params.items():
-                    slider_id = f"{h_id}_{key}_slider"
                     dpg.add_slider_int(
-                        label=f"{key} (slider)",
-                        default_value=val,
+                        default_value=int(params[key]),
                         min_value=1,
                         max_value=100,
-                        width=300,
-                        callback=lambda s, a, u=h_id, k=key, input_ref=f"{h_id}_{key}_input": sync_input_and_update(
-                            u, k, a, input_ref
-                        ),
-                        tag=slider_id,
+                        width=400,
+                        callback=callback,
+                        tag=f"{wnd}_{key}_slide",
                     )
-    pipeline[h_id] = {"id": h_id, "filter_type": filter_type, "params": params}
-
-    dpg.move_item(wnd, parent=filter_list, before="output")
+        dpg.move_item_down("output")
+        pipeline[wnd] = {"filter_type": filter_type, "params": params}
     debounce_process()
 
 
-with dpg.window(label="Filters", width=400, height=img_h, pos=(0, 0), no_title_bar=True):
+dpg.create_viewport(title="Filter Pipeline Builder", width=img_w + 600, height=img_h)
+with dpg.font_registry():
+    big_font = dpg.add_font("C:/Windows/Fonts/segoeui.ttf", 40)  # Path for Windows default font
+dpg.bind_font(big_font)
+with dpg.texture_registry():
+    dpg.add_raw_texture(
+        img_w,
+        img_h,
+        (img_init.astype(np.float32) / 255.0).flatten(),
+        tag="processed_texture",
+        format=dpg.mvFormat_Float_rgb,
+    )
+with dpg.window(
+    label="Image",
+    width=img_w,
+    height=img_h,
+    pos=(600, 0),
+    no_title_bar=True,
+    no_move=True,
+    no_resize=True,
+):
+    dpg.add_image("processed_texture")
+with dpg.window(
+    label="Filters",
+    width=600,
+    height=img_h,
+    pos=(0, 0),
+    no_title_bar=True,
+    no_move=True,
+    no_resize=True,
+):
     with dpg.group(horizontal=True):
-        dpg.add_text("Add Filter")
+        dpg.add_text("Add")
         dpg.add_combo(list(FILTERS.keys()), callback=lambda s, a: add_filter(a))
         dpg.add_button(label="Clear", callback=lambda: clear_pipeline())
-    filter_list = dpg.add_child_window(height=img_h - 180, width=-1, tag="filter_list")
-
-    h_id = dpg.generate_uuid()
-    with dpg.child_window(
-        autosize_x=True, auto_resize_y=True, drop_callback=on_drop, parent=filter_list, tag="output"
-    ):
-        with dpg.collapsing_header(label=f"Output", tag=h_id, default_open=False):
-            dpg.add_text("This is inside the collapsible content.")
-            dpg.add_input_text(label="Input something")
-            dpg.add_button(label="Another Action")
-
-dpg.create_viewport(title="Filter Pipeline Builder", width=img_w + 400, height=max(img_h, 720))
+    with dpg.child_window(autosize_y=True, width=-1, tag="list"):
+        with dpg.child_window(
+            autosize_x=True, auto_resize_y=True, drop_callback=on_drop, tag="output"
+        ) as wnd:
+            with dpg.collapsing_header(label=f"Output", default_open=False):
+                pass
+            pipeline[dpg.get_alias_id(wnd)] = {"filter_type": "Output", "params": {"color": "RGB"}}
 dpg.setup_dearpygui()
 dpg.show_viewport()
+debounce_process()
 dpg.start_dearpygui()
 dpg.destroy_context()
 # endregion
