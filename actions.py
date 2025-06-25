@@ -104,15 +104,15 @@ class ACT(metaclass=_ACTMETA):
 
     @staticmethod
     def BattleWar(waves: list, counts: list, className="ChaosWeaver"):
-        if "num" not in locals():
-            num = 0
+        if "num" not in ACT.__dict__:
+            ACT.num = 0
         # wave = waves[1]
         wave = GUI.AwaitImg(*waves, timeout=20)
         if wave is None:
             return
         idx = waves.index(wave)
         cnts = counts[idx][:]
-        print(f"\rStarting wave #{(num := num + 1)+871}/10000", end="", flush=True)
+        print(f"\rStarting wave #{((num := num + 1), num+1472)}/10000", end="", flush=True)
         while True:
             ACT.MoveInDirection(wave.split("/")[-1])
             # TODO: Make this a little more graceful....
