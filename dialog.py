@@ -93,7 +93,7 @@ class Dialog:
     def _ActUntilInIs(self, val, act):
         # Wait until 'in' is val; clicking 'act' while we wait...
         startT = time.time()
-        while time.time() - startT <= 3:
+        while time.time() - startT <= 3.0:
             if bool(self) == val:
                 return True
             if GUI.CheckImage(self[act]):

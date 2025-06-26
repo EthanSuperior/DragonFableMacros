@@ -39,6 +39,12 @@ class ACT(metaclass=_ACTMETA):
         return GUI.AwaitNotImg(*paths, timeout=timeout, interval=interval)
 
     @staticmethod
+    def CutsceneEnd(path):
+        while not GUI.CheckImage(path):
+            ACT.MouseClick((0.964, 0.792))
+            ACT.Sleep(0.1)
+
+    @staticmethod
     def ClickIf(path, timeout=3, interval=0.01):
         return GUI.ClickIf(path, timeout=timeout, interval=interval)
 
@@ -66,10 +72,11 @@ class ACT(metaclass=_ACTMETA):
             if any(GUI.CheckImage(i) for i in endConditions):
                 return filter(GUI.CheckImage, endConditions)[0]
             elif GUI.CheckImage(ACT.atkBtn):
-                if GUI.CheckImage(ACT.petBtn):
-                    move = pet_moves.pop(0) if pet_moves else " "
+                moveset = pet_moves if GUI.CheckImage(ACT.petBtn) else player_moves
+                if cyclical:
+                    moveset.append(move := moveset.pop(0))
                 else:
-                    move = player_moves.pop(0) if player_moves else " "
+                    move = moveset.pop(0) if moveset else " "
                 ACT.TypeKeys(move)
                 GUI.AwaitNotImg(ACT.atkBtn)
             elif GUI.CheckImage(ACT.ctnBtn):
@@ -95,6 +102,14 @@ class ACT(metaclass=_ACTMETA):
         if className == "ChaosWeaver":
             if moveSet == 1:
                 return ACT._Battle("3v", "78")
+            elif moveSet == -1:
+                return ACT._Battle("4v3z", "78")
+            elif moveSet == "BOSS":
+                return ACT._Battle(
+                    ["e4", "e1", "9", "v", "3", "e4", "ec", "8", "z", "2", "e4", "e3", "6"],
+                    "67384513 4  3 4  3 4",
+                    cyclical=True,
+                )
             elif moveSet == -2:
                 return ACT._Battle("4xv", "71")
             elif moveSet == "VERLYRUS?":
@@ -113,7 +128,7 @@ class ACT(metaclass=_ACTMETA):
         idx = waves.index(wave)
         cnts = counts[idx][:]
         ACT.num += 1
-        print(f"\rStarting wave #{ACT.num+1703}/10000", end="", flush=True)
+        print(f"\rStarting wave #{ACT.num+2988}/10000", end="", flush=True)
         while True:
             ACT.MoveInDirection(wave.split("/")[-1])
             # TODO: Make this a little more graceful....

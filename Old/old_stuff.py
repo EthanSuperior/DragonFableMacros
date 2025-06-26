@@ -353,3 +353,39 @@ def openApp():
             Click(564, 800)
             sleep(7)
     login()
+
+
+
+    classId, style = moveSetID
+    if classId == df_types.Classes.Mage:
+        if 'Quick' in style: return False, ['v', '8', '7']
+        elif 'Recover' in style: return False, ['1', '4', 'v', '8', '7']
+        elif 'Burst' in style: return True, ['3', '6', '0', '8', '7', '9', '6', '0', '8', '7', '9', '6', '0', '8', '7']
+        elif 'Hatir' in style: return True, ['z', '9', '0', '1', '8', '2', '5', '6', '7', 'z', '9', '0', '3', '8', '2', '5', '6', '7']
+        else: return True, ['3', '6', '0', '8', '7', '9', '5', '1', '4', '2', '6', '0', '8', '7', '9']
+    elif classId == df_types.Classes.Necro:
+        if 'Recover' in style: return False, ['x', '1', '8']
+        else: return True, ['0', '5', '2', 'x', 'v', '0', '6', 'z', '7', '8', '0', '5', '2', 'x', 'v', '0', '4', '1', '2', 'c']
+    elif classId == df_types.Classes.BDL:
+        if 'Recover' in style: return False, ['3', '2', (EmpowerBDL, '4'), 'v', '6', '6', 'x']
+        elif 'Pandora' in style: return True, ['0','v','6',(EmpowerBDL, '4'),'x','6','c','6',(EmpowerBDL, '3'),'2','9',(EmpowerBDL, '8'),'z','5']
+        # elif 'Pandora' in style: return True, ['c','0','v',(EmpowerBDL, '4'),'6','x','6',(ClawIfUp, '7'),'3','2','9',(EmpowerBDL, '8'),'z','5']
+        else: return True, ['0', '3', '6', 'x', '9', '1', '2', '6', (EmpowerBDL, '5'), 'v', '4', '8', (EmpowerBDL, 'c'), 'z', (Quit, '')]
+    elif classId == df_types.Classes.WDL:
+        if 'Quick' in style: return False, ['z', 'x', '6', '6']
+    elif classId == df_types.Classes.Warrior:
+        if 'PVP' in style: return True, ['3','5','6','7','v','6','7','5','z','6','7','4','6','7',' ']
+        else: return False, ['v',' ','z','3','z','5','z',' ']
+    elif classId == df_types.Classes.Chaosweaver:
+        if 'PVP' in style: return False, ['4','8','v','c','0','4','x','z']
+        elif 'Quick' in style: return False, ['4','3','v','c']
+        elif 'Recover' in style: return False, ['4','3','c']
+        elif 'Bound' in style: return False, ['4','9','v','5','3','z','4','0','c']
+        elif 'AARGH' in style: return True, ['1','3','4','9','z','v','3','4','0','c','6',' ']
+        elif 'Warden' in style: return False, ['4','9','b','v','z','5','3','4','0','c']
+        elif 'Boss' in style: return True, ['e4','d1','9','v','3','e4','dc','8','z','2','e4','d3','6']
+        elif 'Multi' in style: return False, ['4','8','7','v','z']
+    elif classId == df_types.Classes.DragSlay:
+        if 'Boss' in style: return True, ['3', '4', '0', '4', '7', '4']
+    elif classId == df_types.Classes.Drag: return True, ['5', '7', '2', '6', 'c', 'v', 'x', 'b', '6', '3', '1']
+    else: return [' ']
