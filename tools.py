@@ -73,67 +73,116 @@ img_h, img_w = img_init.shape[:2]
 
 
 # region --- Filters
-def apply_contour(img):
-    contours, _ = cv2.findContours(img, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
-    objects = []
-    height, width = img.shape[:2]
-    for cnt in contours:
-        x, y, w, h = cv2.boundingRect(cnt)
-        area = w * h
+def apply_contour(img, area_max, area_min, aspect_ratio_max, aspect_ratio_min):
+    def func(i, og, c):
+        for cnt in cv2.findContours(i, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)[0]:
+            x, y, w, h = cv2.boundingRect(cnt)
+            area = w * h
+            aspect_ratio = w / float(h)
+            if area < area_max or area > area_min:
+                continue  # Too small or too big
+            if aspect_ratio < aspect_ratio_min or aspect_ratio > aspect_ratio_max:
+                continue
+            cv2.rectangle(og, (x, y), (x + w, y + h), c, 2)
+        return og
 
-        area = w * h
-        aspect_ratio = w / float(h)
-
-        if area < 3000 or area > 0.3 * width * height:
-            continue  # Too small or too big
-        if aspect_ratio < 0.2 or aspect_ratio > 3.5:
-            continue
-        objects.append((x, y, w, h))
-        cv2.rectangle(img, (x, y), (x + w, y + h), (0, 255, 0), 2)
-    return img, objects
+    if img["mode"] == "Split":
+        for i, channel in enumerate(img["img"]):
+            img["img"][i] = func(channel, (255, 255, 255), channel)
+    elif img["mode"] == "Color":
+        gray = cv2.cvtColor(img["img"], cv2.COLOR_RGB2GRAY)
+        img["img"] = func(gray, img["img"], (255, 255, 255))
+    else:
+        img["img"] = func(img["img"], img["img"], (255, 255, 255))
+    return img
 
 
 def apply_blur(img, k):
-    return cv2.GaussianBlur(img, (k * 2 + 1, k * 2 + 1), 0)
+    img["img"] = cv2.GaussianBlur(img["img"], (k * 2 + 1, k * 2 + 1), 0)
+    return img
 
 
 def apply_canny(img, min_thresh, max_thresh):
-    return cv2.Canny(img, min_thresh, max_thresh)
+    func = lambda x: cv2.Canny(x, min_thresh, max_thresh)
+    if img["mode"] == "Split":
+        for i, channel in enumerate(img["img"]):
+            img["img"][i] = func(channel)
+    elif img["mode"] == "Color":
+        y, cr, cb = cv2.split(cv2.cvtColor(img["img"], cv2.COLOR_RGB2YCrCb))
+        img["img"] = cv2.cvtColor(cv2.merge([func(y), cr, cb]), cv2.COLOR_YCrCb2RGB)
+    else:
+        img["img"] = cv2.cvtColor(img["img"], cv2.COLOR_BGR2GRAY)
+    return img
 
 
 def apply_adaptive_threshold(img, block_size, C):
-    return cv2.adaptiveThreshold(
-        img, 255, cv2.ADAPTIVE_THRESH_GAUSSIAN_C, cv2.THRESH_BINARY_INV, (block_size * 2 + 3), C
+    func = lambda x: cv2.adaptiveThreshold(
+        x, 255, cv2.ADAPTIVE_THRESH_GAUSSIAN_C, cv2.THRESH_BINARY_INV, (block_size * 2 + 1), C
     )
+    if img["mode"] == "Split":
+        for i, channel in enumerate(img["img"]):
+            img["img"][i] = func(channel)
+    elif img["mode"] == "Color":
+        y, cr, cb = cv2.split(cv2.cvtColor(img["img"], cv2.COLOR_RGB2YCrCb))
+        img["img"] = cv2.cvtColor(cv2.merge([func(y), cr, cb]), cv2.COLOR_YCrCb2RGB)
+    else:
+        img["img"] = func(channel)
+    return img
 
 
 def apply_morphology(img, k):
     kernel = np.ones((k, k), np.uint8)
-    return cv2.morphologyEx(img, cv2.MORPH_CLOSE, kernel)
+    img["img"] = cv2.morphologyEx(img["img"], cv2.MORPH_CLOSE, kernel)
+    return img
 
 
 def apply_median_blur(img, k):
-    return cv2.medianBlur(img, k * 2 + 1)
+    img["img"] = cv2.medianBlur(img["img"], k * 2 + 1)
+    return img
 
 
 def apply_bilateral_filter(img, d, sigmaColor, sigmaSpace):
-    return cv2.bilateralFilter(img, d, sigmaColor, sigmaSpace)
+    img["img"] = cv2.bilateralFilter(img["img"], d, sigmaColor, sigmaSpace)
+    return img
 
 
 def apply_histogram_equalization(img):
-    return cv2.equalizeHist(img)
+    if img["mode"] == "Split":
+        for i, channel in enumerate(img["img"]):
+            img["img"][i] = cv2.equalizeHist(channel)
+    elif img["mode"] == "Color":
+        y, cr, cb = cv2.split(cv2.cvtColor(img["img"], cv2.COLOR_RGB2YCrCb))
+        ycrcb_eq = cv2.merge([cv2.equalizeHist(y), cr, cb])
+        img["img"] = cv2.cvtColor(ycrcb_eq, cv2.COLOR_YCrCb2RGB)
+    else:
+        img["img"] = cv2.equalizeHist(img["img"])
+    return img
 
 
 def apply_clahe(img, clipLimit, tileGridSize):
     clahe = cv2.createCLAHE(clipLimit=clipLimit, tileGridSize=(tileGridSize, tileGridSize))
-    return clahe.apply(img)
+    if img["mode"] == "Split":
+        for i, channel in enumerate(img["img"]):
+            img["img"][i] = clahe.apply(channel)
+    elif img["mode"] == "Color":
+        l, a, b = cv2.split(cv2.cvtColor(img["img"], cv2.COLOR_RGB2LAB))
+        img["img"] = cv2.cvtColor(cv2.merge((clahe.apply(l), a, b)), cv2.COLOR_LAB2RGB)
+    else:
+        img["img"] = clahe.apply(img["img"])
+    return img
 
 
 def apply_output(img, color):
-    # img = cv2.merge(img)
-    img_rgb_f32 = img.astype(np.float32) / 255.0
+    display = cv2.merge(img["img"]) if img["mode"] == "Split" else img["img"]
+    img_rgb_f32 = display.astype(np.float32) / 255.0
     dpg.set_value("processed_texture", img_rgb_f32.flatten())
     return img
+
+
+def apply_input(img, src):
+    if src == "Capture":
+        return {"img": get_capture(), "mode": "Color"}
+    return {"img": get_capture(), "mode": "Color"}
 
 
 # endregion
@@ -155,7 +204,17 @@ FILTERS = {
     "Morphology": {"func": apply_morphology, "params": {"k": 5}},
     "Histogram Equalization": {"func": apply_histogram_equalization, "params": {}},
     "CLAHE": {"func": apply_clahe, "params": {"clipLimit": 2.0, "tileGridSize": 8}},
+    "Contour": {
+        "func": apply_contour,
+        "params": {
+            "area_max": 3000,
+            "area_min": 100,
+            "aspect_ratio_max": 3.5,
+            "aspect_ratio_min": 0.2,
+        },
+    },
     "Output": {"func": apply_output, "params": {"color": "RGB"}},
+    "Input": {"func": apply_input, "params": {"src": "Capture"}},
 }
 pipeline = {}
 
@@ -192,7 +251,7 @@ def update_param(wnd_id, key, value, sender):
 
 
 def process_image():
-    img = get_capture()
+    img = None
     for id in dpg.get_item_children("list")[1]:
         if not dpg.does_item_exist(id):
             continue
@@ -201,6 +260,15 @@ def process_image():
             img = FILTERS[filter]["func"](img, **pipeline[id]["params"])
         except Exception as e:
             print(f"Error applying {filter}: {e}")
+    if dpg.get_value("loop"):
+        debounce_process()
+
+
+def delete_filter(wnd):
+    if wnd in pipeline:
+        del pipeline[wnd]
+    dpg.delete_item(wnd)  # This removes the filter's entire UI block
+    debounce_process()
 
 
 debounce_timer = None
@@ -250,14 +318,15 @@ def add_filter(filter_type="Blur"):
                         callback=callback,
                         tag=f"{wnd}_{key}_slide",
                     )
+            dpg.add_button(label="Delete", callback=lambda: delete_filter(wnd), width=180)
         dpg.move_item_down("output")
         pipeline[wnd] = {"filter_type": filter_type, "params": params}
     debounce_process()
 
 
-dpg.create_viewport(title="Filter Pipeline Builder", width=img_w + 600, height=img_h)
+dpg.create_viewport(title="Filter Pipeline Builder", width=img_w + 650, height=img_h)
 with dpg.font_registry():
-    big_font = dpg.add_font("C:/Windows/Fonts/segoeui.ttf", 40)  # Path for Windows default font
+    big_font = dpg.add_font("C:/Windows/Fonts/segoeui.ttf", 50)
 dpg.bind_font(big_font)
 with dpg.texture_registry():
     dpg.add_raw_texture(
@@ -271,7 +340,7 @@ with dpg.window(
     label="Image",
     width=img_w,
     height=img_h,
-    pos=(600, 0),
+    pos=(650, 0),
     no_title_bar=True,
     no_move=True,
     no_resize=True,
@@ -279,7 +348,7 @@ with dpg.window(
     dpg.add_image("processed_texture")
 with dpg.window(
     label="Filters",
-    width=600,
+    width=650,
     height=img_h,
     pos=(0, 0),
     no_title_bar=True,
@@ -287,19 +356,28 @@ with dpg.window(
     no_resize=True,
 ):
     with dpg.group(horizontal=True):
-        dpg.add_text("Add")
-        dpg.add_combo(list(FILTERS.keys()), callback=lambda s, a: add_filter(a))
+        dpg.add_text(" Add")
+        dpg.add_combo(list(FILTERS.keys())[:-2], callback=lambda s, a: add_filter(a), width=380)
         dpg.add_button(label="Clear", callback=lambda: clear_pipeline())
+        dpg.add_checkbox(tag="loop", callback=lambda s, a: (a and debounce_process()))
     with dpg.child_window(autosize_y=True, width=-1, tag="list"):
+        with dpg.child_window(autosize_x=True, auto_resize_y=True, tag="input") as in_wnd:
+            dpg.add_collapsing_header(label=f"Input", default_open=False)
+            pipeline[dpg.get_alias_id(in_wnd)] = {
+                "filter_type": "Input",
+                "params": {"src": "Capture"},
+            }
         with dpg.child_window(
             autosize_x=True, auto_resize_y=True, drop_callback=on_drop, tag="output"
-        ) as wnd:
-            with dpg.collapsing_header(label=f"Output", default_open=False):
-                pass
-            pipeline[dpg.get_alias_id(wnd)] = {"filter_type": "Output", "params": {"color": "RGB"}}
+        ) as out_wnd:
+            dpg.add_collapsing_header(label=f"Display", default_open=False)
+            pipeline[dpg.get_alias_id(out_wnd)] = {
+                "filter_type": "Output",
+                "params": {"color": "RGB"},
+            }
 dpg.setup_dearpygui()
 dpg.show_viewport()
-debounce_process()
+process_image()
 dpg.start_dearpygui()
 dpg.destroy_context()
 # endregion
