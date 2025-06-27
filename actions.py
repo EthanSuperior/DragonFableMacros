@@ -97,13 +97,15 @@ class ACT(metaclass=_ACTMETA):
 
     @staticmethod
     def Battle(className, moveSet=1):
-        if isinstance(moveSet, tuple):
+        if isinstance(moveSet, tuple) or isinstance(moveSet, list):
             return ACT._Battle(*moveSet)
         if className == "ChaosWeaver":
             if moveSet == 1:
                 return ACT._Battle("3v", "78")
             elif moveSet == -1:
                 return ACT._Battle("4v3z", "78")
+            elif moveSet == -3:
+                return ACT._Battle("43 v", "78")
             elif moveSet == "BOSS":
                 return ACT._Battle(
                     ["e4", "e1", "9", "v", "3", "e4", "ec", "8", "z", "2", "e4", "e3", "6"],
@@ -114,8 +116,10 @@ class ACT(metaclass=_ACTMETA):
                 return ACT._Battle("4xv", "71")
             elif moveSet == "VERLYRUS?":
                 return ACT._Battle("49v0cz3", "097v4")
+            elif moveSet == "AARGH":
+                return ACT._Battle("549tv641c0z4x32", "4907v4")
             return ACT._Battle("487", "78")
-        return ACT._Battle("487", "78")
+        return ACT._Battle("vc487", "78")
 
     @staticmethod
     def BattleWar(waves: list, counts: list, className="ChaosWeaver"):
@@ -128,7 +132,7 @@ class ACT(metaclass=_ACTMETA):
         idx = waves.index(wave)
         cnts = counts[idx][:]
         ACT.num += 1
-        print(f"\rStarting wave #{ACT.num+2988}/10000", end="", flush=True)
+        print(f"\rStarting wave #{ACT.num+3501}/10000", end="", flush=True)
         while True:
             ACT.MoveInDirection(wave.split("/")[-1])
             # TODO: Make this a little more graceful....

@@ -82,12 +82,12 @@ def DarkTower():
 def Trithril():
     ACT.LoreBook.Pot()
     ACT.MouseClick((0.827, 0.8))
-    ACT.AwaitImg("ScreenCaps/#(0.255, 0.089, 0.509, 0.361).png", timeout=13)
-    ACT.ClickIf("ScreenCaps/#(0.689, 0.34, 0.829, 0.386).png", timeout=10.914)
-    ACT.ClickIf("ScreenCaps/#(0.674, 0.128, 0.838, 0.174).png")
+    ACT.AwaitImg("Trithril/#(0.255, 0.089, 0.509, 0.361).png", timeout=13)
+    ACT.ClickIf("Trithril/#(0.689, 0.34, 0.829, 0.386).png", timeout=10.914)
+    ACT.ClickIf("Trithril/#(0.674, 0.128, 0.838, 0.174).png")
     ACT.Sleep(0.3)
     ACT.MouseClick((0.969, 0.799))
-    ACT.ClickIf("ScreenCaps/#(0.706, 0.382, 0.862, 0.432).png", timeout=12)
+    ACT.ClickIf("Trithril/#(0.706, 0.382, 0.862, 0.432).png", timeout=12)
     while not ACT.QuestComplete:
         ACT.Battle("ChaosWeaver", 1)
         ACT.Sleep(1)
@@ -100,9 +100,9 @@ def Trithril():
 
 def ThroughTheTangle():
     ACT.LoreBook.Pot()
-    ACT.ClickIf("ScreenCaps/#(0.84, 0.043, 0.974, 0.083).png", timeout=15.9)
-    ACT.ClickIf("ScreenCaps/#(0.837, 0.267, 0.979, 0.301).png", timeout=8.498)
-    ACT.CutsceneEnd("ScreenCaps/#(0.385, 0.108, 0.619, 0.386).png")
+    ACT.ClickIf("ThroughTheTangle/#(0.84, 0.043, 0.974, 0.083).png", timeout=15.9)
+    ACT.ClickIf("ThroughTheTangle/#(0.837, 0.267, 0.979, 0.301).png", timeout=8.498)
+    ACT.CutsceneEnd("ThroughTheTangle/#(0.385, 0.108, 0.619, 0.386).png")
     ACT.MouseClick((0.675, 0.758))
     ACT.Battle("ChaosWeaver", 1)
     ACT.MouseClick((0.675, 0.758))
@@ -150,8 +150,8 @@ def ThroughTheTangle():
     ACT.Sleep(3.421)
     ACT.MouseClick((0.969, 0.648))
     ACT.Battle("ChaosWeaver", "BOSS")
-    ACT.CutsceneEnd("ScreenCaps/#(0.378, 0.335, 0.614, 0.405).png")
-    ACT.ClickIf("ScreenCaps/#(0.378, 0.335, 0.614, 0.405).png", timeout=12.686)
+    ACT.CutsceneEnd("ThroughTheTangle/#(0.378, 0.335, 0.614, 0.405).png")
+    ACT.ClickIf("ThroughTheTangle/#(0.378, 0.335, 0.614, 0.405).png", timeout=12.686)
     ACT.MouseClick((0.969, 0.648))
     ACT.QuestComplete()
     ACT.MouseClick((0.5, 0.5))
@@ -159,12 +159,126 @@ def ThroughTheTangle():
     return True
 
 
+def Mushrooms():
+    ACT.LoreBook.Pot()
+    ACT.MouseClick((0.13, 0.576))
+    ACT.ClickIf("Mushrooms/#(0.525, 0.421, 0.669, 0.459).png", timeout=19.442)
+    ACT.ClickIf("Mushrooms/#(0.527, 0.364, 0.669, 0.406).png", timeout=7.452)
+    ACT.CutsceneEnd("Mushrooms/#(0.323, 0.326, 0.419, 0.412).png")
+    ACT.MouseClick((0.97, 0.624))
+    ACT.Sleep(3.562)
+    ACT.MouseClick((0.965, 0.609))
+    ACT.Battle("ChaosWeaver", 2)
+    ACT.MouseClick((0.965, 0.609))
+    ACT.Sleep(5.011)
+    ACT.MouseClick((0.974, 0.55))
+    ACT.Battle("ChaosWeaver", 2)
+    ACT.MouseClick((0.974, 0.55))
+    ACT.Sleep(3.081)
+    ACT.MouseClick((0.974, 0.55))
+    ACT.Battle("ChaosWeaver", 2)
+    ACT.Sleep(3.081)
+    ACT.MouseClick((0.025, 0.597))
+    ACT.Sleep(2.605)
+    ACT.MouseClick((0.025, 0.597))
+    ACT.Sleep(2.226)
+    ACT.MouseClick((0.555, 0.617))
+    ACT.Sleep(3.052)
+    ACT.MouseClick((0.647, 0.325))
+    ACT.Sleep(2.783)
+    ACT.MouseClick((0.012, 0.613))
+    ACT.Battle("ChaosWeaver", 2)
+    ACT.MouseClick((0.012, 0.613))
+    ACT.Sleep(3.538)
+    ACT.MouseClick((0.016, 0.58))
+    ACT.Battle("ChaosWeaver", 2)
+    ACT.MouseClick((0.016, 0.58))
+    ACT.Sleep(3.755)
+    ACT.MouseClick((0.124, 0.509))
+    ACT.Sleep(3.684)
+    ACT.MouseClick((0.49, 0.743))
+    ACT.Battle("ChaosWeaver", 2)
+    ACT.MouseClick((0.49, 0.743))
+    ACT.Sleep(3.861)
+    ACT.MouseClick((0.807, 0.563))
+    ACT.Sleep(1.701)
+    ACT.MouseClick((0.197, 0.291))
+    ACT.Battle("ChaosWeaver", 2)
+    ACT.MouseClick((0.197, 0.291))
+    ACT.Sleep(3.788)
+    ACT.MouseClick((0.043, 0.067))
+    ACT.Sleep(3.387)
+    ACT.MouseClick((0.29, 0.548))
+    ACT.Battle("ChaosWeaver", ("487vc073", "67834"))
+    ACT.CutsceneEnd("Mushrooms/#(0.376, 0.321, 0.612, 0.403).png")
+    ACT.ClickIf("Mushrooms/#(0.376, 0.321, 0.612, 0.403).png")
+    ACT.QuestComplete()
+    ACT.MouseClick((0.5, 0.5))
+    ACT.NewItem.Keep()
+    return True
+
+
+def ProclamationMedal_SH():
+    ACT.ClickIf("ScreenCaps/#(0.834, 0.03, 0.974, 0.09).png", timeout=9.644)
+    ACT.ClickIf("ScreenCaps/#(0.828, 0.07100000000000001, 0.986, 0.127).png", timeout=18.792)
+    ACT.Sleep(2.157)
+    ACT.MouseClick((0.58, -0.014))
+    ACT.Sleep(3)
+    ACT.MouseClick((0.694, 0.629))
+    ACT.Battle("ChaosWeaver", 1)
+    ACT.MouseClick((0.694, 0.629))
+    ACT.Sleep(1.191)
+    ACT.MouseClick((0.376, 0.639))
+    ACT.Battle("ChaosWeaver", 1)
+    ACT.MouseClick((0.376, 0.639))
+    ACT.Sleep(0.874)
+    ACT.MouseClick((0.158, 0.597))
+    ACT.Battle("ChaosWeaver", 1)
+    ACT.MouseClick((0.158, 0.597))
+    ACT.Sleep(0.999)
+    ACT.MouseClick((0.38, 0.373))
+    ACT.Battle("ChaosWeaver", 1)
+    ACT.MouseClick((0.38, 0.373))
+    ACT.Sleep(1.061)
+    ACT.MouseClick((0.508, 0.422))
+    ACT.Battle("ChaosWeaver", 1)
+    ACT.MouseClick((0.508, 0.422))
+
+
+def AARGH():
+    # if not Passable:
+    #     Forefit()
+    # if dead() Foreit:
+    ACT.Sleep(1)
+    ACT.ClickIf("ScreenCaps/#(0.757, 0.09, 0.931, 0.168).png")
+    ACT.AwaitImg(ACT.atkBtn)
+    from gui_lib import GUI
+    import time
+
+    area = (0.632, 0.85, 0.882, 0.876)
+    img = GUI.CaptureRegion(area)
+    if ACT.Battle("ChaosWeaver", "AARGH") != ACT.dead:
+        ACT.QuestComplete.Await().Close()
+        ACT.MouseClick((0.5, 0.5))
+        ACT.NewItem.Await().Keep()
+        img.save(f"AARGH/Victory/{time.strftime("%H-%M-%S")}#{area}.png", "png")
+        return True
+    else:
+        ACT.Sleep(2)
+        ACT.TypeKeys(" ")
+        ACT.Sleep(0.1)
+        ACT.MouseClick((0.496, 0.398))
+        img.save(f"AARGH/Defeat/{time.strftime("%H-%M-%S")}#{area}.png", "png")
+        return ACT.AwaitImg("ScreenCaps/#(0.757, 0.09, 0.931, 0.168).png") is not None
+
+
 if __name__ == "__main__":
-    # while ACT.ClickIf("ChallengerBelt/start*.png", timeout=30):
-    # DarkTower()
     # exit()
-    # iterable = iter(ThroughTheTangle, False)
-    (ThroughTheTangle() for _ in range(4))
-    # all(iterable)
-    # ChallengerBelt()
+    # while not ACT.QuestComplete:
+    #     ACT.Battle("ChaosWeaver", -3)
+    #     ACT.Sleep(1)
+
+    # [ProclamationMedal_SH() for _ in range(6)]
+    all(iter(AARGH, False))
+    # all(iter(BicentennialDragonLord, False))
     # globals()['func_name']()
