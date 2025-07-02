@@ -75,7 +75,7 @@ def refresh_grid():
             dpg.bind_item_theme(f"cell_{x}_{y}", theme)
 
 
-def set_base_tile(sender, app_data, user_data):
+def set_tile(sender, app_data, user_data):
     global maze, pos_x, pos_y
     maze[(pos_x, pos_y)] = {"char": user_data, "events": set(), "links": tile_conn.get(user_data)}
     if user_data == " ":
@@ -98,7 +98,7 @@ def trigger_event(sender, app_data, user_data):
         events.add(user_data)
         print(f"Marked circle")
     elif user_data == "·":
-        ACT.MouseClick((0.512, 0.592))
+        ACT.MouseClick((0.512, 0.512))
     elif user_data == "⚠":
         ACT.MouseClick((0.512, 0.592))
         ACT.Sleep(0.1)
@@ -147,67 +147,45 @@ def move_player(sender, app_data, user_data):
 
 def on_key_press(sender, app_data):
     movement_keybinds = {dpg.mvKey_W: "N", dpg.mvKey_A: "W", dpg.mvKey_S: "S", dpg.mvKey_D: "E"}
+    event_keybinds = {dpg.mvKey_Spacebar: "⚠", 627: "⚠", 625: "⊛", 525: "·", 623: "◌"}  # *624
+    set_tile_keybinds = {
+        dpg.mvKey_NumPad7: "┏",
+        dpg.mvKey_NumPad8: "┳",
+        dpg.mvKey_NumPad9: "┓",
+        dpg.mvKey_NumPad4: "┣",
+        dpg.mvKey_NumPad5: "╋",
+        dpg.mvKey_NumPad6: "┫",
+        dpg.mvKey_NumPad1: "┗",
+        dpg.mvKey_NumPad2: "┻",
+        dpg.mvKey_NumPad3: "┛",
+        dpg.mvKey_NumPad0: "━",
+        626: "┃",
+        dpg.mvKey_Decimal: " ",
+    }
+    tile_or_move_keybinds = {
+        dpg.mvKey_Up: ("N", "╻"),
+        dpg.mvKey_Left: ("W", "╺"),
+        dpg.mvKey_Down: ("S", "╹"),
+        dpg.mvKey_Right: ("E", "╸"),
+    }
 
-    for k, v in movement_keybinds.items():
-        if app_data == k:
-            move_player(0, 0, v)
-            return
+    def move_or_tile(a, b, v):
+        if (pos_x, pos_y) in maze:
+            move_player(a, b, v[0])
+        else:
+            set_tile(a, b, v[1])
 
-    if app_data == dpg.mvKey_Spacebar or app_data == 525:
-        trigger_event(0, 0, "⚠")
-    elif app_data == dpg.mvKey_NumPad7:
-        set_base_tile(0, 0, "┏")
-    elif app_data == dpg.mvKey_NumPad8:
-        set_base_tile(0, 0, "┳")
-    elif app_data == dpg.mvKey_NumPad9:
-        set_base_tile(0, 0, "┓")
-    elif app_data == dpg.mvKey_NumPad4:
-        set_base_tile(0, 0, "┣")
-    elif app_data == dpg.mvKey_NumPad5:
-        set_base_tile(0, 0, "╋")
-    elif app_data == dpg.mvKey_NumPad6:
-        set_base_tile(0, 0, "┫")
-    elif app_data == dpg.mvKey_NumPad1:
-        set_base_tile(0, 0, "┗")
-    elif app_data == dpg.mvKey_NumPad2:
-        set_base_tile(0, 0, "┻")
-    elif app_data == dpg.mvKey_NumPad3:
-        set_base_tile(0, 0, "┛")
-    elif app_data == dpg.mvKey_NumPad0:
-        set_base_tile(0, 0, "━")
-    elif app_data == 626:
-        set_base_tile(0, 0, "┃")
-    elif app_data == dpg.mvKey_Decimal:
-        set_base_tile(0, 0, " ")
-    elif app_data == dpg.mvKey_Up:
-        if (pos_x, pos_y) in maze:
-            move_player(0, 0, "N")
-        else:
-            set_base_tile(0, 0, "╻")
-    elif app_data == dpg.mvKey_Left:
-        if (pos_x, pos_y) in maze:
-            move_player(0, 0, "W")
-        else:
-            set_base_tile(0, 0, "╺")
-    elif app_data == dpg.mvKey_Down:
-        if (pos_x, pos_y) in maze:
-            move_player(0, 0, "S")
-        else:
-            set_base_tile(0, 0, "╹")
-    elif app_data == dpg.mvKey_Right:
-        if (pos_x, pos_y) in maze:
-            move_player(0, 0, "E")
-        else:
-            set_base_tile(0, 0, "╸")
-    elif app_data == 625:
-        trigger_event(0, 0, "⊛")
-    elif app_data == 627:  # *624
-        trigger_event(0, 0, "·")
-    elif app_data == 623:
-        trigger_event(0, 0, "◌")
-    elif app_data == 655:
-        pass
-    else:
+    keybinds_function_map = [
+        (movement_keybinds, move_player),
+        (set_tile_keybinds, set_tile),
+        (event_keybinds, trigger_event),
+        (tile_or_move_keybinds, move_or_tile),
+    ]
+    for keybinds, func in keybinds_function_map:
+        for k, v in keybinds.items():
+            if app_data == k:
+                return func(0, 0, v)
+    if app_data != 655:
         print(app_data)
 
 
@@ -230,7 +208,9 @@ with dpg.font_registry():
     with dpg.font("./JetBrainsMonoNL-Regular.ttf", 64) as unicode_font_small:
         dpg.add_font_range(0x2190, 0x2BFF)
 
-dpg.create_viewport(title="Filter Pipeline Builder", width=(10 * size) + 50, height=18 * size)
+# TODO: Allow non 10x10 grids
+# TODO: Allow a start besides 0,0 ie allow -/- coords
+dpg.create_viewport(title="Maze Tracker", width=(10 * size) + 50, height=17 * size)
 with dpg.window(
     label="main_window",
     width=(10 * size) + 20,
@@ -269,7 +249,7 @@ with dpg.window(
                     dpg.add_spacer(width=size, height=size)
                 else:
                     dpg.add_button(
-                        label=ch, width=size, height=size, callback=set_base_tile, user_data=ch
+                        label=ch, width=size, height=size, callback=set_tile, user_data=ch
                     )
             if i < len("⚠⊛·◌"):
                 v = "⚠⊛·◌"[i]
