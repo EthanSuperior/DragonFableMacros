@@ -17,23 +17,22 @@ maze[(pos_x, pos_y)] = {"base_char": " ", "events": set(), "explored": True}
  ╺━╸⊙
 """
 tile_connections = {
-    "╬": {"N", "E", "S", "W"},
-    "╣": {"N", "S", "W"},
-    "╠": {"N", "S", "E"},
-    "╦": {"S", "E", "W"},
-    "╩": {"N", "E", "W"},
-    "║": {"N", "S"},
-    "═": {"E", "W"},
-    "╔": {"S", "E"},
-    "╗": {"S", "W"},
-    "╚": {"N", "E"},
-    "╝": {"N", "W"},
+    "╋": {"N", "E", "S", "W"},
+    "┫": {"N", "S", "W"},
+    "┣": {"N", "S", "E"},
+    "┳": {"S", "E", "W"},
+    "┻": {"N", "E", "W"},
+    "┃": {"N", "S"},
+    "━": {"E", "W"},
+    "┏": {"S", "E"},
+    "┓": {"S", "W"},
+    "┗": {"N", "E"},
+    "┛": {"N", "W"},
     " ": {"N", "E", "S", "W"},
-    "╡": {"W"},
-    "╞": {"E"},
-    "╨": {"N"},
-    "╥": {"S"},
-    "@": set(),  # You will move here dynamically
+    "╸": {"W"},
+    "╺": {"E"},
+    "╹": {"N"},
+    "╻": {"S"},
 }
 
 dpg.create_context()
@@ -164,39 +163,39 @@ def on_key_press(sender, app_data):
     elif app_data == dpg.mvKey_D:
         move_player(0, 0, "E")
     elif app_data == dpg.mvKey_Spacebar:
-        trigger_event(0, 0, "⚠")  # "╔╦╗\n╠╬╣║\n╚╩╝\n═ \n╞╥╨╡"
+        trigger_event(0, 0, "⚠")  # "┏┳┓\n┣╋┫┃\n┗┻┛\n━ \n╺╻╹╸"
     elif app_data == dpg.mvKey_NumPad7:
-        set_base_tile(0, 0, "╔")
+        set_base_tile(0, 0, "┏")
     elif app_data == dpg.mvKey_NumPad8:
-        set_base_tile(0, 0, "╦")
+        set_base_tile(0, 0, "┳")
     elif app_data == dpg.mvKey_NumPad9:
-        set_base_tile(0, 0, "╗")
+        set_base_tile(0, 0, "┓")
     elif app_data == dpg.mvKey_NumPad4:
-        set_base_tile(0, 0, "╠")
+        set_base_tile(0, 0, "┣")
     elif app_data == dpg.mvKey_NumPad5:
-        set_base_tile(0, 0, "╬")
+        set_base_tile(0, 0, "╋")
     elif app_data == dpg.mvKey_NumPad6:
-        set_base_tile(0, 0, "╣")
+        set_base_tile(0, 0, "┫")
     elif app_data == dpg.mvKey_NumPad1:
-        set_base_tile(0, 0, "╚")
+        set_base_tile(0, 0, "┗")
     elif app_data == dpg.mvKey_NumPad2:
-        set_base_tile(0, 0, "╩")
+        set_base_tile(0, 0, "┻")
     elif app_data == dpg.mvKey_NumPad3:
-        set_base_tile(0, 0, "╝")
+        set_base_tile(0, 0, "┛")
     elif app_data == dpg.mvKey_NumPad0:
-        set_base_tile(0, 0, "═")
+        set_base_tile(0, 0, "━")
     elif app_data == 626:
-        set_base_tile(0, 0, "║")
+        set_base_tile(0, 0, "┃")
     elif app_data == dpg.mvKey_Decimal:
         set_base_tile(0, 0, " ")
     elif app_data == dpg.mvKey_Up:
-        set_base_tile(0, 0, "╥")
+        set_base_tile(0, 0, "╻")
     elif app_data == dpg.mvKey_Down:
-        set_base_tile(0, 0, "╨")
+        set_base_tile(0, 0, "╹")
     elif app_data == dpg.mvKey_Left:
-        set_base_tile(0, 0, "╞")
+        set_base_tile(0, 0, "╺")
     elif app_data == dpg.mvKey_Right:
-        set_base_tile(0, 0, "╡")
+        set_base_tile(0, 0, "╸")
     elif app_data == 625:
         trigger_event(0, 0, "⊛")
     elif app_data == 627:  # *624
@@ -226,8 +225,6 @@ with dpg.font_registry():
         dpg.add_font_range(0x2B00, 0x2BFF)  # Misc Symbols & Arrows (⮞ ⮌ etc.)
         dpg.bind_font(unicode_font)
     with dpg.font("./JetBrainsMonoNL-Regular.ttf", 64) as unicode_font_small:
-        dpg.add_font_range(0x2190, 0x2BFF)
-    with dpg.font("./JetBrainsMonoNL-Regular.ttf", 20) as unicode_font_tiny:
         dpg.add_font_range(0x2190, 0x2BFF)
 
 dpg.create_viewport(title="Filter Pipeline Builder", width=(10 * size) + 50, height=18 * size)
@@ -262,7 +259,7 @@ with dpg.window(
     with dpg.group(horizontal=True, tag="div"):
         dpg.bind_item_font("div", unicode_font_small)
         dpg.add_separator(label="CTRLS")
-    for i, line in enumerate("╔╦╗\n╠╬╣║\n╚╩╝__╥_\n═ __╞╨╡".split("\n")):  # ╺━╸╻╹
+    for i, line in enumerate("┏┳┓\n┣╋┫┃\n┗┻┛__╻_\n━ __╺╹╸".split("\n")):  # ╺━╸╻╹
         with dpg.group(horizontal=True):
             for ch in line:
                 if ch == "_":
@@ -280,10 +277,10 @@ with dpg.window(
                     height=size,
                     callback=trigger_event,
                     user_data=v,
-                    tag=ord(v),
+                    tag=v,
                 )
-                dpg.bind_item_font(ord(v), unicode_font_small)
-                dpg.bind_item_theme(ord(v), evnt_theme)
+                dpg.bind_item_font(v, unicode_font_small)
+                dpg.bind_item_theme(v, evnt_theme)
 # ◎◉●◊✓✶⚡
 
 dpg.setup_dearpygui()
