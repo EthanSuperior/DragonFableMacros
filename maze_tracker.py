@@ -4,7 +4,9 @@ windll.shcore.SetProcessDpiAwareness(2)
 import dearpygui.dearpygui as dpg
 
 MAZE_SIZE = 10
+
 pos_x, pos_y = 0, 0
+old_pos_x, old_pos_y = pos_x, pos_y
 
 DIRS = {"N": (0, -1), "E": (1, 0), "S": (0, 1), "W": (-1, 0)}
 
@@ -122,6 +124,7 @@ def move_player(sender, app_data, user_data):
         old_tile = maze.get((pos_x, pos_y))
         if old_tile:
             if user_data in old_tile.get("links"):
+                old_pos_x, old_pos_y = pos_x, pos_y
                 pos_x, pos_y = nx, ny
                 if "⊛" in old_tile["events"]:
                     print(f"Circle {user_data}")
@@ -225,6 +228,7 @@ with dpg.window(
 
         def c(_a, _b, pos):
             global pos_x, pos_y
+            old_pos_x, old_pos_y = pos
             pos_x, pos_y = pos
             refresh_grid()
 
