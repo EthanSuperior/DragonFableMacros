@@ -88,7 +88,7 @@ def set_tile(sender, app_data, user_data):
 def trigger_event(sender, app_data, user_data):
     from actions import ACT
 
-    global maze, pos_x, pos_y
+    global maze, pos_x, pos_y, old_pos_x, old_pos_y
     tile = maze.get((pos_x, pos_y))
     if not tile:
         return
@@ -107,7 +107,16 @@ def trigger_event(sender, app_data, user_data):
         ACT.MouseClick((0.5, 0.5))
         ACT.Battle("ChaosWeaver", ("3 6v", "78"))
         ACT.MouseClick((0.512, 0.592))
-    elif user_data == "◌" or user_data == "⚠":
+        if sender == 0 and app_data == 0:
+            trigger_event(sender, app_data, "a")
+    elif user_data == "a":
+        possibilities = list(tile["links"].copy())
+        for dir, delta in DIRS.items():
+            if delta == (old_pos_x - pos_x, old_pos_y - pos_y):
+                possibilities.remove(dir)
+        if len(possibilities) == 1:
+            move_player(sender, app_data, possibilities[0])
+    elif user_data == "◌":
         ACT.MouseClick((0.512, 0.592))
         ACT.Sleep(0.1)
         ACT.MouseClick((0.5, 0.5))  # Drag is: 0,200,200,200,0
@@ -117,7 +126,7 @@ def trigger_event(sender, app_data, user_data):
 
 
 def move_player(sender, app_data, user_data):
-    global pos_x, pos_y
+    global pos_x, pos_y, old_pos_x, old_pos_y
     dx, dy = DIRS[user_data]
     nx, ny = pos_x + dx, pos_y + dy
     if 0 <= nx < MAZE_SIZE and 0 <= ny < MAZE_SIZE:
@@ -150,7 +159,14 @@ def move_player(sender, app_data, user_data):
 
 def on_key_press(sender, app_data):
     movement_keybinds = {dpg.mvKey_W: "N", dpg.mvKey_A: "W", dpg.mvKey_S: "S", dpg.mvKey_D: "E"}
-    event_keybinds = {dpg.mvKey_Spacebar: "⚠", 627: "⚠", 625: "⊛", 525: "·", 623: "◌"}  # *624
+    event_keybinds = {
+        dpg.mvKey_Spacebar: "⚠",
+        627: "⚠",
+        625: "⊛",
+        525: "·",
+        623: "◌",
+        dpg.mvKey_Decimal: "a",
+    }  # *624
     set_tile_keybinds = {
         dpg.mvKey_NumPad7: "┏",
         dpg.mvKey_NumPad8: "┳",
@@ -163,7 +179,7 @@ def on_key_press(sender, app_data):
         dpg.mvKey_NumPad3: "┛",
         dpg.mvKey_NumPad0: "━",
         626: "┃",
-        dpg.mvKey_Decimal: " ",
+        624: " ",
     }
     tile_or_move_keybinds = {
         dpg.mvKey_Up: ("N", "╻"),
@@ -227,7 +243,7 @@ with dpg.window(
     with dpg.group(horizontal=False):
 
         def c(_a, _b, pos):
-            global pos_x, pos_y
+            global pos_x, pos_y, old_pos_x, old_pos_y
             old_pos_x, old_pos_y = pos
             pos_x, pos_y = pos
             refresh_grid()
@@ -245,7 +261,7 @@ with dpg.window(
                     )
     with dpg.group(horizontal=True, tag="div"):
         dpg.bind_item_font("div", unicode_font_small)
-        dpg.add_separator(label="CTRLS")
+        dpg.add_separator(label="CTRLS (0, 0)", tag="ctrls")
     for i, line in enumerate("┏┳┓\n┣╋┫┃\n┗┻┛__╻_\n━ __╺╹╸".split("\n")):  # ╺━╸╻╹
         with dpg.group(horizontal=True):
             for ch in line:
