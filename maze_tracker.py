@@ -9,14 +9,9 @@ pos_x, pos_y = 0, 0
 DIRS = {"N": (0, -1), "E": (1, 0), "S": (0, 1), "W": (-1, 0)}
 
 maze = {}
-maze[(pos_x, pos_y)] = {"base_char": " ", "events": set(), "explored": True}
-"""
-╻┏┳┓☀︎
-┃┣╋┫⚔
-╹┗┻┛⛃
- ╺━╸⊙
-"""
-tile_connections = {
+# maze[(pos_x, pos_y)] = {"char": " ", "events": set(), "explored": True}
+
+tile_conn = {
     "╋": {"N", "E", "S", "W"},
     "┫": {"N", "S", "W"},
     "┣": {"N", "S", "E"},
@@ -70,8 +65,8 @@ def refresh_grid():
                 theme = border_theme
             else:
                 theme = grid_theme
-            if tile and tile["explored"]:
-                label = tile["base_char"]
+            if tile:
+                label = tile["char"]
                 if "⊛" in tile["events"]:
                     theme = circle_theme
             else:
@@ -82,12 +77,9 @@ def refresh_grid():
 
 def set_base_tile(sender, app_data, user_data):
     global maze, pos_x, pos_y
-    maze[(pos_x, pos_y)] = {
-        "base_char": user_data,
-        "events": set(),
-        "explored": user_data != " ",
-        "connections": tile_connections.get(user_data, set()),
-    }
+    maze[(pos_x, pos_y)] = {"char": user_data, "events": set(), "links": tile_conn.get(user_data)}
+    if user_data == " ":
+        del maze[(pos_x, pos_y)]
     refresh_grid()
 
 
@@ -96,15 +88,15 @@ def trigger_event(sender, app_data, user_data):
 
     global maze, pos_x, pos_y
     tile = maze.get((pos_x, pos_y))
-    if not tile or not tile.get("explored"):
+    if not tile:
         return
     events = tile["events"]
     if user_data in events:
         events.remove(user_data)
-        print(f"Removed event '{user_data}' at {pos_x},{pos_y}")
+        print(f"Removed circle")
     elif user_data == "⊛":
         events.add(user_data)
-        print(f"marked magic circle")
+        print(f"Marked circle")
     elif user_data == "·":
         ACT.MouseClick((0.512, 0.592))
     elif user_data == "⚠":
@@ -128,8 +120,8 @@ def move_player(sender, app_data, user_data):
     nx, ny = pos_x + dx, pos_y + dy
     if 0 <= nx < MAZE_SIZE and 0 <= ny < MAZE_SIZE:
         old_tile = maze.get((pos_x, pos_y))
-        if old_tile and old_tile.get("explored"):
-            if user_data in old_tile.get("connections"):
+        if old_tile:
+            if user_data in old_tile.get("links"):
                 pos_x, pos_y = nx, ny
                 if "⊛" in old_tile["events"]:
                     print(f"Circle {user_data}")
@@ -154,16 +146,15 @@ def move_player(sender, app_data, user_data):
 
 
 def on_key_press(sender, app_data):
-    if app_data == dpg.mvKey_W:
-        move_player(0, 0, "N")
-    elif app_data == dpg.mvKey_A:
-        move_player(0, 0, "W")
-    elif app_data == dpg.mvKey_S:
-        move_player(0, 0, "S")
-    elif app_data == dpg.mvKey_D:
-        move_player(0, 0, "E")
-    elif app_data == dpg.mvKey_Spacebar:
-        trigger_event(0, 0, "⚠")  # "┏┳┓\n┣╋┫┃\n┗┻┛\n━ \n╺╻╹╸"
+    movement_keybinds = {dpg.mvKey_W: "N", dpg.mvKey_A: "W", dpg.mvKey_S: "S", dpg.mvKey_D: "E"}
+
+    for k, v in movement_keybinds.items():
+        if app_data == k:
+            move_player(0, 0, v)
+            return
+
+    if app_data == dpg.mvKey_Spacebar or app_data == 525:
+        trigger_event(0, 0, "⚠")
     elif app_data == dpg.mvKey_NumPad7:
         set_base_tile(0, 0, "┏")
     elif app_data == dpg.mvKey_NumPad8:
@@ -189,13 +180,25 @@ def on_key_press(sender, app_data):
     elif app_data == dpg.mvKey_Decimal:
         set_base_tile(0, 0, " ")
     elif app_data == dpg.mvKey_Up:
-        set_base_tile(0, 0, "╻")
-    elif app_data == dpg.mvKey_Down:
-        set_base_tile(0, 0, "╹")
+        if (pos_x, pos_y) in maze:
+            move_player(0, 0, "N")
+        else:
+            set_base_tile(0, 0, "╻")
     elif app_data == dpg.mvKey_Left:
-        set_base_tile(0, 0, "╺")
+        if (pos_x, pos_y) in maze:
+            move_player(0, 0, "W")
+        else:
+            set_base_tile(0, 0, "╺")
+    elif app_data == dpg.mvKey_Down:
+        if (pos_x, pos_y) in maze:
+            move_player(0, 0, "S")
+        else:
+            set_base_tile(0, 0, "╹")
     elif app_data == dpg.mvKey_Right:
-        set_base_tile(0, 0, "╸")
+        if (pos_x, pos_y) in maze:
+            move_player(0, 0, "E")
+        else:
+            set_base_tile(0, 0, "╸")
     elif app_data == 625:
         trigger_event(0, 0, "⊛")
     elif app_data == 627:  # *624
