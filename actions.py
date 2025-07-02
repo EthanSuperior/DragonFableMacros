@@ -192,9 +192,9 @@ class ACT(metaclass=_ACTMETA):
                 GUI.SaveRegion((0, 0, 1, 1), "trace")
 
         # if not __file__.endswith("creator.py"):
-        # debug = mouse.Listener(on_click=debug_mouse)
-        # debug.daemon = True
-        # debug.start()
+        debug = mouse.Listener(on_click=debug_mouse)
+        debug.daemon = True
+        debug.start()
 
 
 ACT.Setup()

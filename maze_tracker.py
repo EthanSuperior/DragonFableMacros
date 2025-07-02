@@ -1,3 +1,6 @@
+from ctypes import windll
+
+windll.shcore.SetProcessDpiAwareness(2)
 import dearpygui.dearpygui as dpg
 
 MAZE_SIZE = 10
@@ -34,11 +37,28 @@ tile_connections = {
 }
 
 dpg.create_context()
+with dpg.theme() as grid_theme:
+    with dpg.theme_component(dpg.mvButton):
+        dpg.add_theme_style(dpg.mvStyleVar_ItemSpacing, 0, 0)
+        dpg.add_theme_style(dpg.mvStyleVar_ItemInnerSpacing, 0, 0)
+        dpg.add_theme_style(dpg.mvStyleVar_FramePadding, 0, -34)
+        dpg.add_theme_style(dpg.mvStyleVar_ButtonTextAlign, 0.5, 0.5)
+        dpg.add_theme_color(dpg.mvThemeCol_Border, (0, 0, 0, 0))
+        dpg.add_theme_style(dpg.mvStyleVar_FrameBorderSize, 0)
 
 with dpg.theme() as border_theme:
     with dpg.theme_component(dpg.mvButton):
-        dpg.add_theme_style(dpg.mvStyleVar_FrameBorderSize, 1.0)
+        dpg.add_theme_style(dpg.mvStyleVar_FrameBorderSize, 3.0)
         dpg.add_theme_color(dpg.mvThemeCol_Border, (255, 0, 0, 255))
+
+with dpg.theme() as circle_theme:
+    with dpg.theme_component(dpg.mvButton):
+        dpg.add_theme_style(dpg.mvStyleVar_FrameBorderSize, 3.0)
+        dpg.add_theme_color(dpg.mvThemeCol_Border, (0, 128, 64, 255))
+
+with dpg.theme() as evnt_theme:
+    with dpg.theme_component(dpg.mvButton):
+        dpg.add_theme_style(dpg.mvStyleVar_FramePadding, 0, -4)
 
 
 def refresh_grid():
@@ -49,8 +69,12 @@ def refresh_grid():
             theme = 0
             if key == (pos_x, pos_y):
                 theme = border_theme
+            else:
+                theme = grid_theme
             if tile and tile["explored"]:
                 label = tile["base_char"]
+                if "⊛" in tile["events"]:
+                    theme = circle_theme
             else:
                 label = " "
             dpg.set_item_label(f"cell_{x}_{y}", label)
@@ -82,8 +106,8 @@ def trigger_event(sender, app_data, user_data):
     elif user_data == "⊛":
         events.add(user_data)
         print(f"marked magic circle")
-    elif user_data == "⌂":
-        pos_x, pos_y = 0, 0
+    elif user_data == "·":
+        ACT.MouseClick((0.512, 0.592))
     elif user_data == "⚠":
         ACT.MouseClick((0.512, 0.592))
         ACT.Sleep(0.1)
@@ -91,9 +115,11 @@ def trigger_event(sender, app_data, user_data):
         ACT.Battle("ChaosWeaver", ("3 6v", "78"))
         ACT.MouseClick((0.512, 0.592))
     elif user_data == "◌" or user_data == "⚠":
-        print("Boss Battle")  # Drag is: 0,200,200,200,0
         ACT.MouseClick((0.512, 0.592))
+        ACT.Sleep(0.1)
+        ACT.MouseClick((0.5, 0.5))  # Drag is: 0,200,200,200,0
         ACT.Battle("ChaosWeaver", ("49tv0", "978"))
+        ACT.MouseClick((0.512, 0.592))
     refresh_grid()
 
 
@@ -171,6 +197,14 @@ def on_key_press(sender, app_data):
         set_base_tile(0, 0, "╞")
     elif app_data == dpg.mvKey_Right:
         set_base_tile(0, 0, "╡")
+    elif app_data == 625:
+        trigger_event(0, 0, "⊛")
+    elif app_data == 627:  # *624
+        trigger_event(0, 0, "·")
+    elif app_data == 623:
+        trigger_event(0, 0, "◌")
+    elif app_data == 655:
+        pass
     else:
         print(app_data)
 
@@ -178,30 +212,35 @@ def on_key_press(sender, app_data):
 with dpg.handler_registry():
     dpg.add_key_press_handler(callback=on_key_press, parent="main_window")
 
+size = 60
 with dpg.font_registry():
-    with dpg.font("./JetBrainsMonoNL-Regular.ttf", 20) as unicode_font:
+    with dpg.font("./JetBrainsMonoNL-Regular.ttf", 128) as unicode_font:
         # Add extra unicode ranges for box drawing and symbols
         dpg.add_font_range(0x2190, 0x21FF)  # Arrows
         dpg.add_font_range(0x2200, 0x22FF)  # Math Operators (⊙ etc.)
-        dpg.add_font_range(0x2300, 0x23FF)  # Misc Technical (⌂ etc.)
+        dpg.add_font_range(0x2300, 0x23FF)  # Misc Technical (· etc.)
         dpg.add_font_range(0x2500, 0x259F)  # Box/Block Elements
         dpg.add_font_range(0x25A0, 0x25FF)  # Geometric Shapes (● ◎ ◉ ⊙)
         dpg.add_font_range(0x2600, 0x26FF)  # Miscellaneous Symbols (☀ ⚔ ⛃ ⛩ ⚙ etc.)
         dpg.add_font_range(0x2700, 0x27BF)  # Dingbats (✓ ✔ ✘ ✦ etc.)
         dpg.add_font_range(0x2B00, 0x2BFF)  # Misc Symbols & Arrows (⮞ ⮌ etc.)
         dpg.bind_font(unicode_font)
-dpg.create_viewport(title="Filter Pipeline Builder", width=400, height=600)
+    with dpg.font("./JetBrainsMonoNL-Regular.ttf", 64) as unicode_font_small:
+        dpg.add_font_range(0x2190, 0x2BFF)
+    with dpg.font("./JetBrainsMonoNL-Regular.ttf", 20) as unicode_font_tiny:
+        dpg.add_font_range(0x2190, 0x2BFF)
+
+dpg.create_viewport(title="Filter Pipeline Builder", width=(10 * size) + 50, height=18 * size)
 with dpg.window(
     label="main_window",
-    width=400,
-    height=600,
+    width=(10 * size) + 20,
+    height=1200,
     pos=(0, 0),
     no_title_bar=True,
     no_move=True,
     no_resize=True,
-    modal=True,
 ):
-    dpg.add_text("Maze Grid")
+    dpg.bind_theme(grid_theme)
     with dpg.group(horizontal=False):
 
         def c(_a, _b, pos):
@@ -214,36 +253,41 @@ with dpg.window(
                 for x in range(MAZE_SIZE):
                     dpg.add_button(
                         label="",
-                        width=30,
-                        height=30,
+                        width=size,
+                        height=size,
                         tag=f"cell_{x}_{y}",
                         user_data=(x, y),
                         callback=c,
                     )
-
-    # dpg.add_text("Direction Move")
-    # with dpg.group(horizontal=True):
-    #     dpg.add_spacer(width=40)
-    #     dpg.add_button(label="W", width=40, callback=move_player, user_data="N")
-    # with dpg.group(horizontal=True):
-    #     dpg.add_button(label="A", width=40, callback=move_player, user_data="W")
-    #     dpg.add_button(label="S", width=40, callback=move_player, user_data="S")
-    #     dpg.add_button(label="D", width=40, callback=move_player, user_data="E")
-
-    dpg.add_text("Set Base Tile for Current Room:")
-    for i, line in enumerate("╔╦╗\n╠╬╣║\n╚╩╝\n═ \n╞╥╨╡".split("\n")):  # ╺━╸╻╹
+    with dpg.group(horizontal=True, tag="div"):
+        dpg.bind_item_font("div", unicode_font_small)
+        dpg.add_separator(label="CTRLS")
+    for i, line in enumerate("╔╦╗\n╠╬╣║\n╚╩╝__╥_\n═ __╞╨╡".split("\n")):  # ╺━╸╻╹
         with dpg.group(horizontal=True):
             for ch in line:
-                dpg.add_button(label=ch, width=30, callback=set_base_tile, user_data=ch)
-            if i < len("⚠⊛◌⌂"):
-                v = "⚠⊛◌⌂"[i]
-                dpg.add_spacer(width=(40 * (5 - len(line))))
-                dpg.add_button(label=v, width=30, callback=trigger_event, user_data=v)
+                if ch == "_":
+                    dpg.add_spacer(width=size, height=size)
+                else:
+                    dpg.add_button(
+                        label=ch, width=size, height=size, callback=set_base_tile, user_data=ch
+                    )
+            if i < len("⚠⊛·◌"):
+                v = "⚠⊛·◌"[i]
+                dpg.add_spacer(width=(size * (9 - len(line))))
+                dpg.add_button(
+                    label=v,
+                    width=size,
+                    height=size,
+                    callback=trigger_event,
+                    user_data=v,
+                    tag=ord(v),
+                )
+                dpg.bind_item_font(ord(v), unicode_font_small)
+                dpg.bind_item_theme(ord(v), evnt_theme)
 # ◎◉●◊✓✶⚡
 
 dpg.setup_dearpygui()
 dpg.show_viewport()
-# dpg.set_primary_window("main_window", True)
 refresh_grid()
 dpg.start_dearpygui()
 dpg.destroy_context()
