@@ -152,13 +152,15 @@ class ACT(metaclass=_ACTMETA):
     @staticmethod
     def MoveInDirection(direction):
         if direction.lower()[0] == "n":
-            GUI.MouseClick((0.5, 0.003))
+            GUI.MouseClick((0.5, 0.03))
         elif direction.lower()[0] == "s":
             GUI.MouseClick((0.5, 0.81))
         elif direction.lower()[0] == "e":
             GUI.MouseClick((0.98, 0.578))
         elif direction.lower()[0] == "w":
             GUI.MouseClick((0.01, 0.69))
+        else:
+            print(direction.lower()[0])
 
     @staticmethod
     def MakeDialog(folder):
@@ -190,9 +192,9 @@ class ACT(metaclass=_ACTMETA):
                 GUI.SaveRegion((0, 0, 1, 1), "trace")
 
         # if not __file__.endswith("creator.py"):
-        debug = mouse.Listener(on_click=debug_mouse)
-        debug.daemon = True
-        debug.start()
+        # debug = mouse.Listener(on_click=debug_mouse)
+        # debug.daemon = True
+        # debug.start()
 
 
 ACT.Setup()

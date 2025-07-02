@@ -3,8 +3,8 @@ https://docs.google.com/document/d/1O1Zhl0-U6CNH4Mx2JESj3EivZHt1pJARYWxez4y-xzQ/
 |     Slot |     All Res     |      Heal       |      Dmg      |      MPM       |       BPD       |
 | -------: | :-------------: | :-------------: | :-----------: | :------------: | :-------------: |
 |          |                 |                 |               |                |                 |
-|  Weapon: |   Apotheosis    |    Sea Chick    | Uragiri III > |   RoseLegacy   |       SEE       |
-|          |                 |                 | > Apotheosis  | ShatteredDrm > |                 |
+|  Weapon: |   Apotheosis    |    Sea Chick    |  Uragiri III  |   RoseLegacy   |       SEE       |
+|          |                 |                 |               | ShatteredDrm > |                 |
 |          |                 |                 |               |                |                 |
 |  Helmet: | Crown Of Core > | MushCap(flat) / | ShadowSlayer> |   Drop Bear    |    Drop Bear    |
 |          |     DLCapIV     | Containment(%)  | Crown Of Core |                |                 |

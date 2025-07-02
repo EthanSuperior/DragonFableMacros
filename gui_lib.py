@@ -142,6 +142,7 @@ class GUI:
                 GUI.DrawGizmo((x, y), "#FF0")
 
 
+"""
 if __name__ == "__main__":
     import cv2
     import numpy as np
@@ -366,3 +367,5 @@ if __name__ == "__main__":
     dpg.show_viewport()
     dpg.start_dearpygui()
     dpg.destroy_context()
+
+"""

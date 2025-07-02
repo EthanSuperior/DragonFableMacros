@@ -1,0 +1,249 @@
+import dearpygui.dearpygui as dpg
+
+MAZE_SIZE = 10
+pos_x, pos_y = 0, 0
+
+DIRS = {"N": (0, -1), "E": (1, 0), "S": (0, 1), "W": (-1, 0)}
+
+maze = {}
+maze[(pos_x, pos_y)] = {"base_char": " ", "events": set(), "explored": True}
+"""
+╻┏┳┓☀︎
+┃┣╋┫⚔
+╹┗┻┛⛃
+ ╺━╸⊙
+"""
+tile_connections = {
+    "╬": {"N", "E", "S", "W"},
+    "╣": {"N", "S", "W"},
+    "╠": {"N", "S", "E"},
+    "╦": {"S", "E", "W"},
+    "╩": {"N", "E", "W"},
+    "║": {"N", "S"},
+    "═": {"E", "W"},
+    "╔": {"S", "E"},
+    "╗": {"S", "W"},
+    "╚": {"N", "E"},
+    "╝": {"N", "W"},
+    " ": {"N", "E", "S", "W"},
+    "╡": {"W"},
+    "╞": {"E"},
+    "╨": {"N"},
+    "╥": {"S"},
+    "@": set(),  # You will move here dynamically
+}
+
+dpg.create_context()
+
+with dpg.theme() as border_theme:
+    with dpg.theme_component(dpg.mvButton):
+        dpg.add_theme_style(dpg.mvStyleVar_FrameBorderSize, 1.0)
+        dpg.add_theme_color(dpg.mvThemeCol_Border, (255, 0, 0, 255))
+
+
+def refresh_grid():
+    for y in range(MAZE_SIZE):
+        for x in range(MAZE_SIZE):
+            key = (x, y)
+            tile = maze.get(key)
+            theme = 0
+            if key == (pos_x, pos_y):
+                theme = border_theme
+            if tile and tile["explored"]:
+                label = tile["base_char"]
+            else:
+                label = " "
+            dpg.set_item_label(f"cell_{x}_{y}", label)
+            dpg.bind_item_theme(f"cell_{x}_{y}", theme)
+
+
+def set_base_tile(sender, app_data, user_data):
+    global maze, pos_x, pos_y
+    maze[(pos_x, pos_y)] = {
+        "base_char": user_data,
+        "events": set(),
+        "explored": user_data != " ",
+        "connections": tile_connections.get(user_data, set()),
+    }
+    refresh_grid()
+
+
+def trigger_event(sender, app_data, user_data):
+    from actions import ACT
+
+    global maze, pos_x, pos_y
+    tile = maze.get((pos_x, pos_y))
+    if not tile or not tile.get("explored"):
+        return
+    events = tile["events"]
+    if user_data in events:
+        events.remove(user_data)
+        print(f"Removed event '{user_data}' at {pos_x},{pos_y}")
+    elif user_data == "⊛":
+        events.add(user_data)
+        print(f"marked magic circle")
+    elif user_data == "⌂":
+        pos_x, pos_y = 0, 0
+    elif user_data == "⚠":
+        ACT.MouseClick((0.512, 0.592))
+        ACT.Sleep(0.1)
+        ACT.MouseClick((0.5, 0.5))
+        ACT.Battle("ChaosWeaver", ("3 6v", "78"))
+        ACT.MouseClick((0.512, 0.592))
+    elif user_data == "◌" or user_data == "⚠":
+        print("Boss Battle")  # Drag is: 0,200,200,200,0
+        ACT.MouseClick((0.512, 0.592))
+        ACT.Battle("ChaosWeaver", ("49tv0", "978"))
+    refresh_grid()
+
+
+def move_player(sender, app_data, user_data):
+    global pos_x, pos_y
+    dx, dy = DIRS[user_data]
+    nx, ny = pos_x + dx, pos_y + dy
+    if 0 <= nx < MAZE_SIZE and 0 <= ny < MAZE_SIZE:
+        old_tile = maze.get((pos_x, pos_y))
+        if old_tile and old_tile.get("explored"):
+            if user_data in old_tile.get("connections"):
+                pos_x, pos_y = nx, ny
+                if "⊛" in old_tile["events"]:
+                    print(f"Circle {user_data}")
+                else:
+                    from actions import ACT
+
+                    if user_data.lower()[0] == "n":
+                        ACT.MouseClick((0.5, 0.03))
+                    elif user_data.lower()[0] == "s":
+                        ACT.MouseClick((0.5, 0.81))
+                    elif user_data.lower()[0] == "e":
+                        ACT.MouseClick((0.98, 0.58))
+                    elif user_data.lower()[0] == "w":
+                        ACT.MouseClick((0.01, 0.58))
+                refresh_grid()
+            else:
+                print(f"Can't move {user_data} hits a wall")
+        else:
+            print("Please mark the current tile before moving on")
+    else:
+        print(f"Cannot move {user_data} outside maze boundaries")
+
+
+def on_key_press(sender, app_data):
+    if app_data == dpg.mvKey_W:
+        move_player(0, 0, "N")
+    elif app_data == dpg.mvKey_A:
+        move_player(0, 0, "W")
+    elif app_data == dpg.mvKey_S:
+        move_player(0, 0, "S")
+    elif app_data == dpg.mvKey_D:
+        move_player(0, 0, "E")
+    elif app_data == dpg.mvKey_Spacebar:
+        trigger_event(0, 0, "⚠")  # "╔╦╗\n╠╬╣║\n╚╩╝\n═ \n╞╥╨╡"
+    elif app_data == dpg.mvKey_NumPad7:
+        set_base_tile(0, 0, "╔")
+    elif app_data == dpg.mvKey_NumPad8:
+        set_base_tile(0, 0, "╦")
+    elif app_data == dpg.mvKey_NumPad9:
+        set_base_tile(0, 0, "╗")
+    elif app_data == dpg.mvKey_NumPad4:
+        set_base_tile(0, 0, "╠")
+    elif app_data == dpg.mvKey_NumPad5:
+        set_base_tile(0, 0, "╬")
+    elif app_data == dpg.mvKey_NumPad6:
+        set_base_tile(0, 0, "╣")
+    elif app_data == dpg.mvKey_NumPad1:
+        set_base_tile(0, 0, "╚")
+    elif app_data == dpg.mvKey_NumPad2:
+        set_base_tile(0, 0, "╩")
+    elif app_data == dpg.mvKey_NumPad3:
+        set_base_tile(0, 0, "╝")
+    elif app_data == dpg.mvKey_NumPad0:
+        set_base_tile(0, 0, "═")
+    elif app_data == 626:
+        set_base_tile(0, 0, "║")
+    elif app_data == dpg.mvKey_Decimal:
+        set_base_tile(0, 0, " ")
+    elif app_data == dpg.mvKey_Up:
+        set_base_tile(0, 0, "╥")
+    elif app_data == dpg.mvKey_Down:
+        set_base_tile(0, 0, "╨")
+    elif app_data == dpg.mvKey_Left:
+        set_base_tile(0, 0, "╞")
+    elif app_data == dpg.mvKey_Right:
+        set_base_tile(0, 0, "╡")
+    else:
+        print(app_data)
+
+
+with dpg.handler_registry():
+    dpg.add_key_press_handler(callback=on_key_press, parent="main_window")
+
+with dpg.font_registry():
+    with dpg.font("./JetBrainsMonoNL-Regular.ttf", 20) as unicode_font:
+        # Add extra unicode ranges for box drawing and symbols
+        dpg.add_font_range(0x2190, 0x21FF)  # Arrows
+        dpg.add_font_range(0x2200, 0x22FF)  # Math Operators (⊙ etc.)
+        dpg.add_font_range(0x2300, 0x23FF)  # Misc Technical (⌂ etc.)
+        dpg.add_font_range(0x2500, 0x259F)  # Box/Block Elements
+        dpg.add_font_range(0x25A0, 0x25FF)  # Geometric Shapes (● ◎ ◉ ⊙)
+        dpg.add_font_range(0x2600, 0x26FF)  # Miscellaneous Symbols (☀ ⚔ ⛃ ⛩ ⚙ etc.)
+        dpg.add_font_range(0x2700, 0x27BF)  # Dingbats (✓ ✔ ✘ ✦ etc.)
+        dpg.add_font_range(0x2B00, 0x2BFF)  # Misc Symbols & Arrows (⮞ ⮌ etc.)
+        dpg.bind_font(unicode_font)
+dpg.create_viewport(title="Filter Pipeline Builder", width=400, height=600)
+with dpg.window(
+    label="main_window",
+    width=400,
+    height=600,
+    pos=(0, 0),
+    no_title_bar=True,
+    no_move=True,
+    no_resize=True,
+    modal=True,
+):
+    dpg.add_text("Maze Grid")
+    with dpg.group(horizontal=False):
+
+        def c(_a, _b, pos):
+            global pos_x, pos_y
+            pos_x, pos_y = pos
+            refresh_grid()
+
+        for y in range(MAZE_SIZE):
+            with dpg.group(horizontal=True):
+                for x in range(MAZE_SIZE):
+                    dpg.add_button(
+                        label="",
+                        width=30,
+                        height=30,
+                        tag=f"cell_{x}_{y}",
+                        user_data=(x, y),
+                        callback=c,
+                    )
+
+    # dpg.add_text("Direction Move")
+    # with dpg.group(horizontal=True):
+    #     dpg.add_spacer(width=40)
+    #     dpg.add_button(label="W", width=40, callback=move_player, user_data="N")
+    # with dpg.group(horizontal=True):
+    #     dpg.add_button(label="A", width=40, callback=move_player, user_data="W")
+    #     dpg.add_button(label="S", width=40, callback=move_player, user_data="S")
+    #     dpg.add_button(label="D", width=40, callback=move_player, user_data="E")
+
+    dpg.add_text("Set Base Tile for Current Room:")
+    for i, line in enumerate("╔╦╗\n╠╬╣║\n╚╩╝\n═ \n╞╥╨╡".split("\n")):  # ╺━╸╻╹
+        with dpg.group(horizontal=True):
+            for ch in line:
+                dpg.add_button(label=ch, width=30, callback=set_base_tile, user_data=ch)
+            if i < len("⚠⊛◌⌂"):
+                v = "⚠⊛◌⌂"[i]
+                dpg.add_spacer(width=(40 * (5 - len(line))))
+                dpg.add_button(label=v, width=30, callback=trigger_event, user_data=v)
+# ◎◉●◊✓✶⚡
+
+dpg.setup_dearpygui()
+dpg.show_viewport()
+# dpg.set_primary_window("main_window", True)
+refresh_grid()
+dpg.start_dearpygui()
+dpg.destroy_context()
