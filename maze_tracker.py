@@ -58,6 +58,7 @@ with dpg.theme() as evnt_theme:
 
 
 def refresh_grid():
+    global pos_x, pos_y
     for y in range(MAZE_SIZE):
         for x in range(MAZE_SIZE):
             key = (x, y)
@@ -75,6 +76,8 @@ def refresh_grid():
                 label = " "
             dpg.set_item_label(f"cell_{x}_{y}", label)
             dpg.bind_item_theme(f"cell_{x}_{y}", theme)
+
+    dpg.set_item_label("ctrls", f"CTRLS - {(pos_x, pos_y)} - {len(maze)}%")
 
 
 def set_tile(sender, app_data, user_data):
