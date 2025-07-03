@@ -56,8 +56,12 @@ class ACT(metaclass=_ACTMETA):
     def TypeKeys(keys, interval=0.01):
         if keys[0] == "e":
             GUI.MouseClick((0.5, 0.66))
-            keys = keys[1:]
-        return GUI.TypeKeys(keys, interval=interval)
+        elif callable(keys[0]):
+            keys[0]()
+        else:
+            return GUI.TypeKeys(keys, interval=interval)
+        ACT.Sleep(interval)
+        return ACT.TypeKeys(keys[1:], interval=interval)  # Preformed special op
 
     @staticmethod
     def Sleep(secs):
@@ -70,7 +74,7 @@ class ACT(metaclass=_ACTMETA):
         while True:
             GUI.AwaitImg(ACT.atkBtn, ACT.ctnBtn, *endConditions, ACT.stkBtn, ACT.dead, timeout=-1)
             if any(GUI.CheckImage(i) for i in endConditions):
-                return filter(GUI.CheckImage, endConditions)[0]
+                return list(filter(GUI.CheckImage, endConditions))[0]
             elif GUI.CheckImage(ACT.atkBtn):
                 moveset = pet_moves if GUI.CheckImage(ACT.petBtn) else player_moves
                 if cyclical:
@@ -108,7 +112,7 @@ class ACT(metaclass=_ACTMETA):
                 return ACT._Battle("43 v", "78")
             elif moveSet == "BOSS":
                 return ACT._Battle(
-                    ["e4", "e1", "9", "v", "3", "e4", "ec", "8", "z", "2", "e4", "e3", "6"],
+                    ["e4", "e1", *"9v3", "e4", "ec", *"8z2", "e4", "e3", "6"],
                     "67384513 4  3 4  3 4",
                     cyclical=True,
                 )

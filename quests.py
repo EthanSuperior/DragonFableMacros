@@ -270,6 +270,42 @@ def AARGH():
         return ACT.AwaitImg("ScreenCaps/#(0.757, 0.09, 0.931, 0.168).png") is not None
 
 
+def InevitableEquilibrium():  # https://www.youtube.com/watch?v=Zf1pzXccsuc #9:24
+    # DRAG IS: 200 0 200 200 0
+    def summon_miniphage():
+        ACT.Inventory.Build8(False)
+        ACT.Inventory.Load()
+        ACT.Inventory.Await().Close()
+        ACT.Sleep(0.1)
+
+    summon_miniphage()
+
+    def summon_dragon():
+        ACT.DragonAmulet.Open()
+        ACT.Sleep(0.1)
+        ACT.DragonAmulet.Summon.Open()
+        ACT.Sleep(0.1)
+        ACT.DragonAmulet.Summon.Pet()
+        ACT.Sleep(0.1)
+
+    ACT.ClickIf("Inn/start_ie#(0.393, 0.293, 0.595, 0.351).png")
+    ACT.AwaitImg(ACT.atkBtn)
+    drag = summon_dragon
+    mini = summon_miniphage
+    # fmt: off
+    player_moveset = [*"\tt\t9", [drag, *"e6"], *"c3v", "ez", *"x1796", "ec", *"13", 
+                        'ex','n','ec',*'96v','ez',*'1x5n9','e6',*'c3', [mini, *'em']]
+    pet_moveset = " \t 3z653   v3z  3  z53   63 "
+    if (ACT.Battle("DeathKnight",
+            (player_moveset, pet_moveset, ["Inn/lost_ie#(0.351, 0.364, 0.641, 0.448).png"]))
+        != ACT.ctnBtn):
+        # fmt: on
+        ACT.Sleep(0.1)
+        ACT.TypeKeys(" ")
+        ACT.ClickIf("Inn/lost_ie#(0.351, 0.364, 0.641, 0.448).png")
+    InevitableEquilibrium()
+
+
 def BraughlmurkCrypt():
     ACT.AwaitImg("ScreenCaps/#(0.098, 0.037, 0.336, 0.261).png", timeout=12.574)
     ACT.LoreBook.Pot()
@@ -376,7 +412,7 @@ if __name__ == "__main__":
     # while not ACT.QuestComplete:
     #     ACT.Battle("ChaosWeaver", -3)
     #     ACT.Sleep(1)
-
+    InevitableEquilibrium()
     # [BraughlmurkTower() for _ in range(6)]
     # all(iter(AARGH, False))
     # all(iter(BicentennialDragonLord, False))
