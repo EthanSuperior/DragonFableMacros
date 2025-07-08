@@ -4,12 +4,15 @@ from actions import ACT
 def BicentennialDragonLord():
     startWaveBtn = "./BicentennialDragonLord/start#(0.713, 0.633, 0.893, 0.687).png"
     waves = [
-        "./BicentennialDragonLord/eastWave1#(0, 0.2, 1, 1).png",
-        "./BicentennialDragonLord/westWave2#(0, 0.2, 1, 1).png",
-        "./BicentennialDragonLord/eastWave3#(0, 0.2, 1, 1).png",
+        "./BicentennialDragonLord/eastWave1#(0.25, 0.2, 1, 1).png",
+        "./BicentennialDragonLord/westWave2#(0, 0.2, 0.75, 1).png",
+        "./BicentennialDragonLord/eastWave3#(0.25, 0.2, 1, 1).png",
     ]
     if ACT.ClickIf(startWaveBtn, timeout=20):  # True
-        ACT.BattleWar(waves, [[2, 2, 2], [2, 2, 2], [2, 2, 2]])
+        if not ACT.BattleWar(waves, [[2, 2, 2], [2, 2, 2], [2, 2, 2]]):
+            ACT.MouseClick((0.01, 0.573))
+            ACT.AbandonQuest()
+            return BicentennialDragonLord()
         return True
     return False
 
@@ -412,8 +415,8 @@ if __name__ == "__main__":
     # while not ACT.QuestComplete:
     #     ACT.Battle("ChaosWeaver", -3)
     #     ACT.Sleep(1)
-    InevitableEquilibrium()
+    # InevitableEquilibrium()
     # [BraughlmurkTower() for _ in range(6)]
     # all(iter(AARGH, False))
-    # all(iter(BicentennialDragonLord, False))
+    all(iter(BicentennialDragonLord, False))
     # globals()['func_name']()

@@ -126,17 +126,17 @@ class ACT(metaclass=_ACTMETA):
         return ACT._Battle("vc487", "78")
 
     @staticmethod
-    def BattleWar(waves: list, counts: list, className="ChaosWeaver"):
+    def BattleWar(waves: list, counts: list, className="ChaosWeaver", rareWaves="skip"):
         if "num" not in ACT.__dict__:
-            ACT.num = 0
+            ACT.num = 4583
         # wave = waves[1]
         wave = GUI.AwaitImg(*waves, timeout=20)
         if wave is None:
-            return
+            return False
         idx = waves.index(wave)
         cnts = counts[idx][:]
         ACT.num += 1
-        print(f"\rStarting wave #{ACT.num+3501}/10000", end="", flush=True)
+        print(f"\rStarting wave #{ACT.num}/10000", end="", flush=True)
         while True:
             ACT.MoveInDirection(wave.split("/")[-1])
             # TODO: Make this a little more graceful....
@@ -152,6 +152,7 @@ class ACT(metaclass=_ACTMETA):
             #     pass
             # else:
             #     pass
+        return True
 
     @staticmethod
     def MoveInDirection(direction):
