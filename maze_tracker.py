@@ -108,7 +108,8 @@ def trigger_event(sender, app_data, user_data):
         ACT.MouseClick((0.512, 0.592))
         ACT.Sleep(0.1)
         ACT.MouseClick((0.5, 0.5))
-        ACT.Battle("ChaosWeaver", ("3 6v", "78"))
+        if ACT.AwaitImg(ACT.atkBtn):
+            ACT.Battle("ChaosWeaver", ("3 6v", "78"))
         ACT.MouseClick((0.512, 0.592))
         if sender == 0 and app_data == 0:
             trigger_event(sender, app_data, "a")
@@ -123,7 +124,8 @@ def trigger_event(sender, app_data, user_data):
         ACT.MouseClick((0.512, 0.592))
         ACT.Sleep(0.1)
         ACT.MouseClick((0.5, 0.5))  # Drag is: 0,200,200,200,0
-        ACT.Battle("ChaosWeaver", ("49tv0", "978"))
+        if ACT.AwaitImg(ACT.atkBtn):
+            ACT.Battle("ChaosWeaver", ("49tv0", "978"))
         ACT.MouseClick((0.512, 0.592))
     refresh_grid()
 
