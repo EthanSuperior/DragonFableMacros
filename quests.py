@@ -2,6 +2,7 @@ from actions import ACT
 
 
 def BicentennialDragonLord():
+    # 22085 / 39892 Total Defender Metals farmed
     startWaveBtn = "./BicentennialDragonLord/start#(0.713, 0.633, 0.893, 0.687).png"
     waves = [
         "./BicentennialDragonLord/eastWave1#(0.25, 0.2, 1, 1).png",
@@ -15,6 +16,16 @@ def BicentennialDragonLord():
             return BicentennialDragonLord()
         return True
     return False
+
+
+def Timekillers():
+    ACT.Battle(
+        "ChaosWeaver",
+        (
+            ["\t", "e3", *"12t319", "e5", *"4v", "e0", *"62nzn231c", "e5", "4", "e9", *"30v"],
+            "3v 2 6398153   236   31",
+        ),
+    )
 
 
 def ChallengerBelt():
@@ -248,6 +259,22 @@ def ProclamationMedal_SH():
     ACT.MouseClick((0.508, 0.422))
 
 
+def ChickenCow():
+    ACT.AwaitImg("ChickenCow/#(0.413, 0.008, 0.597, 0.118).png", timeout=30)
+    ACT.MouseClick((0.301, 0.352))
+    ACT.ClickIf("ChickenCow/#(0.267, 0.145, 0.407, 0.187).png")
+    ACT.ClickIf("ChickenCow/#(0.121, 0.444, 0.257, 0.486).png")
+    ACT.ClickIf("ChickenCow/#(0.121, 0.341, 0.261, 0.383).png")
+    ACT.ClickIf("ChickenCow/#(0.884, 0.739, 0.98, 0.793).png")
+    ACT.ClickIf("ChickenCow/#(0.194, 0.664, 0.328, 0.704).png")
+    ACT.ClickIf("ChickenCow/#(0.116, 0.494, 0.258, 0.538).png")
+    ACT.CutsceneEnd("ChickenCow/#(0.118, 0.369, 0.26, 0.415).png")
+    ACT.ClickIf("ChickenCow/#(0.118, 0.369, 0.26, 0.415).png")
+    ACT.CutsceneEnd("ChickenCow/cmplt#(0.508, 0.511, 0.672, 0.549).png")
+    ACT.ClickIf("ChickenCow/cmplt#(0.508, 0.511, 0.672, 0.549).png")
+    ACT.FinishQuestAndItems(keepMode="ChickenCowArmor")
+
+
 def AARGH():
     # DRAG IS: MAG MISC ASSIST
     ACT.Sleep(1)
@@ -273,6 +300,32 @@ def AARGH():
         return ACT.AwaitImg("ScreenCaps/#(0.757, 0.09, 0.931, 0.168).png") is not None
 
 
+def WeirdDuo():
+    drag = ACT.SummonPetDragon
+    toggle = ACT.ToggleWeaponType
+    # fmt: off
+    player_moveset = ['6', [toggle, '1'], [toggle, '3'], [toggle, *'ex'], *'nz\t4\t', [toggle, '9'], [toggle, '8'], [toggle, '6'], [toggle, '1'], 
+                      [toggle, *'ec'], [toggle, 'v'], [drag, 'x'], *'c3', 'ez', *'c  ', 'e8', *'946v']
+    pet_moveset = '34   6187'
+    # fmt: on
+    ACT.ClickIf("ScreenCaps/start#(0.09, 0.458, 0.29, 0.516).png", timeout=18.43)
+    if ACT.Battle("DeathKnight", (player_moveset, pet_moveset)) != ACT.ctnBtn:
+        ACT.ClickIf("ScreenCaps/lost#(0.354, 0.368, 0.636, 0.446).png", timeout=12.88)
+        ACT.AwaitImg("ScreenCaps/start#(0.09, 0.458, 0.29, 0.516).png", timeout=18.43)
+        ACT.WeaponToggle.Open()
+        ACT.Sleep(0.1)
+        ACT.MouseClick((0.511, 0.474))
+        ACT.Sleep(0.1)
+        ACT.MouseClick((0.511, 0.474))
+        ACT.WeaponToggle.Close()
+        ACT.DragonAmulet.Open()
+        ACT.Sleep(0.1)
+        ACT.DragonAmulet.Summon.Open()
+        ACT.Sleep(0.1)
+        ACT.DragonAmulet.Summon.Dismiss()
+        ACT.Sleep(0.1)
+
+
 def InevitableEquilibrium():  # https://www.youtube.com/watch?v=Zf1pzXccsuc #9:24
     # DRAG IS: 200 0 200 200 0
     def summon_miniphage():
@@ -296,6 +349,7 @@ def InevitableEquilibrium():  # https://www.youtube.com/watch?v=Zf1pzXccsuc #9:2
     drag = summon_dragon
     mini = summon_miniphage
     # fmt: off
+    # t\t9", [drag, *"e6"], *"c3v", "ez", *"x17
     player_moveset = [*"\tt\t9", [drag, *"e6"], *"c3v", "ez", *"x1796", "ec", *"13", 
                         'ex','n','ec',*'96v','ez',*'1x5n9','e6',*'c3', [mini, *'em']]
     pet_moveset = " \t 3z653   v3z  3  z53   63 "
@@ -409,8 +463,27 @@ def BraughlmurkTower():
     ACT.NewItem.Await().Keep()
 
 
+def AerisBattleTower():
+    ACT.AwaitImg("Aeris/#(0.439, 0.039, 0.561, 0.215).png")
+    ACT.MouseClick((0.538, 0.35))
+    ACT.AwaitImg("Aeris/#(0.698, 0.034, 0.956, 0.286).png")
+    ACT.MouseClick((0.538, 0.35))
+    while not ACT.QuestComplete:
+        ACT.AwaitImg("Aeris/#(0.756, 0.064, 0.978, 0.338).png")
+        ACT.ClickIf("Aeris/#(0.052, 0.622, 0.196, 0.664).png")
+        ACT.ClickIf("Aeris/#(0.026, 0.497, 0.234, 0.557).png")
+        ACT.Battle("ChaosWeaver", ["4v0c", "78"])
+    ACT.QuestComplete()
+    ACT.MouseClick((0.5, 0.5))
+    ACT.NewItem.Keep()
+
+
 if __name__ == "__main__":
-    pass
+    # ACT.CutsceneEnd("ChickenCow/cmplt#(0.508, 0.511, 0.672, 0.549).png")
+    # ACT.ClickIf("ChickenCow/cmplt#(0.508, 0.511, 0.672, 0.549).png")
+    # ACT.KeepItem(keepMode="ChickenCowArmor")
+    for _ in range(50):
+        ChickenCow()
     # exit()
     # while not ACT.QuestComplete:
     #     ACT.Battle("ChaosWeaver", -3)
@@ -418,5 +491,9 @@ if __name__ == "__main__":
     # InevitableEquilibrium()
     # [BraughlmurkTower() for _ in range(6)]
     # all(iter(AARGH, False))
-    all(iter(BicentennialDragonLord, False))
+    # Timekillers()
+    # num = int(s[1]) if len((s := __import__("sys").argv)) > 1 and s[1].isdigit() else 100000
+    # for _ in range(num):
+    #     AerisBattleTower()
+    # all(iter(BicentennialDragonLord, False))
     # globals()['func_name']()

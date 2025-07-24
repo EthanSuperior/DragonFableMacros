@@ -29,8 +29,9 @@ class Dialog:
             aliases = {}
         # print("" if parent is None else "\t", folder_dir)
         for filename in glob(f"{folder_dir}/*"):
+            filename = filename.replace("\\", "/")
             if os.path.isdir(filename):
-                self[filename.split("\\")[-1].split("/")[-1]] = Dialog(filename, parent=self)
+                self[filename.split("/")[-1]] = Dialog(filename, parent=self)
             elif filename.endswith(".png"):
                 self[UTILS.ImgIdentifier(filename.split("#")[0])] = filename
         if yes:
@@ -135,6 +136,17 @@ class Dialog:
             del self._dialogs[str(key).lower()]
         else:
             self._imgs[str(key).lower()]
+
+    def Add(self, area, name):
+        GUI.SaveRegion(area, f"../{self.src}/{name}")
+        self._imgs[name.lower()] = f"{self.src}/{name}#{area}.png"
+
+    def Any(self):
+        for img in self._imgs.values():
+            if GUI.CheckImage(img, precision=0.9):
+                print(img)
+                return True
+        return False
 
     def __call__(self, choice=True, *args, **kwds):
         if isinstance(choice, bool):

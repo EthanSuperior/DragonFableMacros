@@ -122,13 +122,13 @@ class ACT(metaclass=_ACTMETA):
                 return ACT._Battle("49v0cz3", "097v4")
             elif moveSet == "AARGH":
                 return ACT._Battle("549tv641c0z4x32", "4907v4")
-            return ACT._Battle("487", "78")
+            return ACT._Battle("478", "78")
         return ACT._Battle("vc487", "78")
 
     @staticmethod
     def BattleWar(waves: list, counts: list, className="ChaosWeaver", rareWaves="skip"):
         if "num" not in ACT.__dict__:
-            ACT.num = 4583
+            ACT.num = int(s[1]) if len((s := __import__("sys").argv)) > 1 and s[1].isdigit() else 0
         # wave = waves[1]
         wave = GUI.AwaitImg(*waves, timeout=20)
         if wave is None:
@@ -136,7 +136,7 @@ class ACT(metaclass=_ACTMETA):
         idx = waves.index(wave)
         cnts = counts[idx][:]
         ACT.num += 1
-        print(f"\rStarting wave #{ACT.num}/10000", end="", flush=True)
+        print(f"\rStarting wave #{ACT.num}/1000", end="", flush=True)
         while True:
             ACT.MoveInDirection(wave.split("/")[-1])
             # TODO: Make this a little more graceful....
@@ -200,6 +200,64 @@ class ACT(metaclass=_ACTMETA):
         debug = mouse.Listener(on_click=debug_mouse)
         debug.daemon = True
         debug.start()
+
+    @staticmethod
+    def ToggleWeaponType():
+        # NOTE WEIRD THINGS HAPPEN WITH THE TOGGLE, SEEMS LIKE IT ALWAYS FOLLOWS
+        # A CERTAIN ORDER WHEN YOU OPEN THE DIALOG REGARDLESS OF CURRENT ELEMENT
+        # ACT.WeaponToggle.Open()
+        # ACT.Sleep(0.1)
+        # ACT.MouseClick((0.511, 0.474))
+        # ACT.WeaponToggle.Close()
+        ACT.Sleep(0.1)
+        ACT.MouseClick((0.259, 0.345))
+        ACT.Sleep(0.1)
+
+    @staticmethod
+    def FinishQuestAndItems(keepMode="All"):
+        ACT.FinishQuest()
+        ACT.Sleep(0.1)
+        ACT.KeepItem(keepMode=keepMode)
+
+    @staticmethod
+    def KeepItem(keepMode="All"):
+        ACT.NewItem.Await()
+        # if not GUI.CheckImage(ACT.NewItem["in"]):
+        #     quit()
+        if keepMode.lower() == "unique":
+            if ACT.NewItem.Items.Any():
+                exit()
+                ACT.NewItem.PassItem.Open()
+                ACT.NewItem.PassItem.Yes()
+            else:
+                img_reg = (0.302, 0.243, 0.714, 0.315)
+                ACT.NewItem.Items.Add(img_reg, time.strftime("%H-%M-%S"))
+                ACT.NewItem.Keep()
+        elif keepMode.lower() == "none":
+            ACT.NewItem.PassItem.Open()
+        elif keepMode.lower() == "all":
+            ACT.NewItem.Keep()
+        else:
+            if GUI.CheckImage(f"{ACT.NewItem.Items[keepMode]}"):
+                exit()
+                ACT.NewItem.Keep()
+            else:
+                ACT.NewItem.PassItem.Open()
+                ACT.NewItem.PassItem.Yes()
+
+    @staticmethod
+    def FinishQuest():
+        ACT.QuestComplete.Await().Close()
+        ACT.MouseClick((0.5, 0.5))
+
+    @staticmethod
+    def SummonPetDragon():
+        ACT.DragonAmulet.Open()
+        ACT.Sleep(0.1)
+        ACT.DragonAmulet.Summon.Open()
+        ACT.Sleep(0.1)
+        ACT.DragonAmulet.Summon.Pet()
+        ACT.Sleep(0.1)
 
 
 ACT.Setup()

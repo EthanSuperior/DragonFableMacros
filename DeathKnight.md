@@ -28,8 +28,8 @@ Grants 1 turn of extra actions.
 
 |  HK | Name            | MP       |  CD | DMG             | DUR | EFX                                                         |
 | --: | --------------- | -------- | --: | --------------- | --- | :---------------------------------------------------------- |
-|   - | Consuming{Dmg}  | 5%MaxHP  |   - | Every turn      | -   | +100% base damage, +50 Bonus, and +50 Crit, aka 5% DoT      |
-|   - | Healing{Heal}   | 4%MaxHP  |   - | Every turn      | -   | aka 4%HoT, Consuming Presence can't kill you                |
+|   e | Consuming{Dmg}  | 5%MaxHP  |   - | Every turn      | -   | +100% base damage, +50 Bonus, and +50 Crit, aka 5% DoT      |
+|   e | Healing{Heal}   | 4%MaxHP  |   - | Every turn      | -   | aka 4%HoT, Consuming Presence can't kill you                |
 |   z | Shift{Dmg}      | 20 MP    |  10 | Gives Xtra Turn | 4   | 80% Curse DoT and +Avg%MissingHP Health (min 20)            |
 |   z | Shift{Heal}     | 20 MP    |  10 | Gives Xtra Turn | 5   | Applies 6% HoT (30%) ; Switching Presence ends either Shift |
 |   x | Blood Tap       | 30 MP    |   7 | 1 hit of 100%   | -   | If connects, heals the player for 18% of MaxHP.             |
@@ -47,3 +47,21 @@ Grants 1 turn of extra actions.
 |   0 | Edge of Death   | 40 MP    |  20 | Sets HP to 1    | 3   | Purges DoTs Applies deathproof, on end heals for 25% MaxHP  |
 |   c | Cursed Strike   | 15 MP    |   2 | 1 hit of 190%   | -   | None                                                        |
 |   v | Call of Dead    | 35 MP    |   9 | 5 of (40-80%)   | -   | Based off missing hp. Heals the player for 10% dealt.       |
+
+
+Player: triket  Reap (c)Weak    Strike   Crit     Call (h)Shift  Strike   Soul       Will     Reap   Weak  (c)Strike  Soul    Crit
+Pet   : Atk     Atk     Waking  Nova     Shield   Heal           Beam     Lash       Atk      Atk    Outrage  Primal  Beam    Lash
+  
+Hatir:  Shield  Dot  => Heal    2Crit -> +Bonus   3Stun          3Stun    SCALES |-> Sheild   Dot    3-Hit    Heal ->|
+                    *=> 100MPM  2Dot  -> +Crit    +Boost         8Nuke 
+  
+Dolaas: -Shield Dot     2Hit    -All |=> 2-Bonus   3Dot      ->  3-Bonus   3+-All   Nuke    FOCUS -> -MPM    Dot     Hit  =>| 
+                                     |=> -All      3+Crit    ->  3-Crit    3Bonus   Stun                                  =>|
+
+
+
+Hatir: 5
+
+
+Shield  Dot  => Heal    2Crit -> +Bonus   3Stun          3Stun    SCALES |-> Sheild   Dot    3-Hit    Heal ->|
+            *=> 100MPM  2Dot  -> +Crit    +Boost         8Nuke 
