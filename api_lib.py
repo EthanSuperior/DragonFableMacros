@@ -3,6 +3,7 @@ import numpy as np
 import platform
 from contextlib import contextmanager
 from PIL import Image
+import time
 
 
 class _API(ABC):
@@ -39,7 +40,17 @@ class _API(ABC):
 
     @staticmethod
     @abstractmethod
-    def TypeKey(key):
+    def TypeKey(key, mod):
+        pass
+
+    @staticmethod
+    @abstractmethod
+    def ZeroMouse():
+        pass
+
+    @staticmethod
+    @abstractmethod
+    def SetClipboardText(text):
         pass
 
     @staticmethod
@@ -84,12 +95,14 @@ class _WIN_API(_API):
         import win32ui
         import win32gui
         import win32process
+        import win32clipboard
 
         _WIN_API._dll = windll
         _WIN_API._api = win32api
         _WIN_API._ui = win32ui
         _WIN_API._gui = win32gui
         _WIN_API._process = win32process
+        _WIN_API._clipboard = win32clipboard
 
         try:
             windll.shcore.SetProcessDpiAwareness(2)  # PROCESS_SYSTEM_DPI_AWARE
@@ -150,7 +163,7 @@ class _WIN_API(_API):
         # _WIN_API._gui.PostMessage(hwnd, 512, 0, 0)  # WM_MOUSEMOVE
 
     @staticmethod
-    def TypeKey(key: str):
+    def TypeKey(key: str, mod=None):
         hwnd = _WIN_API._GetHWND()
         if hwnd == 0:
             return
@@ -164,10 +177,21 @@ class _WIN_API(_API):
         _WIN_API._process.AttachThreadInput(currThread, outThread, 1)
         _WIN_API._api.PostMessage(hwnd, 6, 1, 0)  # WM__ACTIVATE, WA_ACTIVE
         char_id = _WIN_API._api.VkKeyScan(key)  # ord(key.lower())
+        # 13  # VK_RETURN
+        # 16  # VK_SHIFT
+        # 17  # VK_CONTROL
+        # 18  # VK_MENU (ALT)
+        # 91  # VK_LWIN
+        # 92  # VK_RWIN
+        # 93  # VK_APPS (Context Menu Key)
+        if mod is not None:  # 17 is VK_CONTROL
+            _WIN_API._api.keybd_event(17, 0, 0, 0)
+            time.sleep(0.05)
         _WIN_API._api.PostMessage(hwnd, 256, char_id, 0)  # WM_KEYDOWN
-        # _WIN_API._api.PostMessage(hwnd, 258, char_id, 0)  # WM_CHAR
-        # _WIN_API._api.PostMessage(hwnd, 259, char_id, 0)  # WM_DEADCHAR
         _WIN_API._api.PostMessage(hwnd, 257, char_id, 0)  # WM_KEYUP
+        if mod is not None:
+            _WIN_API._api.keybd_event(17, 0, 2, 0)  # KEYEVENTF_KEYUP
+            time.sleep(0.05)
         _WIN_API._process.AttachThreadInput(currThread, outThread, 0)
 
     @contextmanager
@@ -297,6 +321,17 @@ class _WIN_API(_API):
                             dcObj.SetPixel(area[0] - x + dx - o, area[1] - y + dy - o, color)
             except:
                 pass
+
+    @staticmethod
+    def ZeroMouse():
+        _WIN_API._api.SetCursorPos((0, 0))
+
+    @staticmethod
+    def SetClipboardText(text):
+        _WIN_API._clipboard.OpenClipboard()
+        _WIN_API._clipboard.EmptyClipboard()
+        _WIN_API._clipboard.SetClipboardText(text)
+        _WIN_API._clipboard.CloseClipboard()
 
     @staticmethod
     def ColorFromRGB(r, g, b):

@@ -122,13 +122,18 @@ class GUI:
         for _ in range(times - 1):
             time.sleep(0.1)
             API.MouseClick(pos)
+        # API.ZeroMouse()
 
     @staticmethod
-    def TypeKeys(keys, interval=0.01):
-        API.TypeKey(keys[0])
+    def TypeKeys(keys, interval=0.01, modifiers=None):
+        API.TypeKey(keys[0], mod=modifiers)
         for key in keys[1:]:
             time.sleep(interval)
-            API.TypeKey(key)
+            API.TypeKey(key, mod=modifiers)
+
+    @staticmethod
+    def SetClipboard(text):
+        API.SetClipboardText(text)
 
     @staticmethod
     def DrawGizmo(area, color="#94d6fe"):  # NOTE COLOR IS IN BGR SPACE

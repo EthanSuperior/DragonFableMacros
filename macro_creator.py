@@ -136,9 +136,11 @@ if __name__ == "__main__":
     # quests.DarkTower()
     # print("Dark Tower Quest Done")
     GUI.MouseClick((0.9, 0.9))
+    print("Mouse Clicked at (0.9, 0.9)", flush=True)
     HANDLERS.mouse_listener = mouse.Listener(on_click=HANDLERS.on_click, on_move=HANDLERS.on_move)
     HANDLERS.keyboard_listener.start()
     HANDLERS.keyboard_listener.deamon = True
     HANDLERS.mouse_listener.start()
     GUI.DrawDebugGrid()
     HANDLERS.mouse_listener.join()
+    time.sleep(0.1)

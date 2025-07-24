@@ -137,7 +137,7 @@ class Dialog:
             self._imgs[str(key).lower()]
 
     def Add(self, area, name):
-        GUI.SaveRegion(area, f"../{self.src}/{name}")
+        GUI.CaptureRegion(area).save(f"{self.src}/{name}#{area}.png", "png")
         self._imgs[name.lower()] = f"{self.src}/{name}#{area}.png"
 
     def Any(self):

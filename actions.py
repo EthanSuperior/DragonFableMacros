@@ -87,7 +87,7 @@ class ACT(metaclass=_ACTMETA):
                 GUI.TypeKeys(" ")
                 GUI.AwaitImg(ACT.noOverlay, timeout=1)
                 return ACT.ctnBtn
-            elif GUI.CheckImage(ACT.dead):
+            elif GUI.CheckImage(ACT.dead):  # and GUI.CheckImage(ACT.deadnum):
                 ACT.ClickIf(ACT.deadCtn)
                 return ACT.dead
             else:
@@ -183,11 +183,11 @@ class ACT(metaclass=_ACTMETA):
 
         # TODO: ADD Aliases to Global
         for entry in os.listdir("./Global"):
-            full_path = os.path.join("./Global", entry)
+            full_path = os.path.abspath(os.path.join("./Global", entry)).replace("\\", "/")
             if os.path.isdir(full_path):
-                ACT[entry] = Dialog(f"./Global/{entry}")
+                ACT[entry] = Dialog(full_path)
             elif os.path.isfile(full_path) and entry.endswith(".png"):
-                ACT[entry.split("\\")[-1].split("/")[-1].split("#")[0]] = f"./Global/{entry}"
+                ACT[entry.split("/")[-1].split("#")[0]] = full_path
 
         def debug_mouse(_, y, b, p):
             if y >= 2050 and b == mouse.Button.middle and p:
@@ -203,15 +203,12 @@ class ACT(metaclass=_ACTMETA):
 
     @staticmethod
     def ToggleWeaponType():
-        # NOTE WEIRD THINGS HAPPEN WITH THE TOGGLE, SEEMS LIKE IT ALWAYS FOLLOWS
-        # A CERTAIN ORDER WHEN YOU OPEN THE DIALOG REGARDLESS OF CURRENT ELEMENT
-        # ACT.WeaponToggle.Open()
-        # ACT.Sleep(0.1)
-        # ACT.MouseClick((0.511, 0.474))
-        # ACT.WeaponToggle.Close()
+        # THIS SHOULD BE A HIGHER-ORDER FUNCTION like toggle(4) or maybe toggle([(0.511, 0.474),(0.511, 0.474)])
+        # NOTE ALWAYS FOLLOWS A CERTAIN ORDER WHEN YOU OPEN THE DIALOG REGARDLESS OF CURRENT ELEMENT
+        ACT.WeaponToggle.Open()
         ACT.Sleep(0.1)
-        ACT.MouseClick((0.259, 0.345))
-        ACT.Sleep(0.1)
+        ACT.MouseClick((0.511, 0.474))
+        ACT.WeaponToggle.Close()
 
     @staticmethod
     def FinishQuestAndItems(keepMode="All"):
@@ -241,12 +238,47 @@ class ACT(metaclass=_ACTMETA):
 
     @staticmethod
     def SummonPetDragon():
-        ACT.DragonAmulet.Open()
-        ACT.Sleep(0.1)
-        ACT.DragonAmulet.Summon.Open()
-        ACT.Sleep(0.1)
-        ACT.DragonAmulet.Summon.Pet()
-        ACT.Sleep(0.1)
+        def summon_drag():
+            ACT.DragonAmulet.Open()
+            ACT.Sleep(0.1)
+            ACT.DragonAmulet.Summon.Open()
+            ACT.Sleep(0.1)
+            ACT.DragonAmulet.Summon.Pet()
+            ACT.Sleep(0.1)
+
+        return summon_drag
+
+    @staticmethod
+    def Equip(weapon, slot=None):
+        def battleEquip():
+            ACT.Inventory.Open()
+            for w in [weapon] if isinstance(weapon, str) else weapon:
+                GUI.MouseClick((0.294, 0.765))
+                ACT.Sleep(0.1)
+                GUI.TypeKeys("a", modifiers=True)
+                GUI.SetClipboard(w)
+                GUI.TypeKeys("v", modifiers=True)
+                ACT.Sleep(0.1)
+                GUI.MouseClick((0.294, 0.239))
+                ACT.Inventory.Equip(False)
+            (ACT.Slot(slot) if slot else ACT.Inventory.Close)()
+
+        return battleEquip
+
+    @staticmethod
+    def Slot(name):
+        def battleSlot():
+            ACT.Inventory.Open()
+            GUI.MouseClick((0.294, 0.765))
+            ACT.Sleep(0.1)
+            GUI.TypeKeys("a", modifiers=True)
+            GUI.SetClipboard(name)
+            GUI.TypeKeys("v", modifiers=True)
+            ACT.Sleep(0.1)
+            GUI.MouseClick((0.294, 0.239))
+            ACT.Inventory.Slot()
+
+        return battleSlot
 
 
 ACT.Setup()
@@ -262,4 +294,5 @@ if __name__ == "__main__":
     # For Example!!
     # ACT.LoreBook[1].Close(False)
     # ACT.Battle("ChaosWeaver", ("43vz", "90"))
+    ACT.Equip(["uragiri", "drop bear hat"], slot="hammer")
     quit()

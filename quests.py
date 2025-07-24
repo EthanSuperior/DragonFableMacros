@@ -1,7 +1,6 @@
 from actions import ACT
 
-# Add the Quests directory to the path
-__import__("sys").path.append("./Quests")
+__import__("os").chdir("./Quests")
 
 
 def BicentennialDragonLord():

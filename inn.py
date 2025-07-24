@@ -1,7 +1,6 @@
 from actions import ACT
 
-# Add the Inn directory to the path
-__import__("sys").path.append("./Inn")
+__import__("os").chdir("./Inn")
 
 
 def Timekillers():
@@ -25,6 +24,29 @@ def ChallengerBelt():
         ACT.NewItem.Await().Keep()
         return True
     return False
+
+
+def Dragonoid():
+    # Player is 0 0 200Int 0 200luk 0 45wis
+    # DRAG IS: 200 0 0 200 200
+    ACT.Equip("uragiri", slot="hammer")()
+    ACT.ClickIf("Dragon/start#(0.704, 0.263, 0.9, 0.329).png")
+    target = lambda: ACT.MouseClick((0.7, 0.3))
+    # fmt: off
+    player_moveset = [
+        *"48", [ACT.Equip("doomed", slot="ice scythe"), target, "9"],
+        [ACT.Slot("lucky hammer"), "x"], "v",
+        [ACT.Equip("uragiri"),"4"], "7", [ACT.Equip("doomed"), "0"]
+    ]
+    # fmt: on
+    res = ACT.Battle("ChaosWeaver", (player_moveset, "910v "))
+    if res == ACT.dead:
+        ACT.ClickIf("Dragon/lost#(0.353, 0.368, 0.637, 0.448).png")
+    else:
+        if ACT.AwaitImg("Dragon/lost#(0.353, 0.368, 0.637, 0.448).png", timeout=0.5):
+            ACT.ClickIf("Dragon/lost#(0.353, 0.368, 0.637, 0.448).png")
+            return
+        ACT.FinishQuestAndItems(keepMode="Unique")
 
 
 def AARGH():
@@ -53,8 +75,13 @@ def AARGH():
 
 
 def WeirdDuo():
-    drag = ACT.SummonPetDragon
-    toggle = ACT.ToggleWeaponType
+    drag = ACT.SummonPetDragon()
+
+    def toggle():
+        ACT.Sleep(0.1)
+        ACT.MouseClick((0.259, 0.345))
+        ACT.Sleep(0.1)
+
     # fmt: off
     player_moveset = ['6', [toggle, '1'], [toggle, '3'], [toggle, *'ex'], *'nz\t4\t', [toggle, '9'], [toggle, '8'], [toggle, '6'], [toggle, '1'], 
                       [toggle, *'ec'], [toggle, 'v'], [drag, 'x'], *'c3', 'ez', *'c  ', 'e8', *'946v']
@@ -89,7 +116,7 @@ def InevitableEquilibrium():  # https://www.youtube.com/watch?v=Zf1pzXccsuc #9:2
     summon_miniphage()
     ACT.ClickIf("InevitableEquilibrium/start#(0.393, 0.293, 0.595, 0.351).png")
     ACT.AwaitImg(ACT.atkBtn)
-    drag = ACT.SummonPetDragon
+    drag = ACT.SummonPetDragon()
     mini = summon_miniphage
     # fmt: off
     # t\t9", [drag, *"e6"], *"c3v", "ez", *"x17
@@ -109,5 +136,7 @@ def InevitableEquilibrium():  # https://www.youtube.com/watch?v=Zf1pzXccsuc #9:2
 
 
 if __name__ == "__main__":
-    pass
+    while True:
+        Dragonoid()
+        pass
     # InevitableEquilibrium()
