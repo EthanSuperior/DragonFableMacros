@@ -218,7 +218,7 @@ with dpg.handler_registry():
 
 size = 60
 with dpg.font_registry():
-    with dpg.font("./JetBrainsMonoNL-Regular.ttf", 128) as unicode_font:
+    with dpg.font("./References/JetBrainsMonoNL-Regular.ttf", 128) as unicode_font:
         # Add extra unicode ranges for box drawing and symbols
         dpg.add_font_range(0x2190, 0x21FF)  # Arrows
         dpg.add_font_range(0x2200, 0x22FF)  # Math Operators (⊙ etc.)
@@ -229,7 +229,7 @@ with dpg.font_registry():
         dpg.add_font_range(0x2700, 0x27BF)  # Dingbats (✓ ✔ ✘ ✦ etc.)
         dpg.add_font_range(0x2B00, 0x2BFF)  # Misc Symbols & Arrows (⮞ ⮌ etc.)
         dpg.bind_font(unicode_font)
-    with dpg.font("./JetBrainsMonoNL-Regular.ttf", 64) as unicode_font_small:
+    with dpg.font("./References/JetBrainsMonoNL-Regular.ttf", 64) as unicode_font_small:
         dpg.add_font_range(0x2190, 0x2BFF)
 
 # TODO: Allow non 10x10 grids
