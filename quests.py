@@ -1,5 +1,8 @@
 from actions import ACT
 
+# Add the Quests directory to the path
+__import__("sys").path.append("./Quests")
+
 
 def BicentennialDragonLord():
     # 22085 / 39892 Total Defender Metals farmed
@@ -211,7 +214,7 @@ def Mushrooms():
 
 def ProclamationMedal_SH():
     ACT.ClickIf("ProclamationMedals/sh_start#(0.834, 0.03, 0.974, 0.09).png", timeout=9.644)
-    ACT.ClickIf("ScreenCaps/#(0.828, 0.071, 0.986, 0.127).png", timeout=18.792)
+    ACT.ClickIf("#(0.828, 0.071, 0.986, 0.127).png", timeout=18.792)
     ACT.Sleep(2.157)
     ACT.MouseClick((0.58, -0.014))
     ACT.Sleep(3)

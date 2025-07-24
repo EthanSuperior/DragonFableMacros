@@ -181,13 +181,13 @@ class ACT(metaclass=_ACTMETA):
         ACT.Images = {}
         ACT.Dialogs = {}
 
-        # TODO: ADD Aliases to General
-        for entry in os.listdir("./General"):
-            full_path = os.path.join("./General", entry)
+        # TODO: ADD Aliases to Global
+        for entry in os.listdir("./Global"):
+            full_path = os.path.join("./Global", entry)
             if os.path.isdir(full_path):
-                ACT[entry] = Dialog(f"./General/{entry}")
+                ACT[entry] = Dialog(f"./Global/{entry}")
             elif os.path.isfile(full_path) and entry.endswith(".png"):
-                ACT[entry.split("\\")[-1].split("/")[-1].split("#")[0]] = f"./General/{entry}"
+                ACT[entry.split("\\")[-1].split("/")[-1].split("#")[0]] = f"./Global/{entry}"
 
         def debug_mouse(_, y, b, p):
             if y >= 2050 and b == mouse.Button.middle and p:
