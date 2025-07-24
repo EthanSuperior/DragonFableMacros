@@ -18,29 +18,6 @@ def BicentennialDragonLord():
     return False
 
 
-def Timekillers():
-    ACT.Battle(
-        "ChaosWeaver",
-        (
-            ["\t", "e3", *"12t319", "e5", *"4v", "e0", *"62nzn231c", "e5", "4", "e9", *"30v"],
-            "3v 2 6398153   236   31",
-        ),
-    )
-
-
-def ChallengerBelt():
-    if ACT.ClickIf("ChallengerBelt/start#(0.095, 0.407, 0.289, 0.463).png", timeout=30):
-        for op in [*([-2] * 7), "VERLYRUS?"]:
-            if ACT.Battle("ChaosWeaver", op) == ACT.dead:
-                ACT.ForfitBattle()
-                ACT.ClickIf("ChallengerBelt/challengeLost#(0.353, 0.371, 0.633, 0.451).png")
-                continue
-        ACT.QuestComplete.Await().Close()
-        ACT.NewItem.Await().Keep()
-        return True
-    return False
-
-
 def DarkTower():
     ACT.ClickIf("DarkTower/#(0.359, 0.504, 0.451, 0.618).png", timeout=5.302)
     ACT.ClickIf("DarkTower/#(0.246, 0.464, 0.386, 0.512).png", timeout=18.622)
@@ -233,8 +210,8 @@ def Mushrooms():
 
 
 def ProclamationMedal_SH():
-    ACT.ClickIf("ScreenCaps/#(0.834, 0.03, 0.974, 0.09).png", timeout=9.644)
-    ACT.ClickIf("ScreenCaps/#(0.828, 0.07100000000000001, 0.986, 0.127).png", timeout=18.792)
+    ACT.ClickIf("ProclamationMedals/sh_start#(0.834, 0.03, 0.974, 0.09).png", timeout=9.644)
+    ACT.ClickIf("ScreenCaps/#(0.828, 0.071, 0.986, 0.127).png", timeout=18.792)
     ACT.Sleep(2.157)
     ACT.MouseClick((0.58, -0.014))
     ACT.Sleep(3)
@@ -275,96 +252,8 @@ def ChickenCow():
     ACT.FinishQuestAndItems(keepMode="ChickenCowArmor")
 
 
-def AARGH():
-    # DRAG IS: MAG MISC ASSIST
-    ACT.Sleep(1)
-    ACT.ClickIf("ScreenCaps/#(0.757, 0.09, 0.931, 0.168).png")
-    ACT.AwaitImg(ACT.atkBtn)
-    from gui_lib import GUI
-    import time
-
-    area = (0.632, 0.85, 0.882, 0.876)
-    img = GUI.CaptureRegion(area)
-    if ACT.Battle("ChaosWeaver", "AARGH") != ACT.dead:
-        ACT.QuestComplete.Await().Close()
-        ACT.MouseClick((0.5, 0.5))
-        ACT.NewItem.Await().Keep()
-        img.save(f"AARGH/Victory/{time.strftime("%H-%M-%S")}#{area}.png", "png")
-        return True
-    else:
-        ACT.Sleep(2)
-        ACT.TypeKeys(" ")
-        ACT.Sleep(0.1)
-        ACT.MouseClick((0.496, 0.398))
-        img.save(f"AARGH/Defeat/{time.strftime("%H-%M-%S")}#{area}.png", "png")
-        return ACT.AwaitImg("ScreenCaps/#(0.757, 0.09, 0.931, 0.168).png") is not None
-
-
-def WeirdDuo():
-    drag = ACT.SummonPetDragon
-    toggle = ACT.ToggleWeaponType
-    # fmt: off
-    player_moveset = ['6', [toggle, '1'], [toggle, '3'], [toggle, *'ex'], *'nz\t4\t', [toggle, '9'], [toggle, '8'], [toggle, '6'], [toggle, '1'], 
-                      [toggle, *'ec'], [toggle, 'v'], [drag, 'x'], *'c3', 'ez', *'c  ', 'e8', *'946v']
-    pet_moveset = '34   6187'
-    # fmt: on
-    ACT.ClickIf("ScreenCaps/start#(0.09, 0.458, 0.29, 0.516).png", timeout=18.43)
-    if ACT.Battle("DeathKnight", (player_moveset, pet_moveset)) != ACT.ctnBtn:
-        ACT.ClickIf("ScreenCaps/lost#(0.354, 0.368, 0.636, 0.446).png", timeout=12.88)
-        ACT.AwaitImg("ScreenCaps/start#(0.09, 0.458, 0.29, 0.516).png", timeout=18.43)
-        ACT.WeaponToggle.Open()
-        ACT.Sleep(0.1)
-        ACT.MouseClick((0.511, 0.474))
-        ACT.Sleep(0.1)
-        ACT.MouseClick((0.511, 0.474))
-        ACT.WeaponToggle.Close()
-        ACT.DragonAmulet.Open()
-        ACT.Sleep(0.1)
-        ACT.DragonAmulet.Summon.Open()
-        ACT.Sleep(0.1)
-        ACT.DragonAmulet.Summon.Dismiss()
-        ACT.Sleep(0.1)
-
-
-def InevitableEquilibrium():  # https://www.youtube.com/watch?v=Zf1pzXccsuc #9:24
-    # DRAG IS: 200 0 200 200 0
-    def summon_miniphage():
-        ACT.Inventory.Build8(False)
-        ACT.Inventory.Load()
-        ACT.Inventory.Await().Close()
-        ACT.Sleep(0.1)
-
-    summon_miniphage()
-
-    def summon_dragon():
-        ACT.DragonAmulet.Open()
-        ACT.Sleep(0.1)
-        ACT.DragonAmulet.Summon.Open()
-        ACT.Sleep(0.1)
-        ACT.DragonAmulet.Summon.Pet()
-        ACT.Sleep(0.1)
-
-    ACT.ClickIf("Inn/start_ie#(0.393, 0.293, 0.595, 0.351).png")
-    ACT.AwaitImg(ACT.atkBtn)
-    drag = summon_dragon
-    mini = summon_miniphage
-    # fmt: off
-    # t\t9", [drag, *"e6"], *"c3v", "ez", *"x17
-    player_moveset = [*"\tt\t9", [drag, *"e6"], *"c3v", "ez", *"x1796", "ec", *"13", 
-                        'ex','n','ec',*'96v','ez',*'1x5n9','e6',*'c3', [mini, *'em']]
-    pet_moveset = " \t 3z653   v3z  3  z53   63 "
-    if (ACT.Battle("DeathKnight",
-            (player_moveset, pet_moveset, ["Inn/lost_ie#(0.351, 0.364, 0.641, 0.448).png"]))
-        != ACT.ctnBtn):
-        # fmt: on
-        ACT.Sleep(0.1)
-        ACT.TypeKeys(" ")
-        ACT.ClickIf("Inn/lost_ie#(0.351, 0.364, 0.641, 0.448).png")
-    InevitableEquilibrium()
-
-
 def BraughlmurkCrypt():
-    ACT.AwaitImg("ScreenCaps/#(0.098, 0.037, 0.336, 0.261).png", timeout=12.574)
+    ACT.AwaitImg("Braughlmurk/crypt#(0.098, 0.037, 0.336, 0.261).png", timeout=12.574)
     ACT.LoreBook.Pot()
     ACT.Sleep(2.96)
     ACT.MouseClick((0.438, 0.12))
@@ -408,7 +297,7 @@ def BraughlmurkCrypt():
 
 
 def BraughlmurkTower():
-    ACT.AwaitImg("ScreenCaps/#(0.078, 0.015, 0.158, 0.421).png", timeout=8.828)
+    ACT.AwaitImg("Braughlmurk/tower#(0.078, 0.015, 0.158, 0.421).png", timeout=8.828)
     ACT.LoreBook.Pot()
     ACT.Sleep(2.49)
     ACT.MouseClick((0.617, 0.261))

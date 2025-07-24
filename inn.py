@@ -1,0 +1,113 @@
+from actions import ACT
+
+# Add the Inn directory to the path
+__import__("sys").path.append("./Inn")
+
+
+def Timekillers():
+    ACT.Battle(
+        "ChaosWeaver",
+        (
+            ["\t", "e3", *"12t319", "e5", *"4v", "e0", *"62nzn231c", "e5", "4", "e9", *"30v"],
+            "3v 2 6398153   236   31",
+        ),
+    )
+
+
+def ChallengerBelt():
+    if ACT.ClickIf("ChallengerBelt/start#(0.095, 0.407, 0.289, 0.463).png", timeout=30):
+        for op in [*([-2] * 7), "VERLYRUS?"]:
+            if ACT.Battle("ChaosWeaver", op) == ACT.dead:
+                ACT.ForfitBattle()
+                ACT.ClickIf("ChallengerBelt/lost#(0.353, 0.371, 0.633, 0.451).png")
+                continue
+        ACT.QuestComplete.Await().Close()
+        ACT.NewItem.Await().Keep()
+        return True
+    return False
+
+
+def AARGH():
+    # DRAG IS: MAG MISC ASSIST
+    ACT.Sleep(1)
+    ACT.ClickIf("AARGH/start#(0.757, 0.09, 0.931, 0.168).png")
+    ACT.AwaitImg(ACT.atkBtn)
+    from gui_lib import GUI
+    import time
+
+    area = (0.632, 0.85, 0.882, 0.876)
+    img = GUI.CaptureRegion(area)
+    if ACT.Battle("ChaosWeaver", "AARGH") != ACT.dead:
+        ACT.QuestComplete.Await().Close()
+        ACT.MouseClick((0.5, 0.5))
+        ACT.NewItem.Await().Keep()
+        img.save(f"AARGH/Victory/{time.strftime("%H-%M-%S")}#{area}.png", "png")
+        return True
+    else:
+        ACT.Sleep(2)
+        ACT.TypeKeys(" ")
+        ACT.Sleep(0.1)
+        ACT.MouseClick((0.496, 0.398))
+        img.save(f"AARGH/Defeat/{time.strftime("%H-%M-%S")}#{area}.png", "png")
+        return ACT.AwaitImg("AARGH/start#(0.757, 0.09, 0.931, 0.168).png") is not None
+
+
+def WeirdDuo():
+    drag = ACT.SummonPetDragon
+    toggle = ACT.ToggleWeaponType
+    # fmt: off
+    player_moveset = ['6', [toggle, '1'], [toggle, '3'], [toggle, *'ex'], *'nz\t4\t', [toggle, '9'], [toggle, '8'], [toggle, '6'], [toggle, '1'], 
+                      [toggle, *'ec'], [toggle, 'v'], [drag, 'x'], *'c3', 'ez', *'c  ', 'e8', *'946v']
+    pet_moveset = '34   6187'
+    # fmt: on
+    ACT.ClickIf("WeirdDuo/start#(0.09, 0.458, 0.29, 0.516).png", timeout=18.43)
+    if ACT.Battle("DeathKnight", (player_moveset, pet_moveset)) != ACT.ctnBtn:
+        ACT.ClickIf("WeirdDuo/lost#(0.354, 0.368, 0.636, 0.446).png", timeout=12.88)
+        ACT.AwaitImg("WeirdDuo/start#(0.09, 0.458, 0.29, 0.516).png", timeout=18.43)
+        ACT.WeaponToggle.Open()
+        ACT.Sleep(0.1)
+        ACT.MouseClick((0.511, 0.474))
+        ACT.Sleep(0.1)
+        ACT.MouseClick((0.511, 0.474))
+        ACT.WeaponToggle.Close()
+        ACT.DragonAmulet.Open()
+        ACT.Sleep(0.1)
+        ACT.DragonAmulet.Summon.Open()
+        ACT.Sleep(0.1)
+        ACT.DragonAmulet.Summon.Dismiss()
+        ACT.Sleep(0.1)
+
+
+def InevitableEquilibrium():  # https://www.youtube.com/watch?v=Zf1pzXccsuc #9:24
+    # DRAG IS: 200 0 200 200 0
+    def summon_miniphage():
+        ACT.Inventory.Build8(False)
+        ACT.Inventory.Load()
+        ACT.Inventory.Await().Close()
+        ACT.Sleep(0.1)
+
+    summon_miniphage()
+    ACT.ClickIf("InevitableEquilibrium/start#(0.393, 0.293, 0.595, 0.351).png")
+    ACT.AwaitImg(ACT.atkBtn)
+    drag = ACT.SummonPetDragon
+    mini = summon_miniphage
+    # fmt: off
+    # t\t9", [drag, *"e6"], *"c3v", "ez", *"x17
+    player_moveset = [*"\tt\t9", [drag, *"e6"], *"c3v", "ez", *"x1796", "ec", *"13", 
+                        'ex','n','ec',*'96v','ez',*'1x5n9','e6',*'c3', [mini, *'em']]
+    pet_moveset = " \t 3z653   v3z  3  z53   63 "
+    if (ACT.Battle("DeathKnight",
+            (player_moveset, pet_moveset, ["InevitableEquilibrium/lost#(0.351, 0.364, 0.641, 0.448).png"]))
+        != ACT.ctnBtn):
+        # fmt: on
+        ACT.Sleep(0.1)
+        ACT.TypeKeys(" ")
+        ACT.ClickIf("InevitableEquilibrium/lost#(0.351, 0.364, 0.641, 0.448).png")
+        InevitableEquilibrium()
+    else:
+        ACT.FinishQuestAndItems()
+
+
+if __name__ == "__main__":
+    pass
+    # InevitableEquilibrium()
