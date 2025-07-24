@@ -216,34 +216,23 @@ class ACT(metaclass=_ACTMETA):
     @staticmethod
     def FinishQuestAndItems(keepMode="All"):
         ACT.FinishQuest()
-        ACT.Sleep(0.1)
         ACT.KeepItem(keepMode=keepMode)
 
     @staticmethod
     def KeepItem(keepMode="All"):
         ACT.NewItem.Await()
-        # if not GUI.CheckImage(ACT.NewItem["in"]):
-        #     quit()
-        if keepMode.lower() == "unique":
-            if ACT.NewItem.Items.Any():
-                exit()
-                ACT.NewItem.PassItem.Open()
-                ACT.NewItem.PassItem.Yes()
-            else:
-                img_reg = (0.302, 0.243, 0.714, 0.315)
-                ACT.NewItem.Items.Add(img_reg, time.strftime("%H-%M-%S"))
-                ACT.NewItem.Keep()
+        if keepMode.lower() == "all":
+            keepItem = True
         elif keepMode.lower() == "none":
-            ACT.NewItem.PassItem.Open()
-        elif keepMode.lower() == "all":
-            ACT.NewItem.Keep()
+            keepItem = False
+        elif keepMode.lower() == "unique":
+            keepItem = not ACT.Items.Any()
+            if keepItem:
+                ACT.Items.Add((0.302, 0.243, 0.714, 0.315), time.strftime("%H-%M-%S"))
         else:
-            if GUI.CheckImage(f"{ACT.NewItem.Items[keepMode]}"):
-                exit()
-                ACT.NewItem.Keep()
-            else:
-                ACT.NewItem.PassItem.Open()
-                ACT.NewItem.PassItem.Yes()
+            keepItem = GUI.CheckImage(str(ACT.Items[keepMode]))
+
+        ACT.NewItem.Keep() if keepItem else ACT.NewItem.Pass()
 
     @staticmethod
     def FinishQuest():

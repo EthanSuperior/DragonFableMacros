@@ -479,11 +479,13 @@ def AerisBattleTower():
 
 
 if __name__ == "__main__":
+    pass
     # ACT.CutsceneEnd("ChickenCow/cmplt#(0.508, 0.511, 0.672, 0.549).png")
     # ACT.ClickIf("ChickenCow/cmplt#(0.508, 0.511, 0.672, 0.549).png")
     # ACT.KeepItem(keepMode="ChickenCowArmor")
-    for _ in range(50):
-        ChickenCow()
+    # ACT.NewItem.Await()
+    # for _ in range(50):
+    #     ChickenCow()
     # exit()
     # while not ACT.QuestComplete:
     #     ACT.Battle("ChaosWeaver", -3)

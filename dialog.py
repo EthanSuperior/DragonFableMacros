@@ -98,8 +98,7 @@ class Dialog:
             if bool(self) == val:
                 return True
             if GUI.CheckImage(self[act]):
-                GUI.MouseClick(UTILS.MidPt(UTILS.AreaFromPath(self[act])))
-                time.sleep(0.01)
+                return GUI.ClickIf(self[act])
             time.sleep(0.01)
         return GUI.CheckImage(self["in"]) == val
 
@@ -144,7 +143,6 @@ class Dialog:
     def Any(self):
         for img in self._imgs.values():
             if GUI.CheckImage(img, precision=0.9):
-                print(img)
                 return True
         return False
 
