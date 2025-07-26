@@ -49,7 +49,7 @@ class HANDLERS:
         area = (area[0] + 0.002, area[1] + 0.002, area[2] - 0.002, area[3] - 0.002)
         GUI.SaveRegion(area)
         dT = round(time.time() - HANDLERS.startT, 3)
-        area_str = tuple(f"{x:.3f}" for x in area)
+        area_str = "(" + ", ".join(f"{x:.3f}" for x in area) + ")"
         if not HANDLERS.alt_pressed:
             print(f'ACT.ClickIf("{folder_dir}/#{area_str}.png", timeout={2 * dT})')
             GUI.MouseClick(UTILS.MidPt(area))

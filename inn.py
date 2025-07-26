@@ -1,6 +1,8 @@
 from actions import ACT
 
-__import__("os").chdir("./Inn")
+import os
+
+os.chdir("./Inn")
 
 
 def Timekillers():
@@ -48,13 +50,52 @@ def Dragonoid():
         ACT.FinishQuestAndItems(keepMode="Unique")
 
 
+def ClassicInnFight(fight, setup, player_moveset, dragon_moveset):
+    def ImgByName(path, name):
+        for filename in os.listdir(path):
+            if filename.startswith(name):
+                return os.path.join(path, filename)
+        return ""
+
+    start = ImgByName(fight, "start")
+    lost = ImgByName(fight, "lost")
+    if not start or not lost:
+        raise FileNotFoundError(f"Images for {fight} not found.")
+    setup()
+    ACT.Sleep(0.1)
+    ACT.ClickIf(start)
+    ACT.Sleep(0.1)
+    if ACT.Battle("DeathKnight", (player_moveset(), dragon_moveset())) == ACT.dead:
+        ACT.ClickIf(lost)
+    else:
+        if ACT.AwaitImg(lost, timeout=0.5):
+            return ACT.ClickIf(lost)
+        ACT.FinishQuestAndItems()
+        exit()
+
+
+# DRAGON MOVES:
+# 1: Stun 2: Scout 3: Lash 4: Blast 5: Heal 6: Shield 7: Nova 8: Outrage 9: Boost 0: Tickle z: Skip v: Primal
+
+
 def FallenPurpose():
     # 200 END / 200 DEX / 39 CHA / 6 INT
-    # 200 Protection / 200 Fighting / 200 Magic
+    # 200 Protection / 200 Fighting / 200 Magic (200/200/200/0/0)
     # DeathKnight; DeathKnight Relics + Lucky Hammer
     # Exalted Blaster II (Doom)
-    # Legion Bracer
-    pass
+    # Legion Bracer # Start in consuming
+    # Sword needs to be in Lightmode.
+    target_SMUDD = lambda: ACT.MouseClick((0.17, 0.4))
+    target_Draco = lambda: ACT.MouseClick((0.8, 0.4))
+    # fmt: off
+    setup = ACT.ToggleWeaponType
+    player_moveset =lambda: [[target_SMUDD, *"e5"], "e9", "8", [target_Draco, "6"], *"13v", "ez", "x",
+                      [target_SMUDD, "1"], *"5986", "e1", "3", "e2", "ec", *"z98061vcx", "e5", "e1", "ez", "7", 
+                      [target_SMUDD, "9"], *"861", "e3", *"vx", "e5", *"nz95", "e1", *"c3"]
+    dragon_moveset =lambda: [*"34 734 ", [target_SMUDD, " "], *"34  34 z364 837v43  43  453 46384"]
+    # fmt: on
+    ClassicInnFight("FallenPurpose", setup, player_moveset, dragon_moveset)
+
 
 def ConvergenceII():
     # Start Consuming
@@ -179,8 +220,10 @@ def InevitableEquilibrium():  # https://www.youtube.com/watch?v=Zf1pzXccsuc #9:2
 
 
 if __name__ == "__main__":
-    # while True:
+    ACT.MouseClick((0.366, 0.604))
+    ACT.Sleep(0.1)
+    while True:
+        FallenPurpose()
     #     Dragonoid()
     #     pass
-    ConvergenceII()
     # InevitableEquilibrium()

@@ -27,7 +27,7 @@ class GUI:
 
     @staticmethod
     def SaveRegion(area, name=""):
-        area_str = tuple(f"{x:.3f}" for x in area)
+        area_str = "(" + ", ".join(f"{x:.3f}" for x in area) + ")"
         GUI.CaptureRegion(area).save(f"{folder_dir}/{name}#{area_str}.png", "png")
         GUI.DrawGizmo(area)
 
@@ -36,15 +36,20 @@ class GUI:
         if not path:
             return False
         # Load template image
-        template = cv2.imread(path, 0)
+        use_mask = "mask" in path.lower()
+        template = cv2.imread(path, cv2.IMREAD_UNCHANGED if use_mask else 0)
         if template is None:
             raise FileNotFoundError(f"Image file not found: {path}")
+        if use_mask:
+            if template.shape[2] < 4:
+                raise ValueError(f"Mask Image '{path}' needs an alpha channel.")
+            mask = (template[:, :, 3] != 0).astype(np.uint8)
+            template = cv2.cvtColor(template[:, :, :3], cv2.COLOR_BGR2GRAY)
         # Convert relative ratios to absolute pixels
         area = UTILS.AreaFromPath(path)
         size = UTILS.GetSize(area)
         expanded_area = UTILS.AddBuffer(area, 0.02)
         expanded_size = UTILS.GetSize(expanded_area)
-        # expand_area = (area[0] - 0.002, area[1] - 0.002, area[2] + 0.002, area[3] + 0.002)
         im = API.WindowCapture().crop(UTILS.ToRelative(expanded_area))
         img_gray = cv2.cvtColor(np.array(im), cv2.COLOR_BGR2GRAY)
 
@@ -52,10 +57,13 @@ class GUI:
         width = math.ceil(template.shape[1] * (expanded_size[0] / size[0]))
         height = math.ceil(template.shape[0] * (expanded_size[1] / size[1]))
         img_gray = cv2.resize(img_gray, (width, height), interpolation=cv2.INTER_AREA)
-        # Match template
-        res = cv2.matchTemplate(img_gray, template, cv2.TM_CCOEFF_NORMED)
-        return cv2.minMaxLoc(res)[1] >= precision
+        # Match template, masking if needed
+        # fmt: off
+        if use_mask: return cv2.minMaxLoc(cv2.matchTemplate(img_gray, template, cv2.TM_CCOEFF_NORMED, mask=mask))[1] >= precision
+        return cv2.minMaxLoc(cv2.matchTemplate(img_gray, template, cv2.TM_CCOEFF_NORMED))[1] >= precision
+        # fmt: on
 
+    @staticmethod
     def MatchMask(path):
         mask_img = cv2.imread(path, 0)
         if mask_img is None:

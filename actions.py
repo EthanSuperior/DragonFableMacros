@@ -72,7 +72,9 @@ class ACT(metaclass=_ACTMETA):
         player_moves = list(player_moves)
         pet_moves = list(pet_moves)
         while True:
-            GUI.AwaitImg(ACT.atkBtn, ACT.ctnBtn, *endConditions, ACT.stkBtn, ACT.dead, timeout=-1)
+            GUI.AwaitImg(
+                ACT.atkBtn, ACT.ctnBtn, *endConditions, ACT.stkBtn, ACT.deadmask, timeout=-1
+            )
             if any(GUI.CheckImage(i) for i in endConditions):
                 return list(filter(GUI.CheckImage, endConditions))[0]
             elif GUI.CheckImage(ACT.atkBtn):
@@ -87,7 +89,7 @@ class ACT(metaclass=_ACTMETA):
                 GUI.TypeKeys(" ")
                 GUI.AwaitImg(ACT.noOverlay, timeout=1)
                 return ACT.ctnBtn
-            elif GUI.CheckImage(ACT.dead):  # and GUI.CheckImage(ACT.deadnum):
+            elif GUI.CheckImage(ACT.deadmask):
                 ACT.ClickIf(ACT.deadCtn)
                 return ACT.dead
             else:
