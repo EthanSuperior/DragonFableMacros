@@ -39,7 +39,50 @@ def Dragonoid():
         [ACT.Equip("uragiri"),"4"], "7", [ACT.Equip("doomed"), "0"]
     ]
     # fmt: on
-    res = ACT.Battle("ChaosWeaver", (player_moveset, "910v "))
+    if ACT.Battle("ChaosWeaver", (player_moveset, "910v ")) == ACT.dead:
+        ACT.ClickIf("Dragon/lost#(0.353, 0.368, 0.637, 0.448).png")
+    else:
+        if ACT.AwaitImg("Dragon/lost#(0.353, 0.368, 0.637, 0.448).png", timeout=0.5):
+            ACT.ClickIf("Dragon/lost#(0.353, 0.368, 0.637, 0.448).png")
+            return
+        ACT.FinishQuestAndItems(keepMode="Unique")
+
+
+def FallenPurpose():
+    # 200 END / 200 DEX / 39 CHA / 6 INT
+    # 200 Protection / 200 Fighting / 200 Magic
+    # DeathKnight; DeathKnight Relics + Lucky Hammer
+    # Exalted Blaster II (Doom)
+    # Legion Bracer
+    pass
+
+def ConvergenceII():
+    # Start Consuming
+    # fmt: off
+    player_moveset = ["9", "e8", "e6", *"z 1vx5c3", [lambda x: ACT.Sleep(20)], *'986z01v', 'e7', [exit]]
+    drag_moveset = "3 89v3    563    " # Missing Phase 4 see: https://www.youtube.com/watch?v=4LkVDd-ArFs
+    # fmt: on
+    if ACT.Battle("DeathKnight", (player_moveset, drag_moveset)) == ACT.dead:
+        pass
+
+
+def Dominion():  # I FORFEIT THIS IS LIKE A 70 Turn battle....
+    ACT.Equip("Relic DeathKnight Blade", slot="hammer")()
+    ACT.ClickIf("Dominion/start#(0.704, 0.455, 0.904, 0.515).png")
+    kathool = lambda: ACT.MouseClick((0.713, 0.308))
+    archdryad = lambda: ACT.MouseClick((0.818, 0.406))
+    skywatcher = lambda: ACT.MouseClick((0.833, 0.589))
+    # fmt: off
+    # start in consuming...
+    player_moveset = [
+        [kathool, "4"], [archdryad, "9"], *"863v",'e ', [skywatcher, '1'], *'zx7t ',
+        'ec', '1', 'e ', *'  ', 'ec', 'e ', 'e0', *'2 ', 'e9', [kathool, '4'], [skywatcher, 'e','6'],
+        *'1cv','ez','x', [ACT.Equip("dragonoid staff v"), ' '], 'e ', 'c', 'e1',*'58','e ', 'c', 'e ',[exit]
+    ]
+    drag_moveset = [[archdryad, "v"], *"  ", [kathool, '1'],*'6 5',*(15*' '),'5',
+                    [skywatcher,' '],*'v ', [kathool, '1'], ' ',*('z'*9),'5']
+    # fmt: on
+    res = ACT.Battle("ChaosWeaver", (player_moveset, drag_moveset))
     if res == ACT.dead:
         ACT.ClickIf("Dragon/lost#(0.353, 0.368, 0.637, 0.448).png")
     else:
@@ -136,7 +179,8 @@ def InevitableEquilibrium():  # https://www.youtube.com/watch?v=Zf1pzXccsuc #9:2
 
 
 if __name__ == "__main__":
-    while True:
-        Dragonoid()
-        pass
+    # while True:
+    #     Dragonoid()
+    #     pass
+    ConvergenceII()
     # InevitableEquilibrium()

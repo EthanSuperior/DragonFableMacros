@@ -27,7 +27,8 @@ class GUI:
 
     @staticmethod
     def SaveRegion(area, name=""):
-        GUI.CaptureRegion(area).save(f"{folder_dir}/{name}#{area}.png", "png")
+        area_str = tuple(f"{x:.3f}" for x in area)
+        GUI.CaptureRegion(area).save(f"{folder_dir}/{name}#{area_str}.png", "png")
         GUI.DrawGizmo(area)
 
     @staticmethod

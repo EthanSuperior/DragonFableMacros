@@ -249,14 +249,14 @@ class ACT(metaclass=_ACTMETA):
         return summon_drag
 
     @staticmethod
-    def Equip(weapon, slot=None):
+    def Equip(*items, slot=None):
         def battleEquip():
             ACT.Inventory.Open()
-            for w in [weapon] if isinstance(weapon, str) else weapon:
+            for name in items:
                 GUI.MouseClick((0.294, 0.765))
                 ACT.Sleep(0.1)
                 GUI.TypeKeys("a", modifiers=True)
-                GUI.SetClipboard(w)
+                GUI.SetClipboard(name)
                 GUI.TypeKeys("v", modifiers=True)
                 ACT.Sleep(0.1)
                 GUI.MouseClick((0.294, 0.239))
