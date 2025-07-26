@@ -68,8 +68,6 @@ def ClassicInnFight(fight, setup, player_moveset, dragon_moveset):
     if ACT.Battle("DeathKnight", (player_moveset(), dragon_moveset())) == ACT.dead:
         ACT.ClickIf(lost)
     else:
-        if ACT.AwaitImg(lost, timeout=0.5):
-            return ACT.ClickIf(lost)
         ACT.FinishQuestAndItems()
         exit()
 

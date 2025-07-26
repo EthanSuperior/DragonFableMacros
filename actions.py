@@ -73,7 +73,7 @@ class ACT(metaclass=_ACTMETA):
         pet_moves = list(pet_moves)
         while True:
             GUI.AwaitImg(
-                ACT.atkBtn, ACT.ctnBtn, *endConditions, ACT.stkBtn, ACT.deadmask, timeout=-1
+                ACT.atkBtn, ACT.deadmask, ACT.ctnBtn, *endConditions, ACT.stkBtn, timeout=-1
             )
             if any(GUI.CheckImage(i) for i in endConditions):
                 return list(filter(GUI.CheckImage, endConditions))[0]
@@ -85,13 +85,14 @@ class ACT(metaclass=_ACTMETA):
                     move = moveset.pop(0) if moveset else " "
                 ACT.TypeKeys(move)
                 GUI.AwaitNotImg(ACT.atkBtn)
+            elif GUI.CheckImage(ACT.deadmask):
+                print("dead", flush=True)
+                ACT.ClickIf(ACT.deadCtn)
+                return ACT.dead
             elif GUI.CheckImage(ACT.ctnBtn):
                 GUI.TypeKeys(" ")
                 GUI.AwaitImg(ACT.noOverlay, timeout=1)
                 return ACT.ctnBtn
-            elif GUI.CheckImage(ACT.deadmask):
-                ACT.ClickIf(ACT.deadCtn)
-                return ACT.dead
             else:
                 GUI.ClickIf(ACT.stkBtn, timeout=0)
 
@@ -296,5 +297,8 @@ if __name__ == "__main__":
     # For Example!!
     # ACT.LoreBook[1].Close(False)
     # ACT.Battle("ChaosWeaver", ("43vz", "90"))
-    ACT.Equip(["uragiri", "drop bear hat"], slot="hammer")
+    # ACT.Equip(["uragiri", "drop bear hat"], slot="hammer")
+    while True:
+        GUI.AwaitImg(ACT.deadmask, timeout=-1)
+        print("Found it....", GUI.CheckImage(ACT.deadmask))
     quit()
