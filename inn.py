@@ -55,16 +55,13 @@ def ClassicInnFight(fight, setup, player_moveset, dragon_moveset):
         for filename in os.listdir(path):
             if filename.startswith(name):
                 return os.path.join(path, filename)
-        return ""
 
     start = ImgByName(fight, "start")
     lost = ImgByName(fight, "lost")
     if not start or not lost:
         raise FileNotFoundError(f"Images for {fight} not found.")
     setup()
-    ACT.Sleep(0.1)
     ACT.ClickIf(start)
-    ACT.Sleep(0.1)
     if ACT.Battle("DeathKnight", (player_moveset(), dragon_moveset())) == ACT.dead:
         ACT.ClickIf(lost)
     else:
@@ -86,11 +83,11 @@ def FallenPurpose():
     target_SMUDD = lambda: ACT.MouseClick((0.17, 0.4))
     target_Draco = lambda: ACT.MouseClick((0.8, 0.4))
     # fmt: off
-    setup = ACT.ToggleWeaponType
+    setup = lambda:()# ACT.ToggleWeaponType
     player_moveset =lambda: [[target_SMUDD, *"e5"], "e9", "8", [target_Draco, "6"], *"13v", "ez", "x",
-                      [target_SMUDD, "1"], *"5986", "e1", "3", "e2", "ec", *"z98061vcx", "e5", "e1", "ez", "7", 
-                      [target_SMUDD, "9"], *"861", "e3", *"vx", "e5", *"nz95", "e1", *"c3"]
-    dragon_moveset =lambda: [*"34 734 ", [target_SMUDD, " "], *"34  34 z364 837v43  43  453 46384"]
+                      [target_SMUDD, "1"], *"5986", "e1", "3", "e2", "ec", *"z98061vcx", "e5", "e1", "ez", *"7", 
+                      [exit, "9"], *"861", "e3", *"vx", "e5", *"mz95", "e1", *"c3xv"]
+    dragon_moveset =lambda: [*"34 734 ", [target_SMUDD, " "], *"34  34  364 837v43  43  453 46384 7v"]
     # fmt: on
     ClassicInnFight("FallenPurpose", setup, player_moveset, dragon_moveset)
 
