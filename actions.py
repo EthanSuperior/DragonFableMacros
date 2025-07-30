@@ -165,14 +165,15 @@ class ACT(metaclass=_ACTMETA):
 
         si = subprocess.STARTUPINFO()
         si.dwFlags |= subprocess.STARTF_USESHOWWINDOW
-        # si.wShowWindow = 7  # SW_SHOWMINNOACTIVE
+        si.wShowWindow = 0  # SW_HIDE
         subprocess.Popen(exe_path, cwd=os.path.dirname(exe_path), startupinfo=si)
-        from Macro.api_lib import API
+        from Macro.api_lib import API, _WIN_API  # TODO remove hard coded set Z position
 
-        API.SetUp()
         while True:
             try:
                 API.SetUp()
+                #                           HWND_BOTTOM     # SWP_NOMOVE | SWP_NOSIZE | SWP_NOACTIVATE
+                _WIN_API._gui.SetWindowPos(_WIN_API.hwnd, 1, 0, 0, 0, 0, 2 | 1 | 16)
                 API.GetGameSize(use_cache=False)
                 if ACT.ClickIf("Login/login#(0.420, 0.682, 0.554, 0.722).png"):
                     break
@@ -181,9 +182,7 @@ class ACT(metaclass=_ACTMETA):
         ACT.ClickIf("Login/shadia#(0.635, 0.205, 0.909, 0.291).png")
         ACT.ClickIf("Login/play#(0.119, 0.755, 0.315, 0.813).png")
         while not bool(ACT.LoreBook):
-            time.sleep(0.1)
-        print("Opened....", flush=True)
-        time.sleep(1)
+            time.sleep(0.05)
 
     @staticmethod
     def MoveInDirection(direction):
