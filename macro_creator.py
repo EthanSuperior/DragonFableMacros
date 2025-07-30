@@ -51,7 +51,7 @@ class HANDLERS:
         dT = round(time.time() - HANDLERS.startT, 3)
         area_str = "(" + ", ".join(f"{x:.3f}" for x in area) + ")"
         if not HANDLERS.alt_pressed:
-            print(f'ACT.ClickIf("{folder_dir}/#{area_str}.png", timeout={2 * dT})')
+            print(f'ACT.ClickIf("../{folder_dir}/#{area_str}.png", timeout={2 * dT})')
             GUI.MouseClick(UTILS.MidPt(area))
             time.sleep(0.05)
             if platform.system() == "Windows":
@@ -59,7 +59,7 @@ class HANDLERS:
 
                 _WIN_API._api.PostMessage(_WIN_API._GetHWND(), 31, 0, 0)
         else:
-            print(f'ACT.AwaitImg("{folder_dir}/#{area_str}.png", timeout={2 * dT})')
+            print(f'ACT.AwaitImg("../{folder_dir}/#{area_str}.png", timeout={2 * dT})')
         HANDLERS.startT = time.time()
 
     @staticmethod

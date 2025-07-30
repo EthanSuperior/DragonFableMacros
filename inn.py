@@ -72,6 +72,14 @@ def ClassicInnFight(fight, setup, player_moveset, dragon_moveset):
 # DRAGON MOVES:
 # 1: Stun 2: Scout 3: Lash 4: Blast 5: Heal 6: Shield 7: Nova 8: Outrage 9: Boost 0: Tickle z: Skip v: Primal
 
+# Some Abilites allow you to take additional turn, can you make implement that?
+# Okay so now i want to prune branches that take longer than 60 turns of the player.
+# Okay now i want to add the DeathKnight class, do note that this class relies on certain gear being equiped, i will always use it with a full set of DeathKnight relics, so please implement the abilities as such. finally i need to add as an ability, or maybe Action would be a better name for them, the toggle between Consuming and Healing Precense. These actions, and Shift should not take a turn. See: https://dragonfable-endgame.fandom.com/wiki/DeathKnight
+# Now i want to add t=your pet dragon as a ally/pet this has cusomization as well, so please make the dragon from what it is trained in and what it's element is, its always a lvl 90 pet kid dragon: https://dragonfable-endgame.fandom.com/wiki/Dragon, all of the dragons effects basically actually target the player, not the dragon themselves.
+# Okay finally https://dragonfable-endgame.fandom.com/wiki/Drakath,_Champion_of_Chaos I figured we can do rotations by having his abilities set the cooldowns of other abilites. but I dont know a good way to do phases. Maybe a permanent effect?
+# Okay now how do i initilize my character's information and his stats?
+# Okay i want to output the moves the player and dragon make as the following: x123zcv45, where those corresponding to the hotkeys, and 'e' is used to toggle between presences.
+
 
 def FallenPurpose():
     # 200 END / 200 DEX / 39 CHA / 6 INT

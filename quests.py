@@ -458,8 +458,24 @@ def AerisBattleTower():
     ACT.NewItem.Keep()
 
 
+def VoltaboltChallenge():
+    ACT.ClickIf("Voltabolt/heal#(0.354, 0.487, 0.486, 0.525).png", timeout=9.196)
+    ACT.ClickIf("Voltabolt/back#(0.352, 0.315, 0.496, 0.355).png", timeout=6.004)
+    ACT.ClickIf("Voltabolt/start#(0.351, 0.370, 0.491, 0.406).png", timeout=16.866)
+    ACT.ClickIf("Voltabolt/btn#(0.271, 0.174, 0.413, 0.272).png", timeout=13.634)
+    ACT.ClickIf("Voltabolt/yes#(0.384, 0.486, 0.494, 0.534).png", timeout=16.02)
+    ACT.Sleep(0.2)
+    ACT.MouseClick((0.827, 0.612))
+    ACT.Battle("ChaosWeaver", ("4v", "7"))
+    ACT.FinishQuestAndItems(keepMode="None")
+
+
 if __name__ == "__main__":
     pass
+    n = 0
+    for i in range(20):
+        print("Run", n := n + 1, end="\r")
+        VoltaboltChallenge()
     # ChasingAnswers()
     # ACT.CutsceneEnd("ChickenCow/cmplt#(0.508, 0.511, 0.672, 0.549).png")
     # ACT.ClickIf("ChickenCow/cmplt#(0.508, 0.511, 0.672, 0.549).png")

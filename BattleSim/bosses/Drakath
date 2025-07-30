@@ -1,0 +1,41 @@
+from engine.abilities import Ability
+from engine.character import Character
+from engine.effects import Effect
+from engine.stats import Stats, Resistances
+
+
+class OverwhelmingPower(Ability):
+    def __init__(self):
+        super().__init__(
+            name="Overwhelming Power",
+            cost=0,
+            cooldown=3,
+            hits=1,
+            damage_multiplier=1.5,
+            post_attack_effects=[
+                Effect(
+                    name="Stun",
+                    duration=1,
+                    target="enemy",
+                    stat_mods={"STR": -1000},  # Effectively a stun
+                    chance=0.3,
+                )
+            ],
+        )
+
+
+class Drakath(Character):
+    def __init__(self):
+        base_stats = Stats(
+            MaxHP=50000,
+            MaxMP=1000,
+            STR=200,
+            DEX=150,
+            INT=100,
+            LUK=100,
+            END=300,
+            WIS=100,
+            Resist=Resistances({"all": 50}),
+        )
+        abilities = [OverwhelmingPower(), Ability(name="Basic Attack", damage_multiplier=1.0)]
+        super().__init__("Drakath", abilities, base_stats, [])
