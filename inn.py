@@ -72,6 +72,7 @@ def ClassicInnFight(fight, setup, player_moveset, dragon_moveset):
 # DRAGON MOVES:
 # 1: Stun 2: Scout 3: Lash 4: Blast 5: Heal 6: Shield 7: Nova 8: Outrage 9: Boost 0: Tickle z: Skip v: Primal
 
+# Okay implement cooldowns for abilities, if an ability is on cooldown, then using it should return None, ie invalid state. in tick_effects in Character you can also update cooldowns, and rename it to update()
 # Some Abilites allow you to take additional turn, can you make implement that?
 # Okay so now i want to prune branches that take longer than 60 turns of the player.
 # Okay now i want to add the DeathKnight class, do note that this class relies on certain gear being equiped, i will always use it with a full set of DeathKnight relics, so please implement the abilities as such. finally i need to add as an ability, or maybe Action would be a better name for them, the toggle between Consuming and Healing Precense. These actions, and Shift should not take a turn. See: https://dragonfable-endgame.fandom.com/wiki/DeathKnight
