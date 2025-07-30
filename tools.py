@@ -2,7 +2,7 @@ import dearpygui.dearpygui as dpg
 import cv2
 import numpy as np
 from threading import Timer
-from gui_lib import GUI
+from Macro.gui_lib import GUI
 
 # Load your images
 # from gui_lib import GUI

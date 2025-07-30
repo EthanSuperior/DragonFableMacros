@@ -1,6 +1,8 @@
-from gui_lib import GUI
-from dialog import Dialog
+from Macro.gui_lib import GUI
+from Macro.dialog import Dialog
 import time
+
+exe_path = r"C:\Users\User\Downloads\Evolved DragonFable Launcher\evolved-dragonfable-launcher.exe"
 
 
 class _ACTMETA(type):
@@ -155,6 +157,33 @@ class ACT(metaclass=_ACTMETA):
             # else:
             #     pass
         return True
+
+    @staticmethod
+    def Startup():
+        import subprocess
+        import os
+
+        si = subprocess.STARTUPINFO()
+        si.dwFlags |= subprocess.STARTF_USESHOWWINDOW
+        # si.wShowWindow = 7  # SW_SHOWMINNOACTIVE
+        subprocess.Popen(exe_path, cwd=os.path.dirname(exe_path), startupinfo=si)
+        from Macro.api_lib import API
+
+        API.SetUp()
+        while True:
+            try:
+                API.SetUp()
+                API.GetGameSize(use_cache=False)
+                if ACT.ClickIf("Login/login#(0.420, 0.682, 0.554, 0.722).png"):
+                    break
+            except:
+                pass
+        ACT.ClickIf("Login/shadia#(0.635, 0.205, 0.909, 0.291).png")
+        ACT.ClickIf("Login/play#(0.119, 0.755, 0.315, 0.813).png")
+        while not bool(ACT.LoreBook):
+            time.sleep(0.1)
+        print("Opened....", flush=True)
+        time.sleep(1)
 
     @staticmethod
     def MoveInDirection(direction):

@@ -1,11 +1,10 @@
 import os
 import time
-from gui_lib import GUI
-from utils import UTILS
+from .gui_lib import GUI
+from .utils import UTILS
 from glob import glob
 
 
-# TODO ADD SUB DIALOGS!!!!
 class _DialogImageAction:
     def __init__(self, owner, key):
         self.owner = owner

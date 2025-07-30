@@ -141,7 +141,7 @@ def AARGH():
     ACT.Sleep(1)
     ACT.ClickIf("AARGH/start#(0.757, 0.09, 0.931, 0.168).png")
     ACT.AwaitImg(ACT.atkBtn)
-    from gui_lib import GUI
+    from Macro.gui_lib import GUI
     import time
 
     area = (0.632, 0.85, 0.882, 0.876)

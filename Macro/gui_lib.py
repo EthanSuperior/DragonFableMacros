@@ -9,11 +9,10 @@ import time
 import numpy as np
 import cv2
 
-from utils import UTILS
-from api_lib import API
+from .utils import UTILS
+from .api_lib import API
 
 folder_dir = "ScreenCaps"
-exe_path = "C:/Users/User/Downloads/Evolved DragonFable Launcher/evolved-dragonfable-launcher.exe"
 
 
 class GUI:

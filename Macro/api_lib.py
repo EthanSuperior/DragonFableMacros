@@ -60,7 +60,7 @@ class _API(ABC):
 
     @staticmethod
     @abstractmethod
-    def GetGameSize():
+    def GetGameSize(use_cache=True):
         pass
 
     @staticmethod
@@ -230,7 +230,9 @@ class _WIN_API(_API):
             return im
 
     @staticmethod
-    def GetGameSize():
+    def GetGameSize(use_cache=True):
+        if not use_cache:
+            _WIN_API._game_area = None
         same_size = _WIN_API._win_size == _WIN_API._gui.GetWindowRect(_WIN_API._GetHWND())
         if _WIN_API._game_area is not None and same_size:
             return _WIN_API._game_area

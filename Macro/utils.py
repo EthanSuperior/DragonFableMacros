@@ -1,4 +1,4 @@
-from api_lib import API
+from .api_lib import API
 
 
 class UTILS:

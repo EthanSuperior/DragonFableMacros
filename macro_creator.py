@@ -2,9 +2,9 @@ import time
 import platform
 from pynput import mouse, keyboard
 
-from utils import UTILS
+from Macro.utils import UTILS
 from actions import ACT
-from gui_lib import GUI, folder_dir
+from Macro.gui_lib import GUI, folder_dir
 
 
 class HANDLERS:
@@ -54,8 +54,8 @@ class HANDLERS:
             print(f'ACT.ClickIf("../{folder_dir}/#{area_str}.png", timeout={2 * dT})')
             GUI.MouseClick(UTILS.MidPt(area))
             time.sleep(0.05)
-            if platform.system() == "Windows":
-                from api_lib import _WIN_API
+            if platform.system() == "Windows":  # What did this do again?
+                from Macro.api_lib import _WIN_API
 
                 _WIN_API._api.PostMessage(_WIN_API._GetHWND(), 31, 0, 0)
         else:
@@ -94,6 +94,7 @@ class HANDLERS:
 
     @staticmethod
     def on_press(key):
+        # Add support for quitting with ctrl-c
         ascii_map = {
             "!": "1",
             "@": "2",
@@ -110,8 +111,10 @@ class HANDLERS:
             HANDLERS.alt_pressed = True
         elif key in {keyboard.Key.shift, keyboard.Key.shift_l, keyboard.Key.shift_r}:
             HANDLERS.shift_pressed = True
+        elif key in {keyboard.Key.ctrl, keyboard.Key.ctrl_l, keyboard.Key.ctrl_r}:
+            HANDLERS.ctrl_pressed = True
         elif isinstance(key, keyboard.KeyCode):
-            if key.char == "q":
+            if key.char == "q" or key.char == "\x03":
                 HANDLERS.keyboard_listener.stop()
                 HANDLERS.mouse_listener.stop()
             elif key.char in ascii_map:
@@ -126,6 +129,8 @@ class HANDLERS:
             HANDLERS.alt_pressed = False
         elif key in {keyboard.Key.shift, keyboard.Key.shift_l, keyboard.Key.shift_r}:
             HANDLERS.shift_pressed = False
+        elif key in {keyboard.Key.ctrl, keyboard.Key.ctrl_l, keyboard.Key.ctrl_r}:
+            HANDLERS.ctrl_pressed = False
 
 
 if __name__ == "__main__":
