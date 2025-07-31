@@ -65,3 +65,8 @@ Hatir: 5
 
 Shield  Dot  => Heal    2Crit -> +Bonus   3Stun          3Stun    SCALES |-> Sheild   Dot    3-Hit    Heal ->|
             *=> 100MPM  2Dot  -> +Crit    +Boost         8Nuke 
+
+
+
+
+e | Consuming{Dmg} e | Healing{Heal}  z | Shift{Dmg}     z | Shift{Heal}    x | Blood Tap      1 | Soul Slash     2 | Unholy Shadow   | Obliterate     4 | Instill Fear   5 | Garb of Undeath ' '| Attack         6 | Inspire Weak   7 | Unholy Will   8 | Dark Rite; 9 | Strength Reap ; 0 | Edge of Death  ;c | Cursed Strike  ;v | Call of Dead   

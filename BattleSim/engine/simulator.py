@@ -1,18 +1,25 @@
 import heapq
 import threading
 import copy
-from engine.character import Character
+from .character import Character
 
 
 class SimulationNode:
     def __init__(
-        self, players: list[Character], enemies: list[Character], turn: int, history: list, chance: float
+        self,
+        players: list[Character],
+        enemies: list[Character],
+        turn: int,
+        history: list,
+        chance: float,
+        turn_index: int = 0,
     ):
         self.players = players
         self.enemies = enemies
         self.turn = turn
         self.history = history
         self.chance = chance  # probability of reaching this state
+        self.turn_index = turn_index
 
     def __lt__(self, other):
         # Tie-breaking: prioritize lower total enemy HP, then higher total player HP
@@ -26,16 +33,52 @@ class SimulationNode:
         return enemy_hp < other_enemy_hp
 
 
-class BattleSimulator:
-    def __init__(self, initial_players: list[Character], initial_enemies: list[Character], thread_count: int = 4):
+class Simulator:
+    def __init__(
+        self,
+        initial_players: list[Character],
+        initial_enemies: list[Character],
+        thread_count: int = 4,
+        max_turns: int = 60,
+    ):
         self.initial_players = initial_players
         self.initial_enemies = initial_enemies
         self.queue = []
         self.lock = threading.Lock()
         self.path_stats = {}
         self.discarded_prob = 0.0
-        self.best_turns = float("inf")
         self.thread_count = thread_count
+        self.max_turns = max_turns
+
+    def start(self):
+        results, discarded_probability = self.run()
+
+        if results:
+            best = results[0]
+            print("\n🛡️ Optimal Strategy Found")
+            print("---------------------------")
+            print("Win Probability: ", best["win_chance"] * 100, "% ")
+            print("Average Turns:   ", best["avg_turns"])
+            print("Ability Sequence:")
+
+            player_moves = [
+                move[2] for move in best["path"] if move[0] == "player" and move[1] == 0
+            ]
+            allies_moves = [
+                move[2] for move in best["path"] if move[0] == "player" and move[1] != 0
+            ]
+            enemy_moves = [move[2] for move in best["path"] if move[0] == "enemy"]
+
+            print("  Player Moves:", ", ".join(player_moves))
+            if allies_moves:
+                print("  Allies' Moves:", ", ".join(allies_moves))
+            if enemy_moves:
+                print("  Enemy Moves:", ", ".join(enemy_moves))
+
+        else:
+            print("❌ No guaranteed win path found.")
+
+        print("\nℹ️ Discarded Probabilities (<1%):", discarded_probability * 100, "% ")
 
     def enqueue(self, node: SimulationNode):
         with self.lock:
@@ -55,6 +98,7 @@ class BattleSimulator:
             turn=0,
             history=[],
             chance=1.0,
+            turn_index=0,
         )
         self.enqueue(start_node)
 
@@ -69,11 +113,13 @@ class BattleSimulator:
             win_chance = stats.get("win", 0)
             loss_chance = stats.get("loss", 0)
             if win_chance > 0:
+                hotkeys = "".join([move[2] for move in path if move[0] == "player"])
                 results.append(
                     {
                         "path": path,
                         "win_chance": win_chance / (win_chance + loss_chance),
                         "avg_turns": stats["total_turns"] / stats["win"],
+                        "hotkeys": hotkeys,
                     }
                 )
 
@@ -107,43 +153,81 @@ class BattleSimulator:
             if self.is_team_dead(node.enemies):
                 with self.lock:
                     stats["win"] = stats.get("win", 0) + node.chance
-                    stats["total_turns"] = (
-                        stats.get("total_turns", 0) + node.turn * node.chance
-                    )
+                    stats["total_turns"] = stats.get("total_turns", 0) + node.turn * node.chance
                     self.path_stats[path_tuple] = stats
                 continue
 
-            if node.chance < 0.01 or node.turn > self.best_turns:
+            if node.chance < 0.01 or node.turn > self.max_turns:
                 with self.lock:
                     self.discarded_prob += node.chance
                 continue
 
-            # Player's turn
-            for i, player in enumerate(node.players):
-                if not player.is_dead():
-                    for j, enemy in enumerate(node.enemies):
-                        if not enemy.is_dead():
-                            for n in self.simulate_turn(node, True, i, j):
-                                # Enemy's turn
-                                for i_e, enemy_e in enumerate(n.enemies):
-                                    if not enemy_e.is_dead():
-                                        for j_p, player_p in enumerate(n.players):
-                                            if not player_p.is_dead():
-                                                for new_node in self.simulate_turn(n, False, i_e, j_p):
-                                                    self.enqueue(new_node)
+            combatants = node.players + node.enemies
 
-    def simulate_turn(self, node: SimulationNode, is_player_turn: bool, user_idx: int, target_idx: int):
+            if node.turn_index >= len(combatants):
+                # New round
+                new_players = [p.copy() for p in node.players]
+                new_enemies = [e.copy() for e in node.enemies]
+
+                for p in new_players:
+                    p.update()
+                for e in new_enemies:
+                    e.update()
+
+                new_node = SimulationNode(
+                    players=new_players,
+                    enemies=new_enemies,
+                    turn=node.turn + 1,
+                    history=list(node.history),
+                    chance=node.chance,
+                    turn_index=0,
+                )
+                self.enqueue(new_node)
+                continue
+
+            actor = combatants[node.turn_index]
+
+            if actor.is_dead():
+                # Skip turn
+                new_node = SimulationNode(
+                    players=[p.copy() for p in node.players],
+                    enemies=[e.copy() for e in node.enemies],
+                    turn=node.turn,
+                    history=list(node.history),
+                    chance=node.chance,
+                    turn_index=node.turn_index + 1,
+                )
+                self.enqueue(new_node)
+                continue
+
+            is_player_turn = actor in node.players
+
+            if is_player_turn:
+                user_idx = node.players.index(actor)
+                for target_idx, target in enumerate(node.enemies):
+                    if not target.is_dead():
+                        for new_node in self.simulate_turn(node, True, user_idx, target_idx):
+                            self.enqueue(new_node)
+            else:  # Enemy's turn
+                user_idx = node.enemies.index(actor)
+                for target_idx, target in enumerate(node.players):
+                    if not target.is_dead():
+                        for new_node in self.simulate_turn(node, False, user_idx, target_idx):
+                            self.enqueue(new_node)
+
+    def simulate_turn(
+        self, node: SimulationNode, is_player_turn: bool, user_idx: int, target_idx: int
+    ):
         users = node.players if is_player_turn else node.enemies
         targets = node.enemies if is_player_turn else node.players
 
         user = users[user_idx]
         target = targets[target_idx]
 
-        user.tick()
         nodes = []
         for ability in user.abilities:
             new_history = list(node.history)
-            move = ("player" if is_player_turn else "enemy", user_idx, ability.name)
+            move = ("player" if is_player_turn else "enemy", user_idx, ability.hotkey)
             new_history.append(move)
 
             results = ability.use(user, target, node.chance)
@@ -164,9 +248,10 @@ class BattleSimulator:
                 new_node = SimulationNode(
                     players=new_players,
                     enemies=new_enemies,
-                    turn=node.turn + (1 if is_player_turn else 0),
+                    turn=node.turn,
                     history=new_history,
                     chance=new_probability,
+                    turn_index=node.turn_index + 1,
                 )
                 nodes.append(new_node)
         return nodes

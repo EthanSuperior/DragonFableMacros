@@ -15,9 +15,9 @@ def get_dmg_multiplier(user: Character, target: Character, is_crit=False):
 
     # Damage reduction
     if is_crit:
-        dr = (1 + u_stats.plus_crit_dmg + crit_mult) * (1 - t_stats.reduce_crit_dmg)
+        dr = (u_stats.plus_crit_dmg + crit_mult) * (1 - t_stats.reduce_crit_dmg)
     else:
-        dr = (1 + u_stats.plus_noncrit_dmg + non_crit_mult) * (1 - t_stats.reduce_noncrit_dmg)
+        dr = (u_stats.plus_noncrit_dmg + non_crit_mult) * (1 - t_stats.reduce_noncrit_dmg)
 
     return (
         (1 + u_stats.plus_base_dmg / 100)
@@ -41,17 +41,3 @@ def calculate_crit_chance(user: Character, target: Character):
     u_stats = user.get_stats()
     return u_stats.CRIT / 100
 
-
-def calculate_immobility_resist(user: Character):
-    u_stats = user.get_stats()
-    return u_stats.END / 5
-
-
-def calculate_bth(user: Character):
-    u_stats = user.get_stats()
-    return u_stats.WIS / 10
-
-
-def calculate_health_resist(user: Character):
-    u_stats = user.get_stats()
-    return u_stats.WIS / 20

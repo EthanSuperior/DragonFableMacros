@@ -1,8 +1,9 @@
 from .character import Character
 from .effects import Effect
-import random
-import copy
 from .formulas import *
+from typing import TYPE_CHECKING
+import copy
+
 
 def apply_probabilistic_effects(outcomes, effects):
     """
@@ -21,16 +22,12 @@ def apply_probabilistic_effects(outcomes, effects):
             next_effect_outcomes = []
             for current_u, current_t, current_p in effect_outcomes:
                 # State where the effect is not applied
-                next_effect_outcomes.append(
-                    (current_u, current_t, current_p * (1 - effect.chance))
-                )
+                next_effect_outcomes.append((current_u, current_t, current_p * (1 - effect.chance)))
 
                 # State where the effect is applied
                 u_with_effect = current_u.copy()
                 t_with_effect = current_t.copy()
-                (
-                    u_with_effect if effect.target == "self" else t_with_effect
-                ).add_effect(effect)
+                (u_with_effect if effect.target == "self" else t_with_effect).add_effect(effect)
                 next_effect_outcomes.append(
                     (u_with_effect, t_with_effect, current_p * effect.chance)
                 )
@@ -38,22 +35,33 @@ def apply_probabilistic_effects(outcomes, effects):
         new_outcomes.extend(effect_outcomes)
     return new_outcomes
 
+
 class Ability:
     def __init__(
         self,
         name,
+        hotkey="",
         cost=0,
         cooldown=0,
+        uses: int | None = None,
+        heal: int | None = None,
+        mana_gain: int | None = None,
         hits=1,
         damage_multiplier=1.0,
         crit_bonus=0,
         pre_attack_effects=None,
         on_hit_effects=None,
         post_attack_effects=None,
+        sets_cooldowns: dict | None = None,
+        custom_logic=None,
     ):
         self.name = name
+        self.hotkey = hotkey
         self.cost = cost
         self.cooldown = cooldown
+        self.uses = uses
+        self.heal = heal
+        self.mana_gain = mana_gain
         self.hits = hits
         self.damage_multiplier = damage_multiplier
         self.crit_bonus = crit_bonus
@@ -64,11 +72,17 @@ class Ability:
         self.on_hit_effects: list[Effect]
         self.post_attack_effects = post_attack_effects or []
         self.post_attack_effects: list[Effect]
+        self.extra_turn = False
+        self.takes_turn = True
+        self.sets_cooldowns = sets_cooldowns
+        self.custom_logic = custom_logic
 
     def copy(self):
         return copy.deepcopy(self)
 
     def use(self, user: Character, target: Character, chance=1.0):
+        if self.uses is not None and user.ability_uses.get(self.name, 0) <= 0:
+            return None
         if user.mp < self.cost or user.ability_cooldowns.get(self.name, 0) > 0:
             return None
 
@@ -76,6 +90,24 @@ class Ability:
         new_target = target.copy()
         new_user.mp -= self.cost
         new_user.ability_cooldowns[self.name] = self.cooldown
+
+        if self.sets_cooldowns:
+            for ability_name, cooldown in self.sets_cooldowns.items():
+                new_user.ability_cooldowns[ability_name] = cooldown
+
+        if self.uses is not None:
+            new_user.ability_uses[self.name] -= 1
+
+        if self.custom_logic:
+            return self.custom_logic(new_user, new_target, chance)
+
+        if self.heal:
+            new_user = new_user.heal(self.heal)
+        if self.mana_gain:
+            new_user.mp = min(new_user.mp + self.mana_gain, new_user.base_stats.CurrMP)
+
+        if self.heal is not None or self.mana_gain is not None:
+            return [(new_user, new_target, chance)]
 
         outcomes = [(new_user, new_target, chance)]
 
@@ -96,7 +128,7 @@ class Ability:
                 normal_prob = 1 - (miss_prob + crit_prob + glance_prob)
 
                 # Base damage
-                base_dmg = u.damage * self.damage_multiplier
+                base_dmg = u.get_stats().damage * self.damage_multiplier
 
                 # Miss outcome
                 miss_outcomes = [(u, t, p * miss_prob)]
@@ -138,6 +170,11 @@ class Ability:
 
         # Apply post-attack effects
         outcomes = apply_probabilistic_effects(outcomes, self.post_attack_effects)
+
+        if self.extra_turn:
+            for u, t, p in outcomes:
+                u.takes_turn = True
+                t.takes_turn = False
 
         return outcomes
 

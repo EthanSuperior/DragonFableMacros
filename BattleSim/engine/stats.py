@@ -3,17 +3,27 @@ from typing import Dict
 
 
 class Resistances:
-    values: Dict[str, float]
-
     def __init__(self, vals={}):
         self.values = vals
+        self.bth = vals.get("bth", 0.0)
+        self.health = vals.get("health", 0.0)
+        self.immobility = vals.get("immobility", 0.0)
 
     def __add__(self, other):
         new_vals = self.values.copy()
         other_dict = other.values if isinstance(other, Resistances) else other
         for k, v in other_dict.items():
             new_vals[k] = new_vals.get(k.lower(), 0.0) + v
-        return Resistances(new_vals)
+
+        new_resist = Resistances(new_vals)
+        new_resist.bth += other.bth if isinstance(other, Resistances) else other.get("bth", 0.0)
+        new_resist.health += (
+            other.health if isinstance(other, Resistances) else other.get("health", 0.0)
+        )
+        new_resist.immobility += (
+            other.immobility if isinstance(other, Resistances) else other.get("immobility", 0.0)
+        )
+        return new_resist
 
     def __getitem__(self, key):
         return max(
@@ -48,9 +58,7 @@ class Stats:
     reduce_noncrit_dmg: float = 0.0
     reduce_dot_dmg: float = 0.0
     reduce_crit_dmg: float = 0.0
-    immobility_resist: float = 0.0
-    bth: float = 0.0
-    health_resist: float = 0.0
+    damage: float = 0.0
 
     def __add__(self, other):
         return Stats(
@@ -78,7 +86,5 @@ class Stats:
             reduce_noncrit_dmg=self.reduce_noncrit_dmg + other.reduce_noncrit_dmg,
             reduce_dot_dmg=self.reduce_dot_dmg + other.reduce_dot_dmg,
             reduce_crit_dmg=self.reduce_crit_dmg + other.reduce_crit_dmg,
-            immobility_resist=self.immobility_resist + other.immobility_resist,
-            bth=self.bth + other.bth,
-            health_resist=self.health_resist + other.health_resist,
+            damage=self.damage + other.damage,
         )
