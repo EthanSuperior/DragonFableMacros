@@ -7,7 +7,7 @@ if _WIN_API.hwnd:
 
 ACT.Startup()
 ACT.LoreBook.Quest(False)
-ACT.AwaitImg(ACT.noOverlay, timeout=5)
+ACT.AwaitImg(ACT.indaily, timeout=5)
 if not ACT.LoreBook:
     ACT.MoveInDirection("west")
     ACT.Battle("ChaoseWeaver", ("4v", "7"))

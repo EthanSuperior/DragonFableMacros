@@ -1,15 +1,15 @@
-from BattleSim import Drakath, DeathKnight, Dragon, Stats, Resistances, Simulator
+from BattleSim_Old import Drakath, DeathKnight, Dragon, Stats, Resistances, Simulator
 
 if __name__ == "__main__":
     player_res = Resistances(
         {
             "all": 1,
-            "health": -17,
+            "health": -18,
             "good": 27,
             "evil": 27,
-            "light": 75,
+            "light": 80,
             "immobility": 80,
-            "darkness": 75,
+            "darkness": 80,
         }
     )
     player_stats = Stats(
@@ -34,6 +34,8 @@ if __name__ == "__main__":
         plus_crit_dmg=1.834,
         damage=(123 + 128) // 2,
     )
+    # TODO convert this to equipment and just [0,200,0,39,0,200,6];
+    # DeathKnight should only take in Trinket and Slotted weapon....; is lucky hammer multiplicitve of additive?
     pet_drag = Dragon(
         element="light",
         training={"protection": 200, "magic": 0, "fighting": 200, "assistance": 199, "mischief": 1},

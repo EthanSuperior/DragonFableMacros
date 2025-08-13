@@ -32,6 +32,42 @@ class SimulationNode:
             return player_hp > other_player_hp
         return enemy_hp < other_enemy_hp
 
+    def merge(self, other):
+        if self.history != other.history:
+            return False
+        if self.enemies == other.enemies:
+            return False
+        self.chance + other.chance
+        return self
+
+
+# Represents a single move set, keeps track of all possible paths associated with that moveset
+# so if I use dot on turn 1 that is all stored here, allows nodes to merge so that i can priorities trees
+# with the highest chances of winning, has the total sum of victory and lost and discarded conditions
+class SimulationPath:
+    def __init__(self, players, enemies):
+        self.win_percent = 0
+        self.lost_percent = 0
+        self.discarded_percent = 0
+        self.node_space = []
+        self.actions = []
+        self.players = players
+        self.enemeies = enemies
+    
+    @classmethod
+    def from_path(cls, ability, path):
+        next = cls(path.players, path.enemies)
+        next.win_percent = path.win_percent
+        next.lost_percent = path.lost_percent
+        next.discarded_percent = path.discard_percent
+        next.node_space = (path.node_space, ability)
+        next.actions.append(ability)
+
+    def process_turn(self, player_turn:bool, idx:int):
+        for ability in (self.players if player_turn else self.enemeies)[idx].abilities:
+            
+
+
 
 class Simulator:
     def __init__(
