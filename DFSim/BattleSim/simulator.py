@@ -66,9 +66,12 @@ class NodeInfo:
 
 
 class SimulatorBranch:
-    def __init__(self, nodes: list[NodeInfo], turn_num=0):
-        self.nodes: list[SimulatorNode] = nodes
+    def __init__(self, nodes: list[SimulatorNode], turn_num=0, move_history=None):
+        self.nodes = nodes
         self.turns = turn_num
+        self.move_history = move_history or []
+
+        # Probabilities & average HP calculation
         self.win_probability, self.loss_probability, self.active_probability = 0, 0, 0
         self.avg_hp = 0
         for n in self.nodes:
@@ -80,18 +83,18 @@ class SimulatorBranch:
                 self.loss_probability += n.probability
             else:
                 self.active_probability += n.probability
-        self.z_score = (self.win_probability * (65 - self.turns)) / 64
+
+        self.weighted_win = (self.win_probability * (65 - self.turns)) / 64
         # AKA What would we be at if we always won next turn?
-        self.max_score = self.z_score + ((self.active_probability * (64 - self.turns)) / 64)
+        self.max_win_prob = self.weighted_win + ((self.active_probability * (64 - self.turns)) / 64)
 
     def turns(self):
-        global ABILITIES
         idx = 0
         self.turns += 1
-        outcomes = [self]  # Start with ourselvesss
+        outcomes = [self]
         while idx < len(UNITS):
             # This might be prime target for the thread ops... maybe...
-            for ability in self.data[idx].available_abilities():
+            for ability in self.nodes[0].data[idx].available_abilities():
                 next_outcomes = []
                 for tree in outcomes:
                     next_outcomes += tree.fork(idx, ability)
@@ -100,23 +103,29 @@ class SimulatorBranch:
                 outcomes = next_outcomes
         return outcomes
 
-    # TODO else branch proper forking, see SimulatorNode; needs to append to a move_history
     def fork(self, idx, ability):
-        if ability.free_action:  # free action
-            return SimulatorBranch(merged(ability.pre_atk(n, idx) for n in self.nodes))
+        new_history = self.move_history + [(idx, ability.name)]
+        if ability.free_action:
+            return SimulatorBranch(
+                merged(ability.pre_atk(n, idx) for n in self.nodes),
+                turn_num=self.turns,
+                move_history=new_history,
+            )
         else:
+            cutoff = max(1e-4 * (0.95**self.turns), 1e-8)  # Probability cutoff scaling
             outcomes = []
             for n in self.nodes:
-                if n.probability < 0.0001:
+                if n.probability < cutoff:
                     continue
                 outcomes += n.act(idx, ability)
-            return SimulatorBranch(merged(outcomes))
+            return SimulatorBranch(merged(outcomes), turn_num=self.turns, move_history=new_history)
 
     def __lt__(self, other):
-        # Use current score so finishing states are prioritized, if they have never won then z_score is 0
-        if self.z_score != other.z_score:
+        # Use current score so finishing states are prioritized,
+        # if they have never won then weighted_win is 0
+        if self.weighted_win == other.weighted_win:
             return self.avg_hp < other.avg_hp
-        return self.z_score < other.z_score
+        return self.weighted_win < other.weighted_win
 
 
 class SimulatorNode:
@@ -198,18 +207,18 @@ class Simulator:
         self.queue = [SimulatorBranch([root_node])]
 
     # TODO: Speed up somehow with threading, either the for-loop or something else...
-    # Branch and Bound; Internal is Greedy Search by z_scores, then by boss % missing hp
+    # Branch and Bound; Internal is Greedy Search by weighted_wins, then by boss % missing hp
     def run(self):
         best_score = float("inf")
         best_path = None
         while self.queue:
             tree = self.dequeue()
-            if tree.max_score < best_score:
+            if tree.max_win_prob < best_score:
                 continue
-            if tree.z_score > best_score:
-                best_score = tree.z_score
+            if tree.weighted_win > best_score:
+                best_score = tree.weighted_win
                 best_path = tree
-            if tree.z_score != tree.max_score:
+            if tree.weighted_win != tree.max_win_prob:
                 self.enqueue(tree.turns())
         return best_path
 

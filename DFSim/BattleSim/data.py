@@ -72,6 +72,8 @@ class Effect(abc.ABC):
 
 
 class Ability(abc.ABC):
+    name = ""
+
     def set_id(self, id):
         self.id = id
         return id
