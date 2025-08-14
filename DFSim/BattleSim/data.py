@@ -47,12 +47,38 @@ class Stats:  # skip main 6 stats, these are all the secondary stats....
     RESIST: Resistances = Resistances({})
     WPN_DMG: float = 0.0
     target: int = 0
-    dmg_type: int = 0
+    dmg_type: str = "Fear"
+    non_crit_mult: float = 0.0
+    crit_mult: float = 0.0
+    dex_mult: float = 0.0
+    dot_mult: float = 0.0
     _hit_damage: float = 0.0
     _crit_damage: float = 0.0
 
     def clone(self):
         return replace(self)
+
+    @classmethod
+    def fromMain(
+        cls, STR: int, DEX: int, INT: int, CHA: int, LUK: int, END: int, WIS: int, LVL: int = None
+    ):
+        return cls(
+            WPN_DMG=max(STR, DEX, INT) // 10,
+            non_crit_mult=STR * 3 / 2000,
+            dex_mult=DEX / 4000,
+            dot_mult=DEX / 400,
+            crit_mult=INT / 1000,
+            pet_dmg=CHA // 10,
+            pet_cdr=min(CHA // 50, 4),
+            CRIT=(LUK // 10) + (5 if LVL else 0),
+            MPM=(LUK // 10) + (5 if LVL else 0),
+            BPD=LUK // 10,
+            trinket_cdr=min(LUK // 50, 4),
+            MaxHP=(END * 5) + (5 if LVL else 0),
+            RESIST=Resistances({"immobility": END // 5, "health": -(WIS // 20)}),
+            MaxMP=(WIS * 5) + (5 if LVL else 0),
+            BONUS=WIS // 10,
+        )
 
 
 # TODO: Make helper to calculate actual damage somewhere.....

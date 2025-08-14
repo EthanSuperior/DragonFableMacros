@@ -118,17 +118,17 @@ class SimulatorNode:
         miss_outcomes = self.fork(stats.target, 0, miss_prob, "miss")
         # TODO: Most resistances are static and N/A, so precalculating resit to dmg_type
         # and updating only when changed dmg_type and resistances
+        multiplier = ability.hit_dmg + (min(1, ability.hit_dmg) * stats.bonus_base)
         resist = 1 - (enemy_stats.RESIST[stats.dmg_type] / 100)
-        hit_dmg = stats._hit_damage * ability.hit_dmg * resist
+        hit_dmg = stats._hit_damage * multiplier * resist * stats.BOOST
+        crit_dmg = stats._crit_damage * multiplier * resist * stats.BOOST
+
         # TODO: Validate its still 10% and not 5% damage
         glance_outcomes = self.fork(stats.target, hit_dmg * 0.1, glance_prob, "glance")
 
         with_on_hit = ability.on_hit(self, idx, stats.target)
-        # hit_stats = self.get_stats(idx)
 
         # TODO: Update hit_dmg only if needed by on_hit effects
-        # self.get_stats(stats.target)
-        hit_dmg = stats._hit_damage * ability.hit_dmg * resist
         hit_outcomes = with_on_hit.fork(stats.target, hit_dmg, hit_prob, "hit")
         crit_dmg = stats._crit_damage * ability.hit_dmg * resist
         crit_outcomes = with_on_hit.fork(stats.target, crit_dmg, crit_prob, "crit")
