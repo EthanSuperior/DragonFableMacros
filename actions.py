@@ -179,7 +179,7 @@ class ACT(metaclass=_ACTMETA):
                     break
             except:
                 pass
-        ACT.ClickIf("Login/shadia#(0.635, 0.205, 0.909, 0.291).png")
+        ACT.ClickIf("Login/shadia#(0.635, 0.205, 0.909, 0.291).png", timeout=30)
         ACT.ClickIf("Login/play#(0.119, 0.755, 0.315, 0.813).png")
         while not bool(ACT.LoreBook):
             time.sleep(0.05)

@@ -1,4 +1,4 @@
-from dataclasses import dataclass
+from dataclasses import dataclass, replace
 import numpy as np
 import abc
 
@@ -27,7 +27,7 @@ class Resistances:
         return new_resist
 
     def __getitem__(self, key):
-        return max(
+        return min(
             self.values.get(key.lower(), 0.0) + self.values.get("all", 0.0),
             self.values.get("max", 4000),
         )
@@ -43,7 +43,7 @@ class Stats:  # skip main 6 stats, these are all the secondary stats....
     BONUS: float = 0.0
     BOOST: float = 0.0
     MPM: float = 0.0
-    BDP: float = 0.0
+    BPD: float = 0.0
     RESIST: Resistances = Resistances({})
     WPN_DMG: float = 0.0
     target: int = 0
@@ -51,15 +51,19 @@ class Stats:  # skip main 6 stats, these are all the secondary stats....
     _hit_damage: float = 0.0
     _crit_damage: float = 0.0
 
+    def clone(self):
+        return replace(self)
+
 
 # TODO: Make helper to calculate actual damage somewhere.....
 
 
 class Unit(abc.ABC):
-    def __init__(self, abilities, effects):
+    def __init__(self, abilities, effects, stats):
         super().__init__()
-        self.abilies = abilities
+        self.abilities = abilities
         self.effects = effects
+        self.stats = stats
 
 
 class Effect(abc.ABC):
@@ -72,17 +76,21 @@ class Effect(abc.ABC):
 
 
 class Ability(abc.ABC):
-    name = ""
+    hits = 1
+    hit_dmg = 1
+    cd = 0
 
     def set_id(self, id):
         self.id = id
+        if self.free_action:
+            self.cd = max(self.cd, 1)
         return id
 
-    def pre_atk(self, node: SimulatorNode, idx):  # used for instant things like change precense
+    def pre_atk(self, node, idx, target_idx):  # used for instant things like change precense
         return [node]
 
-    def on_hit(self, node: SimulatorNode, idx):
+    def on_hit(self, node, idx, target_idx):
         return node
 
-    def post_atk(self, node: SimulatorNode, idx):
+    def post_atk(self, node, idx, target_idx):
         return [node]
