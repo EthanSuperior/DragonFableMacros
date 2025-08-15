@@ -35,6 +35,13 @@ class Resistances:
 
 @dataclass
 class Stats:  # skip main 6 stats, these are all the secondary stats....
+    STR: int = 0
+    DEX: int = 0
+    INT: int = 0
+    CHA: int = 0
+    LUK: int = 0
+    END: int = 0
+    WIS: int = 0
     MaxHP: int = 0
     MinHP: int = 0  # used for boss stages
     MinHPDirect: int = 0  # used for deathproof and boss stages
@@ -52,6 +59,7 @@ class Stats:  # skip main 6 stats, these are all the secondary stats....
     crit_mult: float = 0.0
     dex_mult: float = 0.0
     dot_mult: float = 0.0
+    bonus_base: float = 0.0
     _hit_damage: float = 0.0
     _crit_damage: float = 0.0
 
@@ -59,24 +67,28 @@ class Stats:  # skip main 6 stats, these are all the secondary stats....
         return replace(self)
 
     @classmethod
-    def fromMain(
-        cls, STR: int, DEX: int, INT: int, CHA: int, LUK: int, END: int, WIS: int, LVL: int = None
-    ):
+    def fromMain(cls, STR, DEX, INT, CHA, LUK, END, WIS, LVL: int = None):
         return cls(
+            STR=STR,
+            DEX=DEX,
+            INT=INT,
+            CHA=CHA,
+            LUK=LUK,
+            END=END,
+            WIS=WIS,
             WPN_DMG=max(STR, DEX, INT) // 10,
-            non_crit_mult=STR * 3 / 2000,
-            dex_mult=DEX / 4000,
-            dot_mult=DEX / 400,
-            crit_mult=INT / 1000,
-            pet_dmg=CHA // 10,
-            pet_cdr=min(CHA // 50, 4),
+            non_crit_mult=(STR * 3 / 2000) + (1 if LVL else 0),
+            dex_mult=(DEX / 4000) + (1 if LVL else 0),
+            dot_mult=(DEX / 400) + (1 if LVL else 0),
+            crit_mult=(INT / 1000) + (1.75 if LVL else 0),
+            # pet_dmg=CHA // 10,
+            # pet_cdr=min(CHA // 50, 4),
             CRIT=(LUK // 10) + (5 if LVL else 0),
             MPM=(LUK // 10) + (5 if LVL else 0),
             BPD=LUK // 10,
-            trinket_cdr=min(LUK // 50, 4),
-            MaxHP=(END * 5) + (5 if LVL else 0),
+            MaxHP=(END * 5) + (((20 * (LVL - 1)) + 100) if LVL else 0),
             RESIST=Resistances({"immobility": END // 5, "health": -(WIS // 20)}),
-            MaxMP=(WIS * 5) + (5 if LVL else 0),
+            MaxMP=(WIS * 5) + (((5 * (LVL - 1)) + 100) if LVL else 0),
             BONUS=WIS // 10,
         )
 

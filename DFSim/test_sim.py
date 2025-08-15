@@ -1,5 +1,6 @@
 from BattleSim.data import Effect, Stats, Ability, Unit
 from BattleSim.simulator import Simulator, SimulatorNode, NodeInfo
+from BattleSim.custom import DeathKnight
 
 
 # --- Test Abilities ---
@@ -8,7 +9,7 @@ class GuaranteedHit(Ability):
         self.free_action = False
         self.extra_turn = False
         self.hits = 1
-        self.hit_dmg = .4
+        self.hit_dmg = 0.4
 
 
 class BossAtk(Ability):
@@ -70,6 +71,8 @@ class TestBoss(Unit):
 player = TestPlayer(hp=50, dmg=5)
 boss = TestBoss(hp=50, dmg=6)
 
+DeathKnight([0, 0, 0, 0, 0, 0, 0], Stats(), None, [])
+exit()
 # --- Run simulation ---
 sim = Simulator(player, None, boss)  # pet=None
 best_path = sim.run()
